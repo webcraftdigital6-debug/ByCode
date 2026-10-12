@@ -35,9 +35,10 @@ async function validateMathFunctions(
   const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
-    if (single >= 3 && rounded >= 2 && count <= 12)
-      stars = 3; // 4 строки: печать + функция (+ округление)
-    else if (count <= 16) stars = 2;
+    // 11 блоков, если числа вписаны в теневые слоты, и 14, если числа —
+    // отдельные блоки «число» (оба варианта считаются оптимальными)
+    if (single >= 3 && rounded >= 2 && count <= 14) stars = 3;
+    else if (count <= 20) stars = 2;
     else stars = 1;
   }
   return { ok, stars };
@@ -61,9 +62,10 @@ async function validateMathRoundClamp(
   const count = countNonShadowBlocks(ws);
   let stars = 0;
   if (ok) {
-    if (rounded >= 4 && clamped >= 2 && count <= 13)
-      stars = 3; // 6 печатей + 4 округления + 2 ограничения
-    else if (count <= 17) stars = 2;
+    // 12 блоков с теневыми числами и 16, если четыре числа для «округлить»
+    // вынесены в отдельные блоки; 22 — все числа настоящими блоками
+    if (rounded >= 4 && clamped >= 2 && count <= 16) stars = 3;
+    else if (count <= 24) stars = 2;
     else stars = 1;
   }
   return { ok, stars };

@@ -145,6 +145,16 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
           {
             kind: "block",
             type: "math_single",
+            inputs: {
+              NUM: {
+                shadow: {
+                  type: "math_number",
+                  fields: {
+                    NUM: 1,
+                  },
+                },
+              },
+            },
           },
           {
             kind: "block",
@@ -175,6 +185,16 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
           {
             kind: "block",
             type: "math_round",
+            inputs: {
+              NUM: {
+                shadow: {
+                  type: "math_number",
+                  fields: {
+                    NUM: 1,
+                  },
+                },
+              },
+            },
           },
           {
             kind: "block",
