@@ -438,6 +438,7 @@ export const conditionsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную temperature и присвойте ей число больше нуля (например, 25).\n2. В категории «Логика» возьмите блок «если».\n3. В условие блока вложите сравнение: блок «>» из «Логика» — влево переменную temperature, вправо число 0.\n4. Внутрь блока «если» вложите «Вывести … цвет …» с фразой The weather is warm и нажмите «▶», затем «Проверить решение»."
         : "Step by step:\n1. Create a variable temperature and set it to a number greater than zero (e.g. 25).\n2. In the Logic category take the “if” block.\n3. Put a comparison in the condition: a “>” block from Logic — temperature on the left, 0 on the right.\n4. Put “Print … color …” with the phrase The weather is warm inside the “if” block, press “▶”, then “Check solution”.",
+    infoTopics: ["if_else"],
     validate: validateFirstCondition,
   },
   even_or_odd: {
@@ -452,6 +453,7 @@ export const conditionsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную number и присвойте ей целое число.\n2. Возьмите блок «если … иначе» из «Логика» (нажмите шестерёнку и добавьте «иначе»).\n3. Условие чётности: из «Математики» блок «остаток от … ÷ …» (number ÷ 2) и сравнение равно 0 из «Логика». Или блок «нечётное?/чётное?» из «Математики».\n4. В ветку «если» вложите «Вывести … цвет …» с «The number is even», в «иначе» — с «The number is odd»."
         : "Step by step:\n1. Create a variable number and set it to any integer.\n2. Take the “if … else” block from Logic (click the gear and add “else”).\n3. Even check: “remainder of … ÷ …” (number ÷ 2) from Math compared to 0 with “=” from Logic, or the “is even” block from Math.\n4. Put “Print … color …” with “The number is even” in the if branch and “The number is odd” in the else branch.",
+    infoTopics: ["if_else"],
     validate: validateEvenOrOdd,
   },
   time_of_day: {
@@ -466,6 +468,7 @@ export const conditionsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную hour и присвойте ей число от 0 до 23 (например, 9).\n2. Возьмите блок «если» из «Логика», нажмите шестерёнку и добавьте два «иначе если» и один «иначе».\n3. Проверка диапазона: блок «и» из «Логика» объединяет два сравнения — «hour ≥ 6» и «hour ≤ 11». Аналогично для 12..17 и 18..22.\n4. В каждую ветку вставьте «Вывести … цвет …»: «Good morning!», «Good afternoon!», «Good evening!», в «иначе» — «Good night!».\n5. Запустите код и проверьте вывод."
         : "Step by step:\n1. Create a variable hour and set it to a number from 0 to 23 (e.g. 9).\n2. Take the “if” block from Logic, click the gear and add two “else if” and one “else”.\n3. Range check: the “and” block from Logic combines two comparisons — “hour ≥ 6” and “hour ≤ 11”. The same for 12..17 and 18..22.\n4. Put “Print … color …” in each branch: “Good morning!”, “Good afternoon!”, “Good evening!”, and “Good night!” in else.\n5. Run the code and check the output.",
+    infoTopics: ["boolean_logic"],
     validate: validateTimeOfDay,
   },
   logic_and_or_not: {

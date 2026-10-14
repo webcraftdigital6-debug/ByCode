@@ -248,6 +248,7 @@ export const advancedTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную number и присвойте ей любое целое число (например, 7 или -4).\n2. Чётность: блок «если/иначе» из «Логика» с условием «остаток от number ÷ 2 = 0» → в ветках «The number is even» / «The number is odd».\n3. Знак: второй блок «если/иначе если/иначе» — сравнение number > 0 → «The number is positive», number < 0 → «The number is negative», иначе → «The number is zero».\n4. Каждая строка выводится через «Вывести … цвет …»."
         : "Step by step:\n1. Create a variable number and set it to any integer (e.g. 7 or -4).\n2. Parity: an “if/else” block from Logic with condition “remainder of number ÷ 2 = 0” → branches print “The number is even” / “The number is odd”.\n3. Sign: a second “if/else if/else” — compare number > 0 → “The number is positive”, number < 0 → “The number is negative”, else → “The number is zero”.\n4. Each line is printed with “Print … color …”.",
+    infoTopics: ["console_output"],
     validate: validateNumberAnalyzer,
   },
   sum_array: {
@@ -262,6 +263,7 @@ export const advancedTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5» (блок из «Списки»).\n2. В «Математика» возьмите блок «сумма списка», в его поле вложите переменную list — он сразу посчитает сумму всех элементов.\n3. Присвойте результат переменной sum.\n4. Выведите sum через «Вывести … цвет …» — получится 15."
         : "Step by step:\n1. Create a variable list with “create list with 1 2 3 4 5” (a Lists block).\n2. In Math take the “sum of list” block and put variable list inside — it computes the sum of all items right away.\n3. Assign the result to variable sum.\n4. Print sum with “Print … color …” — it becomes 15.",
+    infoTopics: ["console_output"],
     validate: validateSumArray,
   },
   min_max: {
@@ -276,6 +278,7 @@ export const advancedTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 5 1 9 3 7» (блок из «Списки»).\n2. В «Математика» возьмите блок «сумма списка» и в выпадающем списке дважды создайте копии: выберите «наименьшее в списке» и «наибольшее в списке», вложив в обе переменную list.\n3. Присвойте результаты переменным min и max.\n4. Выведите через «Вывести … цвет …»: min=1 и max=9 (в одну строку или в две)."
         : "Step by step:\n1. Create a variable list with “create list with 5 1 9 3 7” (a Lists block).\n2. In Math take the “math on list” block and make two copies via the dropdown: choose “minimum of list” and “maximum of list”, putting variable list into both.\n3. Assign the results to variables min and max.\n4. Print with “Print … color …”: min=1 and max=9 (one or two lines).",
+    infoTopics: ["console_output"],
     validate: validateMinMax,
   },
   char_freq: {

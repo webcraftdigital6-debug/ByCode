@@ -651,6 +651,7 @@ export const loopsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. В категории «Циклы» возьмите блок «цикл по i от … до … с шагом …».\n2. Впишите границы: от 0 до 10, шаг 1.\n3. Внутрь цикла вложите «Вывести … цвет …» и перетащите в него переменную i из «Переменные».\n4. Запустите код — в выводе появятся числа от 0 до 10 (каждое с новой строки). Нажмите «Проверить решение»."
         : "Step by step:\n1. In the Loops category take the “count with i from … to … by …” block.\n2. Set the bounds: from 0 to 10, step 1.\n3. Put “Print … color …” inside the loop and drag the variable i from Variables into it.\n4. Run the code — the numbers 0 through 10 appear in the output. Press “Check solution”.",
+    infoTopics: ["for_loop"],
     validate: validateFirstLoop,
   },
   sum_1_to_n: {
@@ -665,6 +666,7 @@ export const loopsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную n и присвойте ей число (например, 5 или 10).\n2. Создайте переменную-аккумулятор sum и присвойте ей 0.\n3. Возьмите блок «цикл по i от … до … с шагом …», впишите от 1 до n, шаг 1.\n4. Внутри цикла вложите «увеличить sum на i» (блок «увеличить … на …» из «Математика» с переменной i в качестве приращения).\n5. После цикла вложите sum в «Вывести … цвет …»: при n=5 получится 15, при n=10 — 55."
         : "Step by step:\n1. Create a variable n and set it to a number (e.g. 5 or 10).\n2. Create an accumulator variable sum and set it to 0.\n3. Take the “count with i from … to … by …” loop, from 1 to n, step 1.\n4. Inside the loop put “change sum by i” (the “change … by …” block from Math with variable i as the delta).\n5. After the loop put sum into “Print … color …”: n=5 gives 15, n=10 gives 55.",
+    infoTopics: ["for_loop"],
     validate: validateSum1ToN,
   },
   guess_game: {
@@ -680,6 +682,7 @@ export const loopsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную secret и присвойте ей число от 1 до 10.\n2. Создайте переменную guess. Используйте блок «Ввод числа» из «Текст», чтобы спросить число у пользователя, и присвойте результат guess.\n3. Возьмите блок «повторять, пока …» из «Циклы» с условием «guess ≠ secret».\n4. Внутри цикла: блок «если / иначе если / иначе» (шестерёнка → добавить секции) — если guess < secret вывести «Загаданное число больше!», если guess > secret — «Загаданное число меньше!», иначе — «Поздравляем! Вы угадали число!».\n5. В ветках «меньше/больше» запрашивайте новую догадку через «Ввод числа»."
         : "Step by step:\n1. Create variable secret and set it to a number from 1 to 10.\n2. Create variable guess. Use the “numeric input” block from Text to ask the user for a number and assign it to guess.\n3. Take the “repeat while …” block from Loops with condition “guess ≠ secret”.\n4. Inside the loop: an “if / else if / else” block (gear → add sections) — if guess < secret print “The secret number is higher!”, if guess > secret print “The secret number is lower!”, else print “Congratulations! You guessed the number!”.\n5. In the lower/higher branches ask for a new guess via “numeric input”.",
+    infoTopics: ["while_until"],
     validate: validateGuessGame,
   },
   mult_table: {

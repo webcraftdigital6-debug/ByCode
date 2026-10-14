@@ -88,65 +88,11 @@ export function setActiveTask(taskId: TaskId) {
     nextButton.disabled = nextId === null ? true : !FREE_TASK_NAV && !isSolved(getActiveTask());
   if (prevButton) prevButton.disabled = getPrevTaskId(getActiveTask()) === null;
 
-  const consoleInfo = document.getElementById("consoleOutputInfoSection") as HTMLDivElement | null;
-  const forLoopInfo = document.getElementById("forLoopInfoSection") as HTMLDivElement | null;
-  const whileLoopInfo = document.getElementById("whileLoopInfoSection") as HTMLDivElement | null;
-  const listInfo = document.getElementById("listInfoSection") as HTMLDivElement | null;
-  const sublistInfo = document.getElementById("sublistInfoSection") as HTMLDivElement | null;
-  const listFilterInfo = document.getElementById("listFilterInfoSection") as HTMLDivElement | null;
-  const dataTypesInfo = document.getElementById("dataTypesInfoSection") as HTMLDivElement | null;
-  const variableInfo = document.getElementById("variableInfoSection") as HTMLDivElement | null;
-  const concatInfo = document.getElementById("concatInfoSection") as HTMLDivElement | null;
-  const incDecInfo = document.getElementById("incDecInfoSection") as HTMLDivElement | null;
-  const conditionInfo = document.getElementById("conditionInfoSection") as HTMLDivElement | null;
-  const logicalOpsInfo = document.getElementById("logicalOpsInfoSection") as HTMLDivElement | null;
-  // Справочник тем (ui/glossary.ts): рендерится под условием, если у
-  // задачи заданы infoTopics; сам контейнер скрывает себя при пустом списке
+  // Справочник тем (ui/glossary.ts): рендерится под условием задачи из
+  // поля infoTopics. У каждой задачи тема есть, поэтому отдельная
+  // захардкоженная секция «вывод в консоль» в index.html больше не нужен.
   const glossaryInfo = document.getElementById("glossaryInfoSection") as HTMLDivElement | null;
   if (glossaryInfo) mountGlossaryForTask(glossaryInfo, getActiveTask());
-  const hasGlossary = (tdef.infoTopics?.length ?? 0) > 0;
-  const showDataTypes = getActiveTask() === "add_2_7";
-  const showVariableInfo = getActiveTask() === "var_my_age" || getActiveTask() === "calc_sum";
-  const showConcatInfo = getActiveTask() === "greet_concat";
-  const showIncDecInfo = getActiveTask() === "inc_counter";
-  const showForLoopInfo = getActiveTask() === "first_loop" || getActiveTask() === "sum_1_to_n";
-  const showWhileLoopInfo = getActiveTask() === "guess_game";
-  const showListInfo = getActiveTask() === "list_foreach";
-  const showSublistInfo = getActiveTask() === "sublist_foreach";
-  const showListFilterInfo =
-    getActiveTask() === "list_filter_even" ||
-    getActiveTask() === "list_filter_even_min_max" ||
-    getActiveTask() === "list_filter_even_avg" ||
-    getActiveTask() === "list_filter_even_median" ||
-    getActiveTask() === "list_sum_even_positions";
-  const showConditionInfo =
-    getActiveTask() === "even_or_odd" || getActiveTask() === "first_condition";
-  const showLogicalOpsInfo = getActiveTask() === "time_of_day";
-  const showConsole =
-    !hasGlossary &&
-    !showDataTypes &&
-    !showVariableInfo &&
-    !showConcatInfo &&
-    !showIncDecInfo &&
-    !showForLoopInfo &&
-    !showWhileLoopInfo &&
-    !showListInfo &&
-    !showSublistInfo &&
-    !showListFilterInfo &&
-    !showConditionInfo &&
-    !showLogicalOpsInfo;
-  if (consoleInfo) consoleInfo.style.display = showConsole ? "" : "none";
-  if (forLoopInfo) forLoopInfo.style.display = showForLoopInfo ? "" : "none";
-  if (whileLoopInfo) whileLoopInfo.style.display = showWhileLoopInfo ? "" : "none";
-  if (listInfo) listInfo.style.display = showListInfo ? "" : "none";
-  if (sublistInfo) sublistInfo.style.display = showSublistInfo ? "" : "none";
-  if (listFilterInfo) listFilterInfo.style.display = showListFilterInfo ? "" : "none";
-  if (dataTypesInfo) dataTypesInfo.style.display = showDataTypes ? "" : "none";
-  if (variableInfo) variableInfo.style.display = showVariableInfo ? "" : "none";
-  if (concatInfo) concatInfo.style.display = showConcatInfo ? "" : "none";
-  if (incDecInfo) incDecInfo.style.display = showIncDecInfo ? "" : "none";
-  if (conditionInfo) conditionInfo.style.display = showConditionInfo ? "" : "none";
-  if (logicalOpsInfo) logicalOpsInfo.style.display = showLogicalOpsInfo ? "" : "none";
   // «Найди ошибку»: в пустое поле подкладываем сломанную программу
   if (tdef.kind === "fix") loadStarter(tdef);
 }

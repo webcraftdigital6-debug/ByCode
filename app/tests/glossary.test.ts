@@ -2,11 +2,13 @@
  * Тесты справочника тем (ui/glossary.ts).
  *
  * Инварианты: каждая тема рендерит примеры на четырёх языках, каждая тема
- * привязана хотя бы к одной задаче через infoTopics,
- * setActiveTask показывает/скрывает контейнер справочника и
- * подавляет fallback-секцию «вывод в консоль» при активной теме.
+ * привязана хотя бы к одной задаче через infoTopics, каждая задача открывает
+ * хотя бы одну тему, setActiveTask рендерит справочник под условием задачи,
+ * а в index.html не остаётся старых захардкоженных info-секций.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 const state = vi.hoisted(() => ({ lang: "ru" as "ru" | "en" }));
 vi.mock("../src/localization", () => ({
@@ -24,9 +26,23 @@ import { setActiveTask, tasks } from "../src/tasks";
 const ALL_TOPICS: GlossaryTopicId[] = GLOSSARY_TOPICS;
 const LANGS = ["JavaScript", "Python", "Lua", "PHP"];
 
-const SIDEBAR_HTML = `
-  <div id="consoleOutputInfoSection" class="console-output-info"></div>
-  <div id="glossaryInfoSection" style="display:none;"></div>`;
+const SIDEBAR_HTML = `<div id="glossaryInfoSection" style="display:none;"></div>`;
+
+/** Секции, которые перенесены в справочник и не должны вернуться в разметку. */
+const LEGACY_SECTIONS = [
+  "consoleOutputInfoSection",
+  "forLoopInfoSection",
+  "whileLoopInfoSection",
+  "listInfoSection",
+  "sublistInfoSection",
+  "listFilterInfoSection",
+  "dataTypesInfoSection",
+  "variableInfoSection",
+  "concatInfoSection",
+  "incDecInfoSection",
+  "conditionInfoSection",
+  "logicalOpsInfoSection",
+];
 
 beforeEach(() => {
   state.lang = "ru";
@@ -89,6 +105,22 @@ describe("привязка тем к задачам", () => {
     ["list_grid", "nested_lists"],
     ["function_predicate", "predicate_functions"],
     ["char_freq", "dict"],
+    ["hello_world", "console_output"],
+    ["add_2_7", "data_types"],
+    ["greet_concat", "string_concat"],
+    ["var_my_age", "variable"],
+    ["calc_sum", "variable"],
+    ["inc_counter", "inc_dec"],
+    ["first_condition", "if_else"],
+    ["even_or_odd", "if_else"],
+    ["time_of_day", "boolean_logic"],
+    ["first_loop", "for_loop"],
+    ["sum_1_to_n", "for_loop"],
+    ["guess_game", "while_until"],
+    ["list_foreach", "list_foreach"],
+    ["sublist_foreach", "list_sublist"],
+    ["list_filter_even", "list_filter"],
+    ["list_sum_even_positions", "list_filter"],
   ];
   for (const [taskId, topic] of expected) {
     it(`${taskId} → ${topic}`, () => {
@@ -102,6 +134,32 @@ describe("привязка тем к задачам", () => {
       expect(used.has(topic), `тема ${topic} не открыта ни одной задачей`).toBe(true);
     }
   });
+
+  it("каждая задача открывает хотя бы одну тему", () => {
+    for (const [taskId, def] of Object.entries(tasks)) {
+      expect(
+        (def.infoTopics?.length ?? 0) > 0,
+        `задача ${taskId} осталась без справочника — старые info-секции больше не показываются`
+      ).toBe(true);
+      for (const topic of def.infoTopics ?? []) {
+        expect(GLOSSARY_TOPICS, `задача ${taskId}: тема ${topic} не существует`).toContain(topic);
+      }
+    }
+  });
+});
+
+describe("старые захардкоженные секции", () => {
+  const html = fs.readFileSync(
+    path.join(__dirname, "../src/index.html"),
+    "utf-8"
+  );
+
+  it("index.html больше не содержит per-задачных секций", () => {
+    for (const id of LEGACY_SECTIONS) {
+      expect(html, `в разметке осталась секция #${id}`).not.toContain(`id="${id}"`);
+    }
+    expect(html).toContain('id="glossaryInfoSection"');
+  });
 });
 
 describe("mountGlossaryForTask", () => {
@@ -113,32 +171,34 @@ describe("mountGlossaryForTask", () => {
     expect(el.innerHTML).toContain("JavaScript");
   });
 
-  it("скрывает контейнер и очищает его для задачи без тем", () => {
+  it("переключение задачи рендерит только её темы, без остатков прошлой", () => {
     const el = document.getElementById("glossaryInfoSection")!;
     mountGlossaryForTask(el, "first_function");
     mountGlossaryForTask(el, "hello_world");
-    expect(el.style.display).toBe("none");
-    expect(el.innerHTML).toBe("");
+    const rendered = Array.from(el.querySelectorAll("[data-glossary-topic]")).map(
+      (node) => (node as HTMLElement).dataset.glossaryTopic
+    );
+    expect(rendered).toEqual(["console_output"]);
+    expect(el.style.display).toBe("");
+    expect(el.textContent).toContain("Вывод в консоль");
   });
 });
 
 describe("setActiveTask и справочник", () => {
-  it("задача с темой: справочник виден, консольная заглушка скрыта", () => {
+  it("задача с темой: справочник виден под условием", () => {
     setActiveTask("mult_table");
     const glossary = document.getElementById("glossaryInfoSection")!;
-    const consoleSection = document.getElementById("consoleOutputInfoSection")!;
     expect(glossary.style.display).toBe("");
     expect(glossary.innerHTML).toContain("Вложенный цикл");
-    expect(consoleSection.style.display).toBe("none");
   });
 
-  it("темы не «переезжают» при переходе на задачу без справочника", () => {
+  it("темы не «переезжают» при переходе на другую задачу", () => {
     setActiveTask("first_even_break");
     expect(document.getElementById("glossaryInfoSection")!.innerHTML).toContain("break");
-    setActiveTask("hello_world");
+    setActiveTask("first_loop");
     const glossary = document.getElementById("glossaryInfoSection")!;
-    expect(glossary.innerHTML).toBe("");
-    expect(glossary.style.display).toBe("none");
-    expect(document.getElementById("consoleOutputInfoSection")!.style.display).toBe("");
+    expect(glossary.innerHTML).not.toContain("break");
+    expect(glossary.innerHTML).toContain("Цикл for со счётчиком");
+    expect(glossary.innerHTML).toContain("Слова в примере");
   });
 });

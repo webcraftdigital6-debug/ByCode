@@ -952,6 +952,7 @@ export const listsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5» (блок из «Списки»).\n2. Создайте переменную sum = 0.\n3. В «Циклы» возьмите «для каждого элемента i в списке …».\n4. В поле списка вложите переменную list.\n5. Внутри цикла: «Вывести … цвет …» с i и «увеличить sum на i».\n6. После цикла выведите sum — должно получиться 15."
         : "Step by step:\n1. Create a variable list and assign “create list with 1 2 3 4 5” (a Lists block) to it.\n2. Create variable sum = 0.\n3. Take “for each item i in list …” from Loops.\n4. Put variable list into the list slot.\n5. Inside the loop: “Print … color …” with i, and “change sum by i”.\n6. After the loop print sum — it should be 15.",
+    infoTopics: ["list_foreach"],
     validate: validateListForEach,
   },
   sublist_foreach: {
@@ -967,6 +968,7 @@ export const listsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5 6 7 8 9 10» (блок из «Списки»).\n2. Возьмите блок «взять подсписок с № … по № …» из «Списки» — укажите с 3 по 7, а в поле списка вложите переменную list.\n3. Присвойте результат переменной sub.\n4. Возьмите «для каждого элемента i в списке …» из «Циклы», в поле списка вложите переменную sub.\n5. Внутри цикла выводите i через «Вывести … цвет …» — появятся 3 4 5 6 7."
         : "Step by step:\n1. Create a variable list and assign “create list with 1 2 3 4 5 6 7 8 9 10” (a Lists block) to it.\n2. Take the “get sub-list from # … to # …” block from Lists — set 3 to 7, and put list into the list slot.\n3. Assign the result to variable sub.\n4. Take “for each item i in list …” from Loops, put variable sub into the list slot.\n5. Inside the loop print i with “Print … color …” — you get 3 4 5 6 7.",
+    infoTopics: ["list_sublist"],
     validate: validateSublistForEach,
   },
   list_filter_even: {
@@ -981,6 +983,7 @@ export const listsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 1 2 3 4 5 6 7 8 9 10», создайте sum = 0.\n2. Возьмите «для каждого элемента i в списке …» из «Циклы», в список вложите переменную list.\n3. Внутри цикла: блок «если» из «Логика».\n4. Условие чётности: «остаток от i ÷ 2» (Математика) равен 0 (Логика) — или блок «чётное?» из Математики.\n5. В ветку «если»: «Вывести … цвет …» с i и «увеличить sum на i».\n6. После цикла выведите sum — получится 30."
         : "Step by step:\n1. Create a variable list with “create list with 1 2 3 4 5 6 7 8 9 10”, and sum = 0.\n2. Take “for each item i in list …” from Loops, put variable list into it.\n3. Inside the loop: an “if” block from Logic.\n4. Even check: “remainder of i ÷ 2” (Math) equals 0 (Logic) — or the “is even” block from Math.\n5. In the if branch: “Print … color …” with i, and “change sum by i”.\n6. After the loop print sum — it becomes 30.",
+    infoTopics: ["list_filter"],
     validate: validateListFilterEven,
   },
   list_filter_even_min_max: {
@@ -996,6 +999,7 @@ export const listsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list со списком 1..10 и пустой список evens: «создать список из» (Списки) без элементов.\n2. «для каждого элемента i в списке …» по переменной list.\n3. Внутри: «если» с проверкой чётности i (остаток от i ÷ 2 равен 0 или «чётное?»).\n4. В ветку «если»: выведите i и блок «вставить в конец»: возьмите его из «Списки» (блок «вставить в …»), в поле списка — evens, а значением — i.\n5. После цикла: из «Математика» возьмите «сумма списка», в выпадающем списке выберите «наименьшее в списке», вложите evens и выведите как min=2.\n6. Вторым блоком выберите «наибольшее в списке» и выведите как max=10."
         : "Step by step:\n1. Create a variable list with 1..10 and an empty list evens: use “create list with” (Lists) with no items.\n2. “for each item i in list …” over the list variable.\n3. Inside: an “if” with the even check for i (remainder of i ÷ 2 equals 0 or “is even”).\n4. In the if branch: print i and add i to the end of evens (Lists → insert block, list slot = evens, value = i).\n5. After the loop: take “math on list” from Math, pick “minimum of list” in the dropdown, put evens in, and print it as min=2.\n6. Second block: pick “maximum of list” and print it as max=10.",
+    infoTopics: ["list_filter"],
     validate: validateListFilterEvenMinMax,
   },
   list_filter_even_avg: {
@@ -1011,6 +1015,7 @@ export const listsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list со списком 1..10, переменные sum = 0 и count = 0.\n2. «для каждого элемента i в списке …» по переменной list.\n3. Внутри: «если» с проверкой чётности i (остаток от i ÷ 2 равен 0).\n4. В ветку «если»: «увеличить sum на i» и «увеличить count на 1».\n5. После цикла: переменная avg = sum ÷ count (блок «+ − × ÷» из «Математика», операция ÷).\n6. Выведите три строки: «Вывести … цвет …» с результатами count=5, sum=30, avg=6."
         : "Step by step:\n1. Create a variable list with 1..10, and variables sum = 0, count = 0.\n2. “for each item i in list …” over the list variable.\n3. Inside: an “if” with the even check for i (remainder of i ÷ 2 equals 0).\n4. In the if branch: “change sum by i” and “change count by 1”.\n5. After the loop: variable avg = sum ÷ count (a “+ − × ÷” block from Math with ÷).\n6. Print three lines with “Print … color …”: count=5, sum=30, avg=6.",
+    infoTopics: ["list_filter"],
     validate: validateListFilterEvenAvg,
   },
   list_filter_even_median: {
@@ -1026,6 +1031,7 @@ export const listsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list со списком 1..10 и пустой список evens («создать список из» без элементов).\n2. «для каждого элемента i в списке …» по переменной list.\n3. Внутри: «если» с проверкой чётности i.\n4. В ветку «если»: вставьте i в конец evens (Списки → «вставить в» с полем evens и значением i).\n5. После цикла: count — блок «длина evens» (Списки). Выведите count=5.\n6. Средний элемент: блок «взять № …» (Списки) с индексом 3 в evens — это 6. Выведите median=6."
         : "Step by step:\n1. Create a variable list with 1..10 and an empty list evens (“create list with” with no items).\n2. “for each item i in list …” over the list variable.\n3. Inside: an “if” with the even check for i.\n4. In the if branch: insert i at the end of evens (Lists → “insert into” with evens and value i).\n5. After the loop: count — the “length of evens” block (Lists). Print count=5.\n6. Middle element: “get item # …” (Lists) with index 3 in evens — that is 6. Print median=6.",
+    infoTopics: ["list_filter"],
     validate: validateListFilterEvenMedian,
   },
   list_sum_even_positions: {
@@ -1041,6 +1047,7 @@ export const listsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную list и присвойте ей «создать список из 10 1 8 2 7 3 6 4 5 9», создайте sum = 0.\n2. Возьмите «цикл по i от … до … с шагом …» из «Циклы» (от 1 до 10, шаг 1).\n3. Внутри: «если» с проверкой «i чётное» (блок «остаток от i ÷ 2» из «Математика» равен 0 из «Логика» или блок «чётное?»).\n4. В ветку «если»: возьмите элемент — «№ …» (Списки) с номером i в списке list, и прибавьте к sum («увеличить sum на …»).\n5. После цикла выведите «Вывести … цвет …» результат — получится sum=19."
         : "Step by step:\n1. Create a variable list with “create list with 10 1 8 2 7 3 6 4 5 9”, and sum = 0.\n2. Take “count with i from … to … by …” from Loops (1 to 10, step 1).\n3. Inside: an “if” checking “i is even” (remainder of i ÷ 2 from Math equals 0 from Logic, or the “is even” block).\n4. In the if branch: get the element — “item # …” (Lists) with number i in list, and add it to sum (“change sum by …”).\n5. After the loop print the result with “Print … color …” — it becomes sum=19.",
+    infoTopics: ["list_filter"],
     validate: validateListSumEvenPositions,
   },
   list_sort_min_max: {

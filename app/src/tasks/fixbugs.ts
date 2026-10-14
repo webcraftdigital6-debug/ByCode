@@ -373,6 +373,7 @@ export const fixbugsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Запустите код: в выводе 13 вместо 42.\n13 — это 6 + 7, а площадь считается умножением.\n2. Найдите блок вычисления (с синим полем «+»).\n3. Откройте выпадающий список в этом блоке и выберите «×».\n4. Запустите снова — в выводе 42. Проверяйте решение."
         : "Step by step:\n1. Run the code: the output shows 13 instead of 42. 13 is 6 + 7, but area is computed by multiplication.\n2. Find the computation block (the one with the “+” field).\n3. Open its dropdown and pick “×”.\n4. Run again — the output shows 42. Check your solution.",
+    infoTopics: ["console_output"],
     validate: validateFbArea,
   },
   fb_join: {
@@ -412,6 +413,7 @@ export const fixbugsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Запустите код: для 8 печатается «odd» — это неверно.\n2. Чётное число — то, которое при делении на 2 даёт остаток 0.\n3. Найдите блок сравнения «… = 1» справа от остатка от деления.\n4. Замените 1 на 0 в поле сравнения.\n5. Запустите снова — в выводе «even». Проверяйте."
         : "Step by step:\n1. Run the code: for 8 it prints “odd” — wrong.\n2. An even number leaves remainder 0 when divided by 2.\n3. Find the comparison block “… = 1” next to the modulo block.\n4. Change 1 to 0 in the comparison field.\n5. Run again — the output shows “even”. Check your solution.",
+    infoTopics: ["console_output"],
     validate: validateFbParity,
   },
   fb_loop: {
@@ -431,6 +433,7 @@ export const fixbugsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Запустите код: вывод обрывается на 9 — десятки не хватает.\n2. Посмотрите блок цикла: «повторять для i от 1 до …».\n3. В поле «до» стоит 9, а нужно 10 (цикл включает верхнюю границу).\n4. Исправьте 9 на 10 и запустите снова — в выводе числа 1..10. Проверяйте."
         : "Step by step:\n1. Run the code: the output stops at 9 — 10 is missing.\n2. Look at the loop block: “count with i from 1 to …”.\n3. The “to” field says 9, but it must be 10 (the loop includes its upper bound).\n4. Change 9 to 10 and run again — the output shows 1..10. Check your solution.",
+    infoTopics: ["console_output"],
     validate: validateFbLoop,
   },
   fb_list: {
@@ -450,6 +453,7 @@ export const fixbugsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Запустите код: печатает 1, 3, 5 — а нужны 2, 4, 6.\n2. Условие отбора: «остаток от деления item на 2 = 1» — это нечётные числа.\n3. Чётное число даёт остаток 0.\n4. Замените 1 на 0 в блоке сравнения.\n5. Запустите снова — в выводе 2, 4, 6. Проверяйте."
         : "Step by step:\n1. Run the code: it prints 1, 3, 5 — but 2, 4, 6 are needed.\n2. The filter reads “item mod 2 = 1” — that selects odd numbers.\n3. Even numbers have remainder 0.\n4. Change 1 to 0 in the comparison block.\n5. Run again — the output shows 2, 4, 6. Check your solution.",
+    infoTopics: ["console_output"],
     validate: validateFbList,
   },
   fb_double: {
@@ -469,6 +473,7 @@ export const fixbugsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Запустите код: double(5) возвращает 6 — это 5 + 1.\n2. «Удвоить» — значит умножить на 2.\n3. В блоке «возврат …» найдите блок «+» и замените операцию на «×».\n4. Число 1 в втором поле замените на 2.\n5. Запустите снова — в выводе 10. Проверяйте."
         : "Step by step:\n1. Run the code: double(5) returns 6 — that is 5 + 1.\n2. “Double” means multiply by 2.\n3. Inside the “return” block find the “+” block and switch the operation to “×”.\n4. Replace the 1 in the second field with 2.\n5. Run again — the output shows 10. Check your solution.",
+    infoTopics: ["console_output"],
     validate: validateFbDouble,
   },
 };

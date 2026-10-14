@@ -3,9 +3,9 @@
  * на четырёх поддерживаемых языках (JavaScript, Python, Lua, PHP).
  *
  * Тема привязывается к задаче через поле `infoTopics` (см. tasks/types.ts)
- * и рендерится под условием задачи в контейнере #glossaryInfoSection —
- * там же, где живут старые захардкоженные info-секции. Новые темы
- * добавляются сюда как данные, а не как разметка в index.html.
+ * и рендерится под условием задачи в контейнере #glossaryInfoSection.
+ * Темы — единственный источник таких справок: старые захардкоженные
+ * секции в index.html перенесены сюда, а новые добавляются как данные.
  */
 
 import { getAppLang } from "../localization";
@@ -13,6 +13,15 @@ import type { TaskId } from "../tasks/types";
 import { tasks } from "../tasks/registry";
 
 export type GlossaryTopicId =
+  | "console_output"
+  | "data_types"
+  | "variable"
+  | "inc_dec"
+  | "if_else"
+  | "for_loop"
+  | "list_foreach"
+  | "list_sublist"
+  | "list_filter"
   | "functions"
   | "nested_loops"
   | "break_continue"
@@ -83,6 +92,86 @@ export type KeywordNote = { term: string; ru: string; en: string };
  * tests/glossary_keywords.test.ts.
  */
 const TOPIC_KEYWORDS: Record<GlossaryTopicId, KeywordNote[]> = {
+  console_output: [
+    { term: "console.log", ru: "JavaScript: напечатать строку в окно вывода", en: "JavaScript: print a line into the output panel" },
+    { term: "print", ru: "Python и Lua: та же команда печати", en: "Python and Lua: the same printing command" },
+    { term: "echo", ru: "PHP: выводит текст, сам перенос строки он не добавляет", en: "PHP: prints text but does not add the line break itself" },
+    { term: "PHP_EOL", ru: "PHP: знак переноса строки — без него вывод слипнется в одну линию", en: "PHP: the line break symbol — without it the output runs into one line" },
+    { term: "${score}", ru: "JS: шаблонная строка — внутри фигурных скобок подставляется значение переменной", en: "JS: a template string — the braces hold the value that gets substituted in" },
+    { term: "f\"", ru: "Python: f-строка — тот же приём, буква f перед кавычками", en: "Python: an f-string — the same trick, the letter f in front of the quotes" },
+    { term: "string.format", ru: "Lua: текст с %d, куда вставляется число", en: "Lua: a text template with %d where the number is dropped in" },
+  ],
+  data_types: [
+    { term: "\"Hi\"", ru: "кавычки означают «это текст»: без них программа ищет переменную с таким именем", en: "the quotes mean “this is text”: without them the program looks for a variable of that name" },
+    { term: "3.14", ru: "дробное число: точка отделяет целую часть, кавычки не нужны", en: "a decimal number: the dot splits the whole part, no quotes needed" },
+    { term: "true / True", ru: "логическое «да»; в Python с большой буквы", en: "the boolean “yes”; capitalised in Python" },
+    { term: "console.log / print / echo", ru: "команда печати того, что получилось", en: "the command that prints whatever you gave it" },
+    { term: "var_dump", ru: "PHP: печатает и значение, и его тип — видно, число это или строка", en: "PHP: prints the value and its type, so you see whether it is a number or text" },
+    { term: "local", ru: "Lua: так объявляют переменную перед использованием", en: "Lua: how you declare a variable before using it" },
+  ],
+  variable: [
+    { term: "let", ru: "JS: создать переменную, значение которой можно менять", en: "JS: create a variable whose value may change" },
+    { term: "const", ru: "JS: переменная-константа: один раз задали, дальше только читаем", en: "JS: a constant: you set it once and only read it afterwards" },
+    { term: "local", ru: "Lua: своё слово для объявления переменной", en: "Lua: its own word for declaring a variable" },
+    { term: "$", ru: "PHP: имя переменной всегда начинается с доллара", en: "PHP: a variable name always starts with a dollar sign" },
+    { term: "=", ru: "присваивание: справа значение, слева имя, которое его запоминает", en: "assignment: the value on the right, the name that remembers it on the left" },
+    { term: "myAge", ru: "имя переменной: регистр важен, myAge и myage — разные переменные", en: "the variable name: letter case matters, myAge and myage are two different variables" },
+  ],
+  inc_dec: [
+    { term: "+=", ru: "короткая запись «увеличить эту же переменную на …»", en: "the short form of “raise this very variable by …”" },
+    { term: "-=", ru: "то же самое для уменьшения", en: "the same short form for making it smaller" },
+    { term: "++", ru: "JS и PHP: увеличить ровно на 1", en: "JS and PHP: increase by exactly 1" },
+    { term: "--", ru: "JS и PHP: уменьшить ровно на 1", en: "JS and PHP: decrease by exactly 1" },
+    { term: "score = score + 1", ru: "полная запись инкремента: берём старое значение, прибавляем, сохраняем обратно", en: "the long form of increment: read the old value, add one, store it back" },
+    { term: "local", ru: "в Lua коротких += нет, а переменную объявляют до счёта", en: "Lua has no short += , and the variable is declared before counting" },
+  ],
+  if_else: [
+    { term: "if", ru: "спросить условие: выполнить ветку, только если условие истинно", en: "ask a question: run the branch only when the condition is true" },
+    { term: "else", ru: "ветка «иначе»: что делать, если условие не сработало", en: "the “otherwise” branch: what to do when the condition fails" },
+    { term: "then", ru: "Lua: слово между условием и его телом", en: "Lua: the word between the condition and its body" },
+    { term: "end", ru: "Lua: чем закрывают ветку; в Python и PHP вместо него отступ и скобки", en: "Lua: closes the branch; Python uses indentation and PHP uses braces instead" },
+    { term: ">=", ru: "больше или равно: граница тоже подходит", en: "greater or equal: the boundary value counts too" },
+    { term: "const", ru: "JS: проверять будем значение константы — менять её внутри условия не нужно", en: "JS: the check reads a constant’s value — nothing changes it inside the branch" },
+  ],
+  for_loop: [
+    { term: "for", ru: "цикл: повторяет тело для каждого значения счётчика", en: "the loop: repeats its body for every counter value" },
+    { term: "let", ru: "JS: объявляет счётчик, который цикл меняет сам", en: "JS: declares the counter that the loop changes for you" },
+    { term: "<=", ru: "граница «включительно»: счётчик доходит ровно до пяти", en: "the inclusive bound: the counter really reaches five" },
+    { term: "range", ru: "Python: список чисел от начала до конца, правая граница не входит", en: "Python: the numbers from start to end, the right bound excluded" },
+    { term: "+=", ru: "шаг счётчика: на сколько увеличивать каждый повтор", en: "the counter step: how much to add on each repetition" },
+    { term: "++", ru: "PHP: то же увеличение на 1, записанное короче", en: "PHP: the same +1, written shorter" },
+    { term: "do", ru: "Lua: после do идёт тело цикла, end его закрывает", en: "Lua: the loop body sits between do and end" },
+  ],
+  list_foreach: [
+    { term: "forEach", ru: "JS: перебрать список, выполняя функцию для каждого элемента", en: "JS: walk the list, running a function for every item" },
+    { term: "for", ru: "Python и Lua: цикл, который берёт элементы по одному", en: "Python and Lua: the loop that takes the items one at a time" },
+    { term: "in", ru: "«брать по одному из»: for i in list", en: "“take one out of”: for i in list" },
+    { term: "as", ru: "PHP: foreach (список as $i) — текущий элемент", en: "PHP: foreach (list as $i) — the item of this step" },
+    { term: "ipairs", ru: "Lua: так идут по списку; прочерк слева — ненужный номер элемента", en: "Lua: walks the list; the underscore on the left is the unused position number" },
+    { term: "_", ru: "имя, которое не используют: важен элемент, а не его номер", en: "a name you never use: the item matters, not its position" },
+    { term: "=>", ru: "JS: стрелкой записывают тело перебора прямо на месте", en: "JS: the arrow writes the loop body right where it is needed" },
+    { term: "sum", ru: "переменная-копилка: к ней прибавляют элемент за элементом", en: "the running total: each item gets added onto it" },
+  ],
+  list_sublist: [
+    { term: "slice", ru: "JS: вырезает кусок списка от start до end, end не входит", en: "JS: cuts a piece from start to end, end excluded" },
+    { term: "[1:4]", ru: "Python: срез через двоеточие — те же границы", en: "Python: a colon slice — the same bounds" },
+    { term: "table.insert", ru: "Lua: собирает подсписок по одному элементу, функции среза нет", en: "Lua: builds the sublist item by item — there is no slice function" },
+    { term: "array_slice", ru: "PHP: третий аргумент — длина куска, а не его конец", en: "PHP: the third argument is the length of the piece, not its end" },
+    { term: "for", ru: "цикл: в Lua им собирают кусок, в Python им его перебирают", en: "the loop: in Lua it builds the piece, in Python it walks the piece" },
+    { term: "ipairs", ru: "Lua: перебирает то, что получили в подсписке", en: "Lua: walks over what the sublist holds" },
+    { term: "do", ru: "Lua: тело цикла между do и end", en: "Lua: the loop body sits between do and end" },
+    { term: "as", ru: "PHP: текущий элемент перебора", en: "PHP: the item of the current step" },
+  ],
+  list_filter: [
+    { term: "for", ru: "цикл перебирает список — фильтрация начинается с перебора", en: "the loop walks the list — filtering starts with walking it" },
+    { term: "if", ru: "проверка «подходит ли элемент»: оставляем только истинные", en: "the “does this item qualify” test — only true ones stay" },
+    { term: "%", ru: "остаток от деления: i % 2 == 0 читается как «i чётное»", en: "the remainder: i % 2 == 0 reads as “i is even”" },
+    { term: "push / append", ru: "добавить подошедший элемент в конец нового списка", en: "add the qualifying item to the end of the new list" },
+    { term: "table.insert / array_push", ru: "Lua и PHP: те же добавления другими именами", en: "Lua and PHP: the same additions under other names" },
+    { term: "min / max", ru: "наименьшее и наибольшее из отобранного списка", en: "the smallest and the largest of the filtered list" },
+    { term: "...", ru: "JS: «передать элементы массива по одному» как аргументы функции", en: "JS: “hand the items over one by one” as function arguments" },
+    { term: "===", ru: "JS: равно и по значению, и по типу; в Python и Lua хватает ==", en: "JS: equal in value and type; Python and Lua use ==" },
+  ],
   functions: [
     { term: "function / def", ru: "начало описания функции: сразу после слова идут её имя и параметры в скобках", en: "starts the definition: right after it come the function name and its parameters" },
     { term: "(a, b)", ru: "параметры — имена, которыми функция пользуется внутри", en: "parameters — the names the function uses inside itself" },
@@ -330,6 +419,288 @@ export function glossaryKeywordNotes(topic: GlossaryTopicId): KeywordNote[] {
 }
 
 const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
+  console_output: () =>
+    `<h4>${t("Вывод в консоль", "Printing to the console")}</h4>` +
+    `<p>${t(
+      "Окно вывода справа внизу показывает то, что программа напечатала. Для этого в каждом языке своя команда: она принимает текст, число или переменную и сама переходит на новую строку.",
+      "The output panel at the bottom right shows what the program printed. Each language has its own command for that: it accepts text, a number or a variable and moves to a new line by itself."
+    )}</p>` +
+    partsList([
+      [t("напечатать текст", "print text"), t("строка в кавычках внутри команды печати", "a quoted string inside the print command")],
+      [t("напечатать число", "print a number"), t("кавычки числу не нужны", "a number needs no quotes")],
+      [t("подпись и значение", "a label and a value"), t("несколько аргументов через запятую: текст и переменная разом", "several comma-separated arguments: the label and the variable together")],
+      [t("строка с подстановкой", "interpolated string"), t("переменная вставляется прямо внутрь текста", "the variable goes right inside the text")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: четыре способа вывода", "Example: four ways to print")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'console.log("Hi");\nconsole.log(42);\nconst score = 7;\nconsole.log("Score:", score);\nconsole.log(`Score: ${score}`);' },
+      { label: "Python", code: 'print("Hi")\nprint(42)\nscore = 7\nprint("Score:", score)\nprint(f"Score: {score}")' },
+      { label: "Lua", code: 'local score = 7\nprint("Hi")\nprint(42)\nprint("Score:", score)\nprint(string.format("Score: %d", score))' },
+      { label: "PHP", code: '<?php\n$score = 7;\necho "Hi" . PHP_EOL;\necho 42 . PHP_EOL;\necho "Score: " . $score . PHP_EOL;' },
+    ]) +
+    keywordsBlock("console_output") +
+    mistakesList([
+      t("Напечатать текст без кавычек: программа ищет переменную с таким именем и падает.", "Printing text without quotes: the program looks for a variable of that name and fails."),
+      t("Забыть PHP_EOL в PHP — все строки вывода слипаются в одну.", "Forgetting PHP_EOL in PHP — every output line sticks into one."),
+      t("Ждать, что печать сама что-то посчитает: команда печати только показывает то, что ей дали.", "Expecting the print command to compute something: it only shows what you hand it."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: блок «Вывести … цвет …» (категория «Текст») — всё, что вложено в него, попадает в окно вывода.",
+      "In Blockly: the “Print … color …” block (Text category) sends whatever is nested inside it to the output panel."
+    )),
+
+  data_types: () =>
+    `<h4>${t("Типы данных: текст, число, да/нет", "Data types: text, numbers, true/false")}</h4>` +
+    `<p>${t(
+      "У любого значения есть тип. Текст всегда пишут в кавычках, число — без кавычек, а логическое значение умеет только два состояния: истина и ложь. Языки называют типы по-разному, но идея везде одна.",
+      "Every value has a type. Text is always written in quotes, a number is not, and a boolean has only two states: true and false. Languages name their types differently, but the idea is the same everywhere."
+    )}</p>` +
+    partsList([
+      [t("строка", "string"), t("текст в кавычках: \"Hi\", \"Счёт: \"", "text in quotes: \"Hi\", \"Score: \"")],
+      [t("число", "number"), t("целое или дробное, без кавычек: 5, 3.14", "whole or decimal, no quotes: 5, 3.14")],
+      [t("логическое значение", "boolean"), t("только истина или ложь", "true or false only")],
+      [t("список", "list"), t("несколько значений в одних скобках, по порядку", "several values in one pair of brackets, in order")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: напечатать значения разных типов", "Example: print values of different types")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'console.log("Hi");\nconsole.log(5);\nconsole.log(3.14);\nconsole.log(true);' },
+      { label: "Python", code: 'print("Hi")\nprint(5)\nprint(3.14)\nprint(True)' },
+      { label: "Lua", code: 'local ok = true\nprint("Hi")\nprint(5)\nprint(3.14)\nprint(ok)' },
+      { label: "PHP", code: '<?php\necho "Hi" . PHP_EOL;\necho 5 . PHP_EOL;\necho 3.14 . PHP_EOL;\nvar_dump(true);' },
+    ]) +
+    keywordsBlock("data_types") +
+    mistakesList([
+      t("Написать текст без кавычек: Привет без кавычек читается как имя переменной.", "Writing text without quotes: Hi without quotes reads as a variable name."),
+      t("Считать \"10\" и 10 одним и тем же: строка «10» складывается со строками, а число 10 — с числами.", "Treating \"10\" and 10 as the same thing: the text “10” joins other text, the number 10 joins numbers."),
+      t("Путать пустое значение и ноль: false, 0 и пустая строка \"\" — три разных вещи.", "Confusing emptiness with zero: false, 0 and the empty string \"\" are three different things."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: блок «текст …» (категория «Текст») отдаёт строку, блок «число» (категория «Математика») — число; в «Вывести … цвет …» подходят оба.",
+      "In Blockly: the “text …” block (Text category) yields a string and the “number” block (Math category) yields a number; “Print … color …” accepts both."
+    )),
+
+  variable: () =>
+    `<h4>${t("Переменная — коробочка с именем", "A variable is a box with a name")}</h4>` +
+    `<p>${t(
+      "Переменная хранит значение под именем. Один раз сохранили — дальше используем сколько нужно: поменять значение можно в одном месте, и оно обновится везде, где к нему обращаются.",
+      "A variable keeps a value under a name. Store it once and use it as often as you like: change the value in one place and it updates everywhere it is read."
+    )}</p>` +
+    partsList([
+      [t("имя", "name"), t("пишут слитно и с большой буквы в середине: myAge", "written as one word with a capital in the middle: myAge")],
+      [t("присваивание", "assignment"), t("сохранить значение под именем", "store a value under a name")],
+      [t("чтение", "reading"), t("имя в любом месте кода — это текущее значение", "the name anywhere in the code is the current value")],
+      [t("область видимости", "scope"), t("участок кода, где переменная видна: внутри фигурных скобок наружу она может не «выглядывать»", "the stretch of code where the variable is visible: inside braces it may not leak outside")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: создать переменную и напечатать её", "Example: create a variable and print it")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: "let myAge = 10;\nconsole.log(myAge);" },
+      { label: "Python", code: "myAge = 10\nprint(myAge)" },
+      { label: "Lua", code: "local myAge = 10\nprint(myAge)" },
+      { label: "PHP", code: "$myAge = 10;\necho $myAge . PHP_EOL;" },
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: значение можно менять или запретить", "Example: allow changes or forbid them")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'const name = "Anna";\nlet score = 0;\nscore = score + 1;\nconsole.log(name, score);' },
+      { label: "Python", code: 'name = "Anna"  # Python has no const: just do not reassign\nscore = 0\nscore = score + 1\nprint(name, score)' },
+      { label: "Lua", code: 'local name = "Anna"\nlocal score = 0\nscore = score + 1\nprint(name, score)' },
+      { label: "PHP", code: '$name = "Anna";\n$score = 0;\n$score = $score + 1;\necho $name . " " . $score . PHP_EOL;' },
+    ]) +
+    keywordsBlock("variable") +
+    mistakesList([
+      t("Читать переменную до того, как присвоили значение: её ещё нет, и программа падает.", "Reading a variable before assigning it: it does not exist yet, so the program fails."),
+      t("Менять const: JavaScript запретит переназначение, и программа остановится с ошибкой.", "Reassigning a const: JavaScript forbids it and the program stops with an error."),
+      t("Опечатка в регистре: myAge и myage — две разные переменные, значение не «перетекает» между ними.", "Wrong letter case: myAge and myage are two different variables, the value does not flow between them."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: категория «Переменные» — «присвоить … = …» задаёт значение, а блок с именем переменной вставляет её текущее значение куда угодно.",
+      "In Blockly: the Variables category — “set … to …” gives the value, and the variable-name block drops its current value anywhere."
+    )),
+
+  inc_dec: () =>
+    `<h4>${t("Инкремент и декремент: на единицу вверх и вниз", "Increment and decrement: one step up, one step down")}</h4>` +
+    `<p>${t(
+      "Инкремент — увеличить значение переменной на 1, декремент — уменьшить на 1. Так считают очки, попытки и шаги цикла.",
+      "Increment raises a variable by 1, decrement lowers it by 1. That is how programs count scores, attempts and loop steps."
+    )}</p>` +
+    partsList([
+      [t("полная запись", "long form"), t("берём старое значение, складываем с 1 и сохраняем в ту же переменную", "read the old value, add 1, store it back into the same variable")],
+      [t("короткая запись", "short form"), t("«прибавить к этой же переменной»: += и -=", "“add onto this very variable”: += and -="),],
+      [t("шаг на единицу", "one-step operator"), t("++ и -- в JavaScript и PHP — прибавить или отнять ровно 1", "++ and -- in JavaScript and PHP — add or take away exactly 1")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: считать очки", "Example: counting score")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: "let score = 0;\nscore = score + 1;\nscore += 1;\nscore -= 1;\nconsole.log(score);" },
+      { label: "Python", code: "score = 0\nscore = score + 1\nscore += 1\nscore -= 1\nprint(score)" },
+      { label: "Lua", code: "local score = 0\nscore = score + 1\nscore = score + 1\nscore = score - 1\nprint(score)" },
+      { label: "PHP", code: "$score = 0;\n$score = $score + 1;\n$score++;\n$score--;\necho $score . PHP_EOL;" },
+    ]) +
+    keywordsBlock("inc_dec") +
+    mistakesList([
+      t("Посчитать значение, но не сохранить: score + 1 ничего не меняет — нужно присваивание.", "Computing the value but not storing it: score + 1 changes nothing without the assignment."),
+      t("Ждать += в Lua: этого оператора там нет, только score = score + 1.", "Expecting += in Lua: the language has no such operator, only score = score + 1."),
+      t("Считать назад и забыть условие остановки: декремент уходит в минус, и цикл не заканчивается.", "Counting down and forgetting the stop test: the counter runs into the negative and the loop never ends."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: «увеличить … на …» (категория «Переменные») делает то же самое — минус в начале числа превращает прибавление в уменьшение.",
+      "In Blockly: “change … by …” (Variables category) does the same — a minus sign in front of the number turns the increase into a decrease."
+    )),
+
+  if_else: () =>
+    `<h4>${t("Условие: если … иначе …", "Conditions: if … else …")}</h4>` +
+    `<p>${t(
+      "Условие позволяет программе принимать решение: если выражение истинно (true) — выполняется одна ветка, если ложно (false) — другая или ничего. Проверка сравнивает значения с помощью операторов сравнения, и каждый из них возвращает истину или ложь.",
+      "A condition lets the program make a decision: when the expression is true one branch runs, when it is false the other branch runs, or nothing at all. The check compares values with comparison operators, and each of them returns true or false."
+    )}</p>` +
+    partsList([
+      [t("условие", "condition"), t("вопрос, который возвращает истину или ложь: score >= 50", "a question that answers true or false: score >= 50")],
+      [t("ветка «если»", "the if branch"), t("работает только при истинном условии", "runs only when the condition is true")],
+      [t("ветка «иначе»", "the else branch"), t("что делать, если условие не сработало", "what to do when the condition fails")],
+      [t("сравнение", "comparison"), t("> больше, < меньше, >= и <= — с границей включительно, == равно, != не равно (в Lua ~=)", "> greater, < less, >= and <= include the bound, == is equal, != is not equal (~= in Lua)")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: экзамен сдан или нет", "Example: pass or fail")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: 'const score = 57;\nif (score >= 50) {\n  console.log("Passed");\n} else {\n  console.log("Try again");\n}' },
+      { label: "Python", code: 'score = 57\nif score >= 50:\n    print("Passed")\nelse:\n    print("Try again")' },
+      { label: "Lua", code: 'local score = 57\nif score >= 50 then\n  print("Passed")\nelse\n  print("Try again")\nend' },
+      { label: "PHP", code: '$score = 57;\nif ($score >= 50) {\n  echo "Passed" . PHP_EOL;\n} else {\n  echo "Try again" . PHP_EOL;\n}' },
+    ]) +
+    keywordsBlock("if_else") +
+    mistakesList([
+      t("Перепутать = и ==: одна черта присваивает значение, две — сравнивают.", "Mixing up = and ==: one sign stores a value, two signs compare them."),
+      t("Забыть отступ в Python или скобки в JavaScript — ветка «иначе» уедет не туда.", "Missing indentation in Python or braces in JavaScript — the else branch ends up somewhere else."),
+      t("Считать, что без else ничего не случится: при ложном условии программа просто проходит мимо ветки.", "Thinking that omitting else does something: when the condition is false the program simply skips the branch."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: блок «если … иначе …» (категория «Логика») — в его условие вставляют блок сравнения из этой же категории.",
+      "In Blockly: the “if … else” block (Logic category) takes a comparison block from the same category in its condition slot."
+    )),
+
+  for_loop: () =>
+    `<h4>${t("Цикл for со счётчиком", "The counted for loop")}</h4>` +
+    `<p>${t(
+      "Цикл for со счётчиком повторяет действия, где переменная (например, i) последовательно принимает значения с заданным шагом. Он нужен, когда число повторов известно заранее.",
+      "A counted for loop repeats actions while a variable (say, i) takes its values one after another with a fixed step. Use it when you already know how many times to repeat."
+    )}</p>` +
+    partsList([
+      [t("старт", "start"), t("с какого значения начинаем, например 1", "the value the counter starts at, for example 1")],
+      [t("финиш / условие", "end / condition"), t("до какого значения идём; включительно ли оно", "how far the counter goes, and whether the bound is included")],
+      [t("шаг", "step"), t("как меняется счётчик, обычно +1", "how the counter moves, usually +1")],
+      [t("тело цикла", "loop body"), t("что делаем на каждом шаге, например печатаем i", "what happens each step, for example printing i")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: числа от 1 до 5", "Example: the numbers 1 to 5")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: "for (let i = 1; i <= 5; i += 1) {\n  console.log(i);\n}" },
+      { label: "Python", code: "for i in range(1, 6, 1):\n    print(i)" },
+      { label: "Lua", code: "for i = 1, 5, 1 do\n  print(i)\nend" },
+      { label: "PHP", code: "for ($i = 1; $i <= 5; $i++) {\n  echo $i . PHP_EOL;\n}" },
+    ]) +
+    keywordsBlock("for_loop") +
+    mistakesList([
+      t("Получить 1…4 вместо 1…5: забыть, что граница должна быть включительной (JS: <= 5, Python: range(1, 6)).", "Getting 1…4 instead of 1…5: forgetting the inclusive bound (JS: <= 5, Python: range(1, 6))."),
+      t("Неверный шаг: при шаге 2 выйдет 1, 3, 5, а не все пять чисел.", "Wrong step: a step of 2 gives 1, 3, 5 instead of all five numbers."),
+      t("Печатать не счётчик: внутри цикла нужно выводить именно переменную цикла.", "Printing the wrong thing: inside the loop print the loop variable itself."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: «цикл по … от … до … с шагом …» (категория «Циклы») — поля FROM/TO/BY и переменная-счётчик.",
+      "In Blockly: “count with … from … to … by …” (Loops category) — the FROM/TO/BY fields and the counter variable."
+    )),
+
+  list_foreach: () =>
+    `<h4>${t("Список и перебор «для каждого элемента»", "Lists and the “for each item” loop")}</h4>` +
+    `<p>${t(
+      "Список (массив) — это набор значений в одном месте, например [1, 2, 3]. У него есть порядок: у каждого элемента свой номер, индекс. Перебор «для каждого элемента» берёт значения по одному и даёт текущий элемент внутрь тела цикла.",
+      "A list (array) is a set of values in one place, for example [1, 2, 3]. It has an order: every item carries a position number, its index. The “for each item” loop takes the values one at a time and hands the current item to the loop body."
+    )}</p>` +
+    partsList([
+      [t("список", "list"), t("значения в одних скобках, по порядку", "the values in one pair of brackets, in order")],
+      [t("элемент", "item"), t("одно значение списка, которое цикл даёт на текущем шаге", "one value the loop hands over on this step")],
+      [t("индекс", "index"), t("номер элемента: в JavaScript и Python с нуля, в Lua с 1", "the element number: from 0 in JavaScript and Python, from 1 in Lua")],
+      [t("накопитель", "running total"), t("переменная, к которой прибавляют элемент за элементом", "the variable each item gets added onto")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: вывести элементы и посчитать сумму", "Example: print the items and add them up")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: "const list = [1, 2, 3, 4, 5];\nlet sum = 0;\nlist.forEach((i) => {\n  console.log(i);\n  sum = sum + i;\n});\nconsole.log(sum);" },
+      { label: "Python", code: "list = [1, 2, 3, 4, 5]\nsum = 0\nfor i in list:\n    print(i)\n    sum = sum + i\nprint(sum)" },
+      { label: "Lua", code: "local list = {1, 2, 3, 4, 5}\nlocal sum = 0\nfor _, i in ipairs(list) do\n  print(i)\n  sum = sum + i\nend\nprint(sum)" },
+      { label: "PHP", code: "$list = [1, 2, 3, 4, 5];\n$sum = 0;\nforeach ($list as $i) {\n  echo $i . PHP_EOL;\n  $sum = $sum + $i;\n}\necho $sum . PHP_EOL;" },
+    ]) +
+    keywordsBlock("list_foreach") +
+    mistakesList([
+      t("Вывести сам список вместо элемента: печатать нужно переменную цикла, а не список целиком.", "Printing the whole list instead of one item: print the loop variable, not the list."),
+      t("Забыть, что в примере JavaScript показан современный перебор: Blockly может сгенерировать обычный for — по смыслу это то же самое.", "Missing that the JavaScript example shows the modern walk: Blockly may generate a plain for loop, which means the same thing."),
+      t("Обнулить накопитель внутри цикла: сумма будет считаться заново на каждом шаге.", "Resetting the running total inside the loop: the sum restarts on every step."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: «для каждого элемента … в списке …» (категория «Циклы») и «создать список из» (категория «Списки»); переменную-накопитель создают блоком «присвоить … = …» до цикла.",
+      "In Blockly: “for each item … in list …” (Loops category) together with “create list with” (Lists category); create the running total with “set … to …” before the loop."
+    )),
+
+  list_sublist: () =>
+    `<h4>${t("Подсписок — часть списка", "A sublist is a piece of a list")}</h4>` +
+    `<p>${t(
+      "Подсписок — это часть списка: из [1 … 10] можно взять кусок 3, 4, 5, 6, 7. Так перебирают только нужные элементы и не пишут условие внутри цикла.",
+      "A sublist is a piece of a list: from [1 … 10] you can take the chunk 3, 4, 5, 6, 7. Then the loop walks only the items you need, with no condition inside."
+    )}</p>` +
+    partsList([
+      [t("начало", "start"), t("первый элемент куска — он входит", "the first item of the piece — it is included")],
+      [t("конец", "end"), t("в JavaScript и Python граница не включается, в Lua и PHP указывают длину куска", "in JavaScript and Python the bound stays out, in Lua and PHP you give the length")],
+      [t("вручную", "by hand"), t("в Lua среза нет: кусок собирают циклом и table.insert", "Lua has no slice: build the piece with a loop and table.insert")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: взять середину списка и вывести", "Example: take the middle of a list and print it")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: "const list = [10, 20, 30, 40, 50, 60];\nconst sub = list.slice(1, 4);\nsub.forEach((i) => console.log(i));" },
+      { label: "Python", code: "list = [10, 20, 30, 40, 50, 60]\nsub = list[1:4]\nfor i in sub:\n    print(i)" },
+      { label: "Lua", code: "local list = {10, 20, 30, 40, 50, 60}\nlocal sub = {}\nfor i = 2, 4 do\n  table.insert(sub, list[i])\nend\nfor _, i in ipairs(sub) do\n  print(i)\nend" },
+      { label: "PHP", code: "$list = [10, 20, 30, 40, 50, 60];\n$sub = array_slice($list, 1, 3);\nforeach ($sub as $i) {\n  echo $i . PHP_EOL;\n}" },
+    ]) +
+    keywordsBlock("list_sublist") +
+    mistakesList([
+      t("Считать правую границу включительной: slice(1, 4) и [1:4] отдают три элемента, а не четыре.", "Treating the right bound as included: slice(1, 4) and [1:4] give three items, not four."),
+      t("Забыть про разную нумерацию: в Lua первый элемент стоит под номером 1.", "Missing the different numbering: in Lua the first item is number 1."),
+      t("Перепутать длину и конец в PHP: array_slice($list, 1, 3) берёт три элемента, начиная со второго.", "Confusing length with end position in PHP: array_slice($list, 1, 3) takes three items starting from the second."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: «взять подсписок» (категория «Списки») кладут в переменную, а затем перебирают блоком «для каждого элемента … в списке …».",
+      "In Blockly: “get sub-list” (Lists category) goes into a variable, and “for each item … in list …” then walks that piece."
+    )),
+
+  list_filter: () =>
+    `<h4>${t("Фильтрация списка: оставить только подходящее", "Filtering a list: keep only what qualifies")}</h4>` +
+    `<p>${t(
+      "Фильтрация — это когда элементы перебирают и оставляют только те, что подходят под условие: например, только чётные числа. Отдельного «подсписка» для этого не нужно — можно сразу печатать подходящие элементы внутри условия.",
+      "Filtering means walking the items and keeping only those that pass a test — for example, only the even numbers. No separate sublist is needed: qualifying items can be printed right inside the condition."
+    )}</p>` +
+    partsList([
+      [t("перебрать", "walk the list"), t("циклом «для каждого элемента»", "with the “for each item” loop")],
+      [t("проверить", "test each item"), t("условие внутри цикла: i % 2 == 0 читается как «i чётное»", "a condition inside the loop: i % 2 == 0 reads as “i is even”")],
+      [t("оставить", "keep it"), t("напечатать и прибавить к сумме, если условие истинно", "print it and add it to the total when the test passes")],
+      [t("собрать отдельно", "collect separately"), t("добавить подошедшие элементы в новый список, чтобы потом найти минимум и максимум", "push the qualifying items into a new list so you can take its minimum and maximum")],
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: чётные числа и их сумма", "Example: even numbers and their sum")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: "const list = [3, 4, 7, 12, 15];\nlet sum = 0;\nlist.forEach((i) => {\n  if (i % 2 === 0) {\n    console.log(i);\n    sum = sum + i;\n  }\n});\nconsole.log(sum);" },
+      { label: "Python", code: "list = [3, 4, 7, 12, 15]\nsum = 0\nfor i in list:\n    if i % 2 == 0:\n        print(i)\n        sum = sum + i\nprint(sum)" },
+      { label: "Lua", code: "local list = {3, 4, 7, 12, 15}\nlocal sum = 0\nfor _, i in ipairs(list) do\n  if i % 2 == 0 then\n    print(i)\n    sum = sum + i\n  end\nend\nprint(sum)" },
+      { label: "PHP", code: "$list = [3, 4, 7, 12, 15];\n$sum = 0;\nforeach ($list as $i) {\n  if ($i % 2 == 0) {\n    echo $i . PHP_EOL;\n    $sum = $sum + $i;\n  }\n}\necho $sum . PHP_EOL;" },
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: собрать отфильтрованное и найти минимум и максимум", "Example: collect the filtered items, then take min and max")}</h4>` +
+    examplesBlock([
+      { label: "JavaScript", code: "const list = [5, 2, 9, 4, 1, 8];\nconst evens = [];\nfor (const i of list) {\n  if (i % 2 === 0) evens.push(i);\n}\nconsole.log(Math.min(...evens), Math.max(...evens));" },
+      { label: "Python", code: "list = [5, 2, 9, 4, 1, 8]\nevens = []\nfor i in list:\n    if i % 2 == 0:\n        evens.append(i)\nprint(min(evens), max(evens))" },
+      { label: "Lua", code: "local list = {5, 2, 9, 4, 1, 8}\nlocal evens = {}\nfor _, i in ipairs(list) do\n  if i % 2 == 0 then\n    table.insert(evens, i)\n  end\nend\nprint(math.min(table.unpack(evens)), math.max(table.unpack(evens)))" },
+      { label: "PHP", code: "$list = [5, 2, 9, 4, 1, 8];\n$evens = [];\nforeach ($list as $i) {\n  if ($i % 2 == 0) {\n    array_push($evens, $i);\n  }\n}\necho min($evens) . PHP_EOL;\necho max($evens) . PHP_EOL;" },
+    ]) +
+    keywordsBlock("list_filter") +
+    mistakesList([
+      t("Сравнить с 0 не тем знаком: i % 2 = 0 присваивает, а не проверяет — нужно ==", "Testing the remainder with the wrong sign: i % 2 = 0 assigns instead of comparing — use =="),
+      t("Искать минимум у пустого списка: если не подошёл ни один элемент, min() нечего сравнивать.", "Taking the minimum of an empty list: if nothing qualified, min() has nothing to compare."),
+      t("Добавлять элемент в тот же список, по которому идёте цикл, — перебор съедет с нужных значений.", "Pushing into the very list the loop is walking — the walk drifts away from the intended items."),
+    ]) +
+    blocklyNote(t(
+      "В Blockly: «для каждого элемента … в списке …» и «если …», а отобранные элементы складывают в отдельный список блоком «в списке … вставить … = …» (категория «Списки»).",
+      "In Blockly: “for each item … in list …” plus “if …”, collecting the kept items into a separate list with “in list … insert at … = …” (Lists category)."
+    )),
+
   functions: () =>
     `<h4>${t("Функции: определение, параметр, возврат", "Functions: definition, parameter, return")}</h4>` +
     `<p>${t(
@@ -1572,12 +1943,13 @@ export function glossaryTopicHtml(topic: GlossaryTopicId): string {
 
 /**
  * Рендерит в контейнер справочные секции тем, привязанных к задаче.
- * Темы берутся из `tasks[taskId].infoTopics`; пустой список скрывает контейнер.
+ * Темы берутся из `tasks[taskId].infoTopics`; у каждой задачи есть хотя бы
+ * одна тема — за этим следит tests/glossary.test.ts.
  */
 export function mountGlossaryForTask(container: HTMLElement, taskId: TaskId): void {
   const topics = tasks[taskId].infoTopics ?? [];
   container.innerHTML = "";
-  container.style.display = topics.length === 0 ? "none" : "";
+  container.style.display = "";
   for (const topic of topics) {
     const div = document.createElement("div");
     div.className = "console-output-info";

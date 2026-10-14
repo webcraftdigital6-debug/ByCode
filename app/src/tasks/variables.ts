@@ -456,6 +456,7 @@ export const variablesTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. В категории «Переменные» нажмите «Создать переменную…» и введите имя myAge.\n2. Перетащите блок «присвоить myAge = …» и вставьте в него число (например, 10).\n3. Перетащите блок «Вывести … цвет …» (Текст) и вложите в него переменную myAge.\n4. Нажмите «▶», затем «Проверить решение»."
         : "Step by step:\n1. In the Variables category press “Create variable…” and type myAge.\n2. Drag the “set myAge = …” block and put a number inside (e.g. 10).\n3. Drag “Print … color …” (Text) and put the variable myAge inside.\n4. Press “▶”, then “Check solution”.",
+    infoTopics: ["variable"],
     validate: validateVarMyAge,
   },
   calc_sum: {
@@ -471,6 +472,7 @@ export const variablesTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменные a, b, sum.\n2. Присвойте a и b числа: «присвоить a = …», «присвоить b = …».\n3. Присвойте sum: вложите в него сумму a + b (блок «+ − × ÷» с переменными a и b внутри).\n4. Выведите sum: вложите переменную sum в «Вывести … цвет …»."
         : "Step by step:\n1. Create variables a, b, sum.\n2. Set a and b to numbers.\n3. Set sum to a + b (use the “+ − × ÷” block with a and b inside).\n4. Print sum: put variable sum inside “Print … color …”.",
+    infoTopics: ["variable"],
     validate: validateCalcSum,
   },
   inc_counter: {
@@ -485,6 +487,7 @@ export const variablesTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную counter и присвойте ей 0: «присвоить counter = 0».\n2. В категории «Математика» возьмите блок «увеличить counter на 1».\n3. Вложите переменную counter в «Вывести … цвет …» и нажмите «▶» — в выводе появится 1.\n4. Нажмите «Проверить решение»."
         : "Step by step:\n1. Create a variable counter and set it to 0: “set counter = 0”.\n2. In the Math category take the “change counter by 1” block.\n3. Put the variable counter inside “Print … color …” and press “▶” — the output shows 1.\n4. Press “Check solution”.",
+    infoTopics: ["inc_dec"],
     validate: validateIncCounter,
   },
   discount_calc: {
@@ -500,6 +503,7 @@ export const variablesTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменные price и discount, присвойте им числа (например, 1000 и 15).\n2. Соберите формулу блоками из «Математика»: сначала «price × discount», затем результат «÷ 100».\n3. Итог: блок «−»: влево — price, вправо — результат деления. Присвойте его переменной или сразу вложите в «Вывести … цвет …».\n4. Запустите «▶» и проверьте, что вывод — 850 (для 1000 и 15). Нажмите «Проверить решение»."
         : "Step by step:\n1. Create variables price and discount and set them to numbers (e.g. 1000 and 15).\n2. Build the formula with Math blocks: first “price × discount”, then divide the result “÷ 100”.\n3. Final step: a “−” block — price on the left, the division result on the right. Print it with “Print … color …”.\n4. Press “▶” and check that the output is 850 (for 1000 and 15). Press “Check solution”.",
+    infoTopics: ["console_output"],
     validate: validateDiscountCalc,
   },
   chatterbox: {

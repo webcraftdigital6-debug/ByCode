@@ -126,6 +126,7 @@ export const outputTasks: Pick<TaskRegistry, "hello_world" | "add_2_7" | "greet_
       lang === "ru"
         ? "Пошаговое решение:\n1. В категории «Текст» возьмите блок «Вывести … цвет …» и перетащите его на рабочее поле.\n2. Впишите в поле блока фразу Hello World! (цвет можно оставить пустым).\n3. Нажмите кнопку «▶» («Запустить код») в редакторе — в окне вывода появится Hello World!.\n4. Нажмите «Проверить решение» — задача будет засчитана."
         : "Step by step:\n1. In the Text category, take the “Print … color …” block and drag it onto the workspace.\n2. Type the phrase Hello World! directly into the block's text field (you can leave the color empty).\n3. Press the “▶” (“Run code”) button in the editor — the output will show Hello World!.\n4. Press “Check solution” — the task will be accepted.",
+    infoTopics: ["console_output"],
     validate: validateHelloWorld,
   },
   add_2_7: {
@@ -140,6 +141,7 @@ export const outputTasks: Pick<TaskRegistry, "hello_world" | "add_2_7" | "greet_
       lang === "ru"
         ? "Пошаговое решение:\n1. В категории «Математика» возьмите блок «+ − × ÷» и впишите числа 2 и 7.\n2. В категории «Текст» возьмите «Вывести … цвет …» и вложите в него результат сложения.\n3. Нажмите «▶» («Запустить код») — в окне вывода появится 9.\n4. Нажмите «Проверить решение»."
         : "Step by step:\n1. Take the “+ − × ÷” block from Math and enter 2 and 7.\n2. Take “Print … color …” from Text and put the sum inside it.\n3. Press “▶” (“Run code”) — the output shows 9.\n4. Press “Check solution”.",
+    infoTopics: ["data_types"],
     validate: validateAdd2Plus7,
   },
   greet_concat: {
@@ -155,6 +157,7 @@ export const outputTasks: Pick<TaskRegistry, "hello_world" | "add_2_7" | "greet_
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную name блоком «присвоить name = …» из категории «Переменные». В свободное значение справа вставьте текстовый блок «текст» из категории «Текст» и напишите в нём ваше имя, например Anna — значение переменной задаёт именно текстовый блок.\n2. В категории «Текст» возьмите блок «создать текст из» и добавьте три поля: «Hello, » (важен пробел после запятой), переменную name и «!».\n3. Вложите «создать текст из» в блок «Вывести … цвет …» и запустите код.\n4. В выводе должно получиться «Hello, Anna!» — нажмите «Проверить решение»."
         : "Step by step:\n1. Create the variable name with the “set name to …” block from the Variables category. Into its value slot drop a “text” block from the Text category and type your name there, e.g. Anna — the variable's value must be a text block.\n2. In the Text category take “create text with” and add three items: “Hello, ” (mind the space after the comma), the variable name, and “!”.\n3. Put “create text with” inside the “Print … color …” block and run the code.\n4. The output should be “Hello, Anna!” — press “Check solution”.",
+    infoTopics: ["string_concat"],
     validate: validateGreetConcat,
   },
 };
