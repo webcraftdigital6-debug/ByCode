@@ -59,7 +59,7 @@ function examplesBlock(items: LangExample[]): string {
 }
 
 function partsList(pairs: Array<[string, string]>): string {
-  return `<ul>${pairs.map(([label, text]) => `<li><strong>${esc(label)}</strong>: ${esc(text)}</li>`).join("")}</ul>`;
+  return `<ul class="parts-list">${pairs.map(([label, text]) => `<li><strong>${esc(label)}</strong>: ${esc(text)}</li>`).join("")}</ul>`;
 }
 
 function mistakesList(items: string[]): string {
@@ -70,6 +70,263 @@ function mistakesList(items: string[]): string {
 
 function blocklyNote(html: string): string {
   return `<p style="font-size: 0.9em; font-style: italic;">${html}</p>`;
+}
+
+/** Пояснение одного слова из примера: term — как оно написано в коде. */
+export type KeywordNote = { term: string; ru: string; en: string };
+
+/**
+ * Слова из примеров темы: ключевые слова языка (for, while, if, return) и
+ * методы (.slice, .length, .reverse). Ребёнок читает пример и сразу понимает,
+ * что значит каждое слово. term перечисляет написания через «/» — каждая форма
+ * обязана встречаться в примерах темы, за этим следит
+ * tests/glossary_keywords.test.ts.
+ */
+const TOPIC_KEYWORDS: Record<GlossaryTopicId, KeywordNote[]> = {
+  functions: [
+    { term: "function / def", ru: "начало описания функции: сразу после слова идут её имя и параметры в скобках", en: "starts the definition: right after it come the function name and its parameters" },
+    { term: "(a, b)", ru: "параметры — имена, которыми функция пользуется внутри", en: "parameters — the names the function uses inside itself" },
+    { term: "return", ru: "отдаёт результат туда, где функцию вызвали, и на этом её работа кончается", en: "hands the value back to the caller and ends the function there" },
+    { term: "greet(\"Anna\")", ru: "вызов: имя со скобками значит «запустить»; в скобках — аргументы", en: "a call: the name plus parentheses means “run it”; the parentheses hold the arguments" },
+    { term: "end", ru: "в Lua так закрывают тело функции", en: "in Lua this closes the function body" },
+  ],
+  nested_loops: [
+    { term: "for", ru: "цикл: повторяет тело для каждого значения счётчика", en: "the loop: repeats its body for every counter value" },
+    { term: "let", ru: "объявляет переменную-счётчик, которую можно менять", en: "creates the counter variable that the loop may change" },
+    { term: "i++", ru: "шаг: увеличивает счётчик на 1 после каждого повтора", en: "the step: raises the counter by 1 after each repetition" },
+    { term: "range(1, 4)", ru: "Python: числа 1, 2, 3 — верхняя граница не входит", en: "Python: the numbers 1, 2, 3 — the upper bound is excluded" },
+    { term: "do", ru: "Lua: после do идёт тело цикла, end его закрывает", en: "Lua: the loop body sits between do and end" },
+    { term: "f\"", ru: "Python: f-строка подставляет значения переменных прямо в текст", en: "Python: an f-string puts variable values straight into the text" },
+  ],
+  break_continue: [
+    { term: "for", ru: "цикл: перебирает список по одному элементу", en: "the loop: walks the list one item at a time" },
+    { term: "of", ru: "JS: for (const n of список) — за один шаг берём один элемент", en: "JS: for (const n of list) — each step takes one item from the list" },
+    { term: "as", ru: "PHP: foreach (список as $n) — то же самое, по одному элементу", en: "PHP: foreach (list as $n) — the same, one item at a time" },
+    { term: "if", ru: "выполняет тело только когда условие истинно", en: "runs the body only when the condition is true" },
+    { term: "then", ru: "Lua: слово между условием и телом", en: "Lua: the word between the condition and its body" },
+    { term: "%", ru: "остаток от деления: n % 2 == 0 читается как «n чётное»", en: "the remainder: n % 2 == 0 reads as “n is even”" },
+    { term: "===", ru: "JS и PHP: равно и по значению, и по типу; в Python и Lua хватает ==", en: "JS and PHP: equal in value and type; Python and Lua use ==" },
+  ],
+  sorting: [
+    { term: "sort", ru: "упорядочивает сам список, а не его копию", en: "orders the list itself, not a copy of it" },
+    { term: "=>", ru: "JS: функция сравнения — стрелкой отвечают, какое значение меньше", en: "JS: the comparator — the arrow answers which value is smaller" },
+    { term: "table.sort", ru: "Lua: сортировка живёт в библиотеке table", en: "Lua: sorting lives in the table library" },
+    { term: "concat", ru: "Lua: склеивает элементы списка в одну строку для вывода", en: "Lua: joins the list items into one string for printing" },
+    { term: "implode", ru: "PHP: та же склейка через выбранный разделитель", en: "PHP: the same join with a separator you choose" },
+    { term: "local", ru: "Lua: переменная видна только там, где её объявили", en: "Lua: the variable is visible only where it was declared" },
+  ],
+  repeat_n_times: [
+    { term: "for", ru: "цикл «повторить N раз»: счётчик сам считает повторы", en: "the “repeat N times” loop: the counter keeps track for you" },
+    { term: "i < 3", ru: "условие: крутимся, пока счётчик меньше трёх", en: "the condition: keep going while the counter is below three" },
+    { term: "i++", ru: "увеличиваем счётчик — иначе цикл никогда не закончится", en: "raises the counter — without it the loop never ends" },
+    { term: "range(3)", ru: "Python: даёт 0, 1, 2 — ровно три шага", en: "Python: yields 0, 1, 2 — exactly three steps" },
+    { term: "_", ru: "прочерк: имя переменной не нужно, важно только число повторов", en: "an underscore: the variable name is irrelevant, only the count matters" },
+    { term: "do", ru: "Lua: тело цикла стоит между do и end", en: "Lua: the loop body sits between do and end" },
+  ],
+  random_numbers: [
+    { term: "Math.random", ru: "дробь от 0 до 1: умножаем на 6 и покрываем весь диапазон", en: "a fraction from 0 to 1: multiply by 6 to cover the whole range" },
+    { term: "Math.floor", ru: "округляет вниз до целого: 3.9 превращается в 3", en: "rounds down to a whole number: 3.9 becomes 3" },
+    { term: "+ 1", ru: "сдвиг границы: 0…5 становится привычными 1…6", en: "shifts the range: 0…5 becomes the familiar 1…6" },
+    { term: "randint", ru: "Python: целое число сразу внутри указанных границ", en: "Python: a whole number right inside the bounds you give" },
+    { term: "math.random", ru: "Lua: без аргументов — дробь, с (1, 6) — целое из диапазона", en: "Lua: no arguments gives a fraction, (1, 6) gives a whole number" },
+    { term: "rand", ru: "PHP: то же самое одной функцией", en: "PHP: the same thing in one function" },
+  ],
+  user_input: [
+    { term: "prompt", ru: "JS в браузере: окно с вопросом и полем ввода", en: "JS in the browser: a dialog with the question and a text field" },
+    { term: "input", ru: "Python: ждёт, пока наберут текст и нажмут Enter", en: "Python: waits until you type text and press Enter" },
+    { term: "io.read", ru: "Lua: читает то, что набрали на клавиатуре", en: "Lua: reads what was typed on the keyboard" },
+    { term: "fgets", ru: "PHP: читает набранную строку", en: "PHP: reads the line you typed" },
+    { term: "trim", ru: "убирает невидимый перенос строки и пробелы по краям", en: "drops the invisible line break and the spaces around the answer" },
+    { term: "const", ru: "сохраняет ответ в переменную, чтобы вернуться к нему позже", en: "stores the answer in a variable so the program can use it later" },
+  ],
+  string_concat: [
+    { term: "+", ru: "JS и Python: склеивает части в одну строку", en: "JS and Python: glues the parts into one string" },
+    { term: "..", ru: "Lua: склеивают именно две точки, плюс не работает", en: "Lua: two dots glue text, a plus sign does not work" },
+    { term: "str / tostring", ru: "превращает число в текст: иначе строка и число не склеятся", en: "turns a number into text: otherwise text and number refuse to glue" },
+    { term: "(age + 1)", ru: "скобки: сначала считаем, потом склеиваем", en: "parentheses: do the maths first, glue afterwards" },
+    { term: "PHP_EOL", ru: "PHP: перенос строки, без него вывод слипнется в одну линию", en: "PHP: a line break — without it the output runs into one line" },
+  ],
+  string_length: [
+    { term: "length", ru: "JS: сколько символов в строке", en: "JS: how many characters the string holds" },
+    { term: "len", ru: "Python: функция длины", en: "Python: the length function" },
+    { term: "#", ru: "Lua: решётка перед именем — это длина", en: "Lua: a hash before the name gives the length" },
+    { term: "strlen", ru: "PHP: длина строки", en: "PHP: the length of the string" },
+    { term: "split", ru: "разбивает строку на отдельные символы", en: "breaks the string into single characters" },
+    { term: "reverse", ru: "переворачивает список задом наперёд", en: "flips the list around" },
+    { term: "join", ru: "собирает список обратно в строку", en: "assembles the list back into one string" },
+  ],
+  string_indexing: [
+    { term: "charAt", ru: "JS: символ по номеру позиции", en: "JS: the character at a given position" },
+    { term: "[0]", ru: "обращение к ячейке: первый символ — нулевой, не первый", en: "cell access: the first character is number 0, not number 1" },
+    { term: "[-1]", ru: "считаем с конца: -1 — последний символ", en: "counts backwards: -1 is the last character" },
+    { term: "sub", ru: "Lua: string.sub(строка, начало, конец), обе границы входят", en: "Lua: string.sub(s, from, to) — both bounds included" },
+    { term: "substr", ru: "PHP: вырезает по началу и длине", en: "PHP: cuts by start and length" },
+    { term: "length - 1", ru: "последний символ в JS: символов 7, а индексы 0…6", en: "the last index in JS: 7 characters but indexes 0…6" },
+  ],
+  string_slice: [
+    { term: "slice", ru: "JS: вырезает от начала до конца, правую границу не включает", en: "JS: cuts from start to end, the right bound stays out" },
+    { term: "[0:3]", ru: "Python: срез через двоеточие — те же правила", en: "Python: a colon slice — the same rules" },
+    { term: "sub", ru: "Lua: обе границы входят в результат, счёт с 1", en: "Lua: both bounds are inside the result, counting starts at 1" },
+    { term: "substr", ru: "PHP: второе число — это длина куска, а не его конец", en: "PHP: the second number is the length, not the end position" },
+    { term: "-3", ru: "отрицательное число — отсчёт от конца строки", en: "a negative number counts from the end of the string" },
+  ],
+  string_case_trim: [
+    { term: "trim", ru: "JS и PHP: убирает пробелы по краям", en: "JS and PHP: removes the spaces at both ends" },
+    { term: "strip", ru: "Python: то же самое", en: "Python: the same thing" },
+    { term: "toUpperCase", ru: "JS: делает все буквы заглавными", en: "JS: makes every letter uppercase" },
+    { term: "upper", ru: "Python и Lua: функция верхнего регистра", en: "Python and Lua: the uppercase function" },
+    { term: "+=", ru: "дописывает текст в конец переменной", en: "appends text to the end of the variable" },
+    { term: "match", ru: "Lua: шаблоном ^%s*(.-)%s*$ срезают пробелы по краям", en: "Lua: the pattern ^%s*(.-)%s*$ trims the surrounding spaces" },
+  ],
+  string_search: [
+    { term: "indexOf", ru: "JS: номер первого вхождения, -1 если искали зря", en: "JS: position of the first hit, -1 when there is none" },
+    { term: "lastIndexOf", ru: "JS: номер последнего вхождения", en: "JS: position of the last hit" },
+    { term: "find / rfind", ru: "Python: поиск сначала и с конца", en: "Python: searching from the start and from the end" },
+    { term: "strpos", ru: "PHP: позиция первого вхождения", en: "PHP: the position of the first hit" },
+    { term: "count", ru: "сколько раз подстрока встречается", en: "how many times the substring appears" },
+    { term: "gmatch", ru: "Lua: перебирает все вхождения по одному", en: "Lua: walks through every match one by one" },
+    { term: "for", ru: "Lua: цикл собирает найденные вхождения и считает их", en: "Lua: the loop walks the matches and counts them" },
+  ],
+  string_replace: [
+    { term: "replace", ru: "меняет одно вхождение: JS — только первое, Python — по лимиту", en: "changes one hit: JS only the first, Python as many as you allow" },
+    { term: "replaceAll", ru: "JS: меняет все вхождения сразу", en: "JS: changes every hit at once" },
+    { term: "gsub", ru: "Lua: всегда меняет все вхождения", en: "Lua: always replaces all hits" },
+    { term: "str_replace", ru: "PHP: меняет все вхождения", en: "PHP: replaces all hits" },
+  ],
+  boolean_logic: [
+    { term: "&& / and", ru: "И: нужно, чтобы оба условия были истинны", en: "AND: both conditions have to be true" },
+    { term: "|| / or", ru: "ИЛИ: достаточно, чтобы сработало одно", en: "OR: one true condition is enough" },
+    { term: "! / not", ru: "НЕ: переворачивает ответ — правда становится ложью", en: "NOT: flips the answer — truth becomes false" },
+    { term: "true / True", ru: "истина", en: "the true value" },
+    { term: "false / False", ru: "ложь", en: "the false value" },
+    { term: "var_dump", ru: "PHP: печатает и значение, и его тип", en: "PHP: prints both the value and its type" },
+  ],
+  ternary_null: [
+    { term: "?", ru: "развилка: условие ? если_да : если_нет", en: "the fork: condition ? yes-value : no-value" },
+    { term: "if / else", ru: "то же самое, развёрнутое в две ветки", en: "the same choice spread over two branches" },
+    { term: "and / or", ru: "Lua: тернарного оператора нет, роль играет пара and/or", en: "Lua: no ternary operator — the and/or pair plays that role" },
+    { term: "null / nil / None", ru: "значения совсем нет: ячейка пустая", en: "there is no value at all: the cell is empty" },
+    { term: "is None", ru: "Python: так спрашивают «значения нет?»", en: "Python: how you ask “is there no value?”" },
+    { term: "let x", ru: "JS: переменная без значения хранит undefined", en: "JS: a variable with no value holds undefined" },
+  ],
+  math_functions: [
+    { term: "Math / math", ru: "библиотека, где живут математические функции", en: "the library that holds the math functions" },
+    { term: "sqrt", ru: "квадратный корень: сторона квадрата площадью 144", en: "square root: the side of a square with area 144" },
+    { term: "abs / fabs", ru: "модуль: расстояние до нуля, знак отбрасываем", en: "absolute value: distance from zero, the sign is dropped" },
+    { term: "PI / pi / M_PI", ru: "число π — длина круга к его диаметру", en: "π — the circle's length divided by its diameter" },
+    { term: "log", ru: "логарифм; к console.log отношения не имеет", en: "the logarithm — nothing to do with console.log" },
+  ],
+  rounding: [
+    { term: "round", ru: "округляет к ближайшему целому", en: "rounds to the nearest whole number" },
+    { term: "ceil", ru: "всегда вверх: 4.1 превращает в 5", en: "always up: 4.1 becomes 5" },
+    { term: "floor", ru: "всегда вниз: 4.9 превращает в 4", en: "always down: 4.9 becomes 4" },
+    { term: "+ .5", ru: "Lua: округление делают парой floor(x + 0.5)", en: "Lua: rounding is written as floor(x + 0.5)" },
+    { term: "max / min", ru: "наибольшее и наименьшее из перечисленного", en: "the largest and the smallest of what you list" },
+  ],
+  split_join: [
+    { term: "split", ru: "режет строку по разделителю и отдаёт список", en: "cuts the string at the separator and returns a list" },
+    { term: "join", ru: "собирает список обратно в строку через разделитель", en: "glues the list back into a string with a separator" },
+    { term: "explode / implode", ru: "PHP: те же два действия другими именами", en: "PHP: the same two actions under other names" },
+    { term: "gmatch", ru: "Lua: разбор по шаблону, где [^,]+ — «всё до запятой»", en: "Lua: splitting by pattern, where [^,]+ means “everything up to a comma”" },
+    { term: "for", ru: "Lua: цикл собирает найденные части в список", en: "Lua: the loop collects the found parts into a list" },
+    { term: "int", ru: "Python: превращает «10» в число, иначе + склеит строки", en: "Python: turns “10” into a number, otherwise + glues text" },
+    { term: "\",\"", ru: "разделитель: по чему режем и чем склеиваем", en: "the separator: what we cut at and what we glue with" },
+  ],
+  list_operations: [
+    { term: "reverse", ru: "переворачивает список задом наперёд", en: "flips the list around" },
+    { term: "slice", ru: "JS: копия списка, чтобы не испортить оригинал", en: "JS: a copy of the list so the original stays intact" },
+    { term: "indexOf / index", ru: "номер позиции, где лежит значение", en: "the position number where a value sits" },
+    { term: "fill", ru: "Array(5).fill(\"ха\") — список из пяти одинаковых записей", en: "Array(5).fill(value) — a list of five identical entries" },
+    { term: "for", ru: "Lua: так идут по списку с конца, шаг -1", en: "Lua: this walks the list backwards when the step is -1" },
+    { term: "reversed", ru: "Python: обратный перебор, обёрнутый в list()", en: "Python: a reversed walk, wrapped in list()" },
+    { term: "count", ru: "PHP: сколько элементов в списке", en: "PHP: how many items the list holds" },
+  ],
+  list_indexing: [
+    { term: "[0]", ru: "первая ячейка списка: нумерация начинается с нуля", en: "the first cell of the list: counting starts at zero" },
+    { term: "[-1]", ru: "Python: ячейка с конца — последняя", en: "Python: the cell counted from the end — the last one" },
+    { term: "inv[1]", ru: "в Lua первая ячейка стоит под номером 1", en: "in Lua the first cell is number 1" },
+    { term: "length / len / count", ru: "сколько ячеек занято: в JS это свойство, в Python и PHP — функция", en: "how many cells are filled: a property in JS, a function in Python and PHP" },
+    { term: "#", ru: "Lua: длина списка — решётка перед именем", en: "Lua: the list length is a hash before the name" },
+  ],
+  list_add_remove: [
+    { term: "push", ru: "JS: добавить элемент в конец", en: "JS: add an item at the end" },
+    { term: "append", ru: "Python: то же самое", en: "Python: the same thing" },
+    { term: "insert", ru: "Lua: вставить на указанное место", en: "Lua: insert at the position you name" },
+    { term: "remove", ru: "Python удаляет по значению, Lua table.remove — по позиции", en: "Python removes by value, Lua's table.remove by position" },
+    { term: "splice", ru: "JS: вырезать элемент по индексу", en: "JS: cut an item out by index" },
+    { term: "indexOf / array_search", ru: "чтобы удалить по позиции, позицию сначала находят", en: "removing by position means finding that position first" },
+  ],
+  list_random_choice: [
+    { term: "Math.random", ru: "дробь 0…1 — основа случайного выбора", en: "a 0…1 fraction — the base of a random pick" },
+    { term: "Math.floor", ru: "округляет вниз: из дроби получается индекс ячейки", en: "rounds down: the fraction turns into a cell index" },
+    { term: "length", ru: "сколько предметов — столько и вариантов", en: "as many items as there are choices" },
+    { term: "choice", ru: "Python: случайный элемент одной функцией", en: "Python: one function picks a random item" },
+    { term: "randomseed / os.time", ru: "Lua: «зачаток» от часов, чтобы ряд менялся каждый запуск", en: "Lua: seeding from the clock so each run differs" },
+    { term: "array_rand", ru: "PHP: возвращает случайный индекс, а не сам элемент", en: "PHP: returns a random index, not the item itself" },
+  ],
+  string_accumulate: [
+    { term: "let", ru: "переменную можно менять — на ней и копят результат", en: "a variable you may change — that is where the result piles up" },
+    { term: "+= / .=", ru: "дописать к тому, что уже накоплено", en: "append to whatever is already collected" },
+    { term: "..", ru: "Lua: склейка строк двумя точками", en: "Lua: strings glue with two dots" },
+    { term: "range", ru: "Python: сколько шагов сделать", en: "Python: how many steps to take" },
+    { term: "for", ru: "цикл: один повтор — одна порция дописанного текста", en: "the loop: one repetition appends one more piece of text" },
+    { term: "\"\"", ru: "пустая строка — с неё начинают накопление", en: "an empty string — where the accumulating starts" },
+  ],
+  while_until: [
+    { term: "while", ru: "повторять, пока условие истинно: сколько раз — заранее неизвестно", en: "repeat while the condition holds — the count is not known in advance" },
+    { term: "<", ru: "условие остановки: крутимся, пока step меньше пяти", en: "the stopping test: keep looping while step is below five" },
+    { term: "do", ru: "Lua: тело цикла между do и end", en: "Lua: the body sits between do and end" },
+    { term: "+=", ru: "шаг: приближает условие к остановке, без него цикл вечный", en: "the update step: it moves the condition toward stopping" },
+    { term: "++", ru: "JS и PHP: то же увеличение на 1, короче", en: "JS and PHP: the same +1, written shorter" },
+    { term: "local", ru: "Lua: переменную объявляют до цикла, иначе проверять нечего", en: "Lua: declare the variable before the loop, or the test has nothing to read" },
+  ],
+  list_is_empty: [
+    { term: "while", ru: "цикл с условием: проверяет перед каждым шагом", en: "a condition loop: it tests before every step" },
+    { term: "> 0", ru: "в списке ещё есть хоть одна ячейка", en: "the list still has at least one cell" },
+    { term: "length / len / count", ru: "считаем ячейки: пустой список — это длина 0", en: "counts cells: an empty list has length 0" },
+    { term: "#", ru: "Lua: та же длина, только решёткой", en: "Lua: the same length, written as a hash" },
+    { term: "shift", ru: "JS: вынуть первый элемент, список укорачивается", en: "JS: take out the first item, the list gets shorter" },
+    { term: "pop / table.remove / array_shift", ru: "вынуть элемент — и условие само приближается к остановке", en: "take an item out — and the condition moves toward stopping" },
+  ],
+  nested_lists: [
+    { term: "[1][1]", ru: "две пары скобок: сначала номер строки, потом номер ячейки в ней", en: "two bracket pairs: first the row, then the cell inside that row" },
+    { term: "[[", ru: "список внутри списка: каждая строка — отдельный список", en: "a list inside a list: every row is its own list" },
+    { term: "{{", ru: "Lua: вложенные фигурные скобки — строки внутри «двора»", en: "Lua: nested braces are the rows inside the grid" },
+    { term: "const / local", ru: "весь «двор» хранится в одной переменной", en: "the whole grid lives in a single variable" },
+    { term: "$", ru: "PHP: имя переменной всегда начинается с доллара", en: "PHP: a variable name always starts with a dollar sign" },
+  ],
+  predicate_functions: [
+    { term: "function / def", ru: "описываем функцию-вопрос один раз", en: "define the question function once" },
+    { term: "return", ru: "возвращает правду или ложь — то есть ответ", en: "returns the truth or lie that answers the question" },
+    { term: "num > 3", ru: "сравнение внутри функции: его результат и есть ответ", en: "the comparison inside: its result is the answer" },
+    { term: "big(4)", ru: "вызов-вопрос: «4 больше трёх?»", en: "the call asks: “is 4 bigger than 3?”" },
+    { term: "if / then / else", ru: "проверяет ответ функции и выбирает ветку", en: "checks the answer of the function and picks a branch" },
+    { term: "?", ru: "JS и PHP: короткий выбор ответа по тому же условию", en: "JS and PHP: the short yes/no pick on the same test" },
+  ],
+  dict: [
+    { term: "{}", ru: "пустой словарь: ячеек ещё нет, будем добавлять", en: "an empty dictionary: no cells yet, we will add them" },
+    { term: "[\"a\"]", ru: "обращение по имени, а не по номеру: ключ в кавычках", en: "access by name, not by position: the key is quoted" },
+    { term: "in", ru: "есть ли в словаре такой ключ", en: "whether the dictionary has that key" },
+    { term: "nil", ru: "Lua: значения под ключом нет", en: "Lua: there is no value under that key" },
+    { term: "array_key_exists", ru: "PHP: та же проверка наличия ключа", en: "PHP: the same has-key check" },
+    { term: "var_dump", ru: "PHP: печатает и ответ, и его тип", en: "PHP: prints the answer and its type" },
+  ],
+};
+
+/**
+ * Блок «Слова в примере»: что значит каждое ключевое слово языка и каждый метод
+ * из примеров темы. Раздел ставится перед «Частыми ошибками».
+ */
+function keywordsBlock(topic: GlossaryTopicId): string {
+  const lis = TOPIC_KEYWORDS[topic]
+    .map((k) => `<li><code>${esc(k.term)}</code> — ${esc(t(k.ru, k.en))}</li>`)
+    .join("");
+  return `<h4 style="margin-top:12px;">${t("Слова в примере", "Words in this example")}</h4><ul>${lis}</ul>`;
+}
+
+/** Пояснения слов темы — для теста покрытия справочника. */
+export function glossaryKeywordNotes(topic: GlossaryTopicId): KeywordNote[] {
+  return TOPIC_KEYWORDS[topic];
 }
 
 const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
@@ -100,6 +357,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: "function add(a, b)\n  return a + b\nend\nprint(add(3, 4)) -- 7" },
       { label: "PHP", code: "<?php\nfunction add($a, $b) {\n  return $a + $b;\n}\necho add(3, 4) . PHP_EOL; // 7" },
     ]) +
+    keywordsBlock("functions") +
     mistakesList([
       t("Определили функцию, но ни разу не вызвали — ничего не выполняется.", "The function is defined but never called — nothing runs."),
       t("Перепутали параметр (в определении) и аргумент (в вызове).", "Confusing the parameter (in the definition) with the argument (in the call)."),
@@ -128,6 +386,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: "for i = 1, 3 do\n  for j = 1, 3 do\n    print(i .. \" × \" .. j .. \" = \" .. i * j)\n  end\nend" },
       { label: "PHP", code: "<?php\nfor ($i = 1; $i <= 3; $i++) {\n  for ($j = 1; $j <= 3; $j++) {\n    echo \"$i × $j = \" . ($i * $j) . PHP_EOL;\n  }\n}" },
     ]) +
+    keywordsBlock("nested_loops") +
     mistakesList([
       t("Один и тот же счётчик в обоих циклах — цикл «съедает» сам себя.", "The same counter variable in both loops — the loop eats itself."),
       t("Перепутали местами: перемножение i × j даёт разные строки, если внешний и внутренний поменяны.", "Swapping the loops: the i × j products change if outer and inner are switched."),
@@ -161,6 +420,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: "-- В Lua нет continue: тело оборачивают\n-- в противоположное условие\nfor _, n in ipairs({1, 2, 3, 4}) do\n  if n % 2 == 0 then print(n) end\nend" },
       { label: "PHP", code: "<?php\nforeach ([1, 2, 3, 4] as $n) {\n  if ($n % 2 !== 0) continue;\n  echo $n . PHP_EOL; // 2, 4\n}" },
     ]) +
+    keywordsBlock("break_continue") +
     mistakesList([
       t("Код в цикле после break не выполняется — ставьте его сразу после нужного действия.", "Code in the loop after break never runs — place it right after the useful action."),
       t("break останавливает только ближайший (внутренний) цикл, внешний продолжится.", "break stops only the innermost loop; the outer loop keeps going."),
@@ -188,6 +448,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: "local list = {9, 3, 7, 1, 5}\ntable.sort(list)\nprint(table.concat(list, \", \"))\n-- 1, 3, 5, 7, 9" },
       { label: "PHP", code: "<?php\n$list = [9, 3, 7, 1, 5];\nsort($list);\necho implode(\", \", $list); // 1, 3, 5, 7, 9" },
     ]) +
+    keywordsBlock("sorting") +
     mistakesList([
       t("Числа как текст сортируются странно: [\"10\", \"9\"] → 10 раньше 9. Сортируйте именно числа.", "Numbers stored as text sort oddly: [\"10\", \"9\"] puts 10 before 9. Sort actual numbers."),
       t("Путают direction в блоке сортировки: по убыванию минимум окажется в конце.", "Mixing up the sort direction: with descending order the minimum ends up last."),
@@ -215,6 +476,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: "for _ = 1, 3 do\n  print(\"Привет\")\nend" },
       { label: "PHP", code: "<?php\nfor ($i = 0; $i < 3; $i++) {\n  echo \"Привет\" . PHP_EOL;\n}" },
     ]) +
+    keywordsBlock("repeat_n_times") +
     mistakesList([
       t("Ставят «повторить» там, где нужен счётчик (например, числа 1…10) — берите «цикл по i».", "Using “repeat” where a counter is needed (e.g. printing 1…10) — take “count with i” instead."),
       t("Не то, что нужно, при неизвестном числе повторов («пока не угадан») — там подходит «повторять, пока».", "Wrong tool when the count is unknown (“until guessed right”) — use “repeat while” there."),
@@ -242,6 +504,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: "roll = math.random(1, 6)\nprint(roll)" },
       { label: "PHP", code: "<?php\n$roll = rand(1, 6);\necho $roll . PHP_EOL;" },
     ]) +
+    keywordsBlock("random_numbers") +
     mistakesList([
       t("Думают, что границы не включаются: «от 1 до 6» может дать и 1, и 6.", "Believing the bounds are exclusive: “1 to 6” can yield both 1 and 6."),
       t("Сравнивают результат с конкретным числом при проверке — он же случайный. Проверяйте диапазон.", "Checking the result against a fixed number — it is random. Verify the range instead."),
@@ -268,6 +531,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: "io.write(\"Как тебя зовут? \")\nlocal name = io.read()\nprint(\"Привет, \" .. name .. \"!\")" },
       { label: "PHP", code: "<?php\necho \"Как тебя зовут? \" . PHP_EOL;\n$name = trim(fgets(STDIN));\necho \"Привет, \" . $name . \"!\" . PHP_EOL;" },
     ]) +
+    keywordsBlock("user_input") +
     mistakesList([
       t("Числовой ввод используют без перевода в число: «возраст + 1» к строке даёт склеивание, а не сумму — берите блок числа вместо текста.", "Using numeric input without conversion: “age + 1” on a string concatenates instead of adding — use the number input block."),
       t("Забывают, что ввод происходит во время запуска: нужно нажать «▶», дождаться поле ввода и ответить.", "Forgetting that input happens at run time: press “▶”, wait for the input box and answer."),
@@ -302,6 +566,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local age = 10\nprint("Next year " .. tostring(age + 1) .. ".") -- Next year 11.' },
       { label: "PHP", code: '<?php\n$age = 10;\necho "Next year " . ($age + 1) . "." . PHP_EOL; // Next year 11.' },
     ]) +
+    keywordsBlock("string_concat") +
     mistakesList([
       t("Склеить строку и число в Python без str() — программа падает с ошибкой типов.", "Joining a string and a number in Python without str() raises a type error."),
       t("Забыть пробел между кусочками — слова слипаются в «HelloAnna».", "Forgetting the space between the pieces — the words stick together as “HelloAnna”."),
@@ -330,6 +595,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local s = "Blockly"\nprint(#s)                  -- 7\nprint(string.reverse(s))   -- ylkcolB' },
       { label: "PHP", code: '<?php\n$s = "Blockly";\necho strlen($s) . PHP_EOL; // 7\necho strrev($s) . PHP_EOL; // ylkcolB' },
     ]) +
+    keywordsBlock("string_length") +
     mistakesList([
       t("Длина — не последний индекс: у строки из 7 символов последний индекс 6, потому что счёт символов начинается с нуля.", "Length is not the last index: a 7-character string ends at index 6 because counting starts at zero."),
       t("В JavaScript разворота строки нет — сначала split(''), затем reverse(), потом join('').", "JavaScript has no string reverse — split('') first, then reverse(), then join('')."),
@@ -359,6 +625,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local s = "Blockly"\nprint(string.sub(s, 1, 1))  -- B\nprint(string.sub(s, -1))    -- y' },
       { label: "PHP", code: '<?php\n$s = "Blockly";\necho $s[0] . PHP_EOL;            // B\necho substr($s, -1) . PHP_EOL;   // y' },
     ]) +
+    keywordsBlock("string_indexing") +
     mistakesList([
       t("Спрашивают «первый символ» под индексом 1 и получают второй. В JS/Python/PHP первый — это 0.", "Asking for index 1 to get the first character and getting the second one. In JS/Python/PHP the first is 0."),
       t("Индекс равный длине уже вне строки: у \"Blockly\" индексы 0…6, а 7 — пусто.", "An index equal to the length is out of range: \"Blockly\" has indexes 0…6, index 7 is empty."),
@@ -387,6 +654,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local s = "Blockly"\nprint(string.sub(s, 1, 3))   -- Blo\nprint(string.sub(s, -3))     -- kly\nprint(string.sub(s, 2, 6))   -- lockl' },
       { label: "PHP", code: '<?php\n$s = "Blockly";\necho substr($s, 0, 3) . PHP_EOL;  // Blo\necho substr($s, -3) . PHP_EOL;    // kly\necho substr($s, 1, 5) . PHP_EOL;  // lockl' },
     ]) +
+    keywordsBlock("string_slice") +
     mistakesList([
       t("В JS/Python правая граница не включается: s.slice(0, 3) даёт 3 символа, а не 4.", "In JS/Python the right bound is exclusive: s.slice(0, 3) yields 3 characters, not 4."),
       t("В Lua и PHP вторая цифра — часто длина, а не конечная позиция: substr(s, 0, 3) и sub(s, 1, 3) значат разное.", "In Lua and PHP the second number is often a length, not an end position: substr(s, 0, 3) and sub(s, 1, 3) differ."),
@@ -415,6 +683,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local s = "  pri"\ns = s .. "vet!"\nlocal t = s:match("^%s*(.-)%s*$")\nprint(t:upper())  -- PRIVET!' },
       { label: "PHP", code: '<?php\n$s = "  pri";\n$s .= "vet!";\necho strtoupper(trim($s)) . PHP_EOL; // PRIVET!' },
     ]) +
+    keywordsBlock("string_case_trim") +
     mistakesList([
       t("trim не трогает пробелы внутри строки: \" pri vet \" останется с двойным пробелом посередине.", "trim leaves inner spaces alone: \" pri vet \" still has a double space in the middle."),
       t("Сравнивают строки разного регистра и получают «не равно». Сначала — к одному регистру, потом сравнивать.", "Comparing strings of different case returns “not equal”. Normalize the case first, then compare."),
@@ -444,6 +713,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local s = "banana"\nprint((string.find(s, "a", 1, true)))  -- 1\nlocal n = 0\nfor _ in s:gmatch("a") do n = n + 1 end\nprint(n)  -- 3' },
       { label: "PHP", code: '<?php\n$s = "banana";\necho strpos($s, "a") . PHP_EOL;        // 1\necho strrpos($s, "a") . PHP_EOL;       // 5\nvar_dump(strpos($s, "z"));             // bool(false)\necho substr_count($s, "a") . PHP_EOL;  // 3' },
     ]) +
+    keywordsBlock("string_search") +
     mistakesList([
       t("«Позиция 0» в языке программирования — это первая буква, а не «не найдено». Проверяйте результат сравнением с -1 или false.", "Position 0 in a programming language is the first letter, not “not found”. Test the result against -1 or false."),
       t("Подсчёт не перекрывается: «na» в «banana» дают 2, а не 3 — найденный кусок «вычёркивается» целиком.", "Counting does not overlap: “na” in “banana” gives 2, not 3 — each hit is consumed whole."),
@@ -472,6 +742,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local s = "Mississippi"\nprint((s:gsub("i", "1")))      -- M1ss1ss1pp1\n-- gsub всегда меняет все вхождения, если не указан лимит' },
       { label: "PHP", code: '<?php\n$s = "Mississippi";\necho str_replace("i", "1", $s) . PHP_EOL;  // M1ss1ss1pp1' },
     ]) +
+    keywordsBlock("string_replace") +
     mistakesList([
       t("Замена не меняет строку на месте: без присваивания результата исходная строка остаётся прежней.", "Replacement does not mutate the string: unless you assign the result, the original stays unchanged."),
       t("Замена на пустой текст — это удаление: replace(s, \"\") вырезает подстроку.", "Replacing with an empty text is deletion: replace(s, \"\") cuts the substring out."),
@@ -501,6 +772,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local a, b = true, false\nprint(a and b)   -- false\nprint(a or b)    -- true\nprint(not a)     -- false' },
       { label: "PHP", code: '<?php\n$a = true; $b = false;\nvar_dump($a && $b);  // bool(false)\nvar_dump($a || $b);  // bool(true)\nvar_dump(!$a);       // bool(false)' },
     ]) +
+    keywordsBlock("boolean_logic") +
     mistakesList([
       t("«И» с противоречивыми границами не выполним никогда: x > 20 и x < 12 ложны для любого числа.", "AND with contradictory bounds can never hold: x > 20 and x < 12 is false for every number."),
       t("Печать true в разных языках выглядит по-разному (True/true/1) — для окна вывода надёжнее печатать слово «да»/«нет».", "Printing true differs per language (True/true/1) — for the output panel it is safer to print a “yes”/“no” word."),
@@ -530,6 +802,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local n = 7\n-- в Lua тернарного оператора нет, роль играет пара and/or\nprint(n > 5 and "больше" or "меньше")\nlocal x = nil\nprint(x == nil)  -- true' },
       { label: "PHP", code: '<?php\n$n = 7;\necho ($n > 5 ? "больше" : "меньше") . PHP_EOL;  // больше\n$x = null;\nvar_dump($x === null);  // bool(true)' },
     ]) +
+    keywordsBlock("ternary_null") +
     mistakesList([
       t("null, 0, false и \"\" — четыре разных вещи. «Пустой текст» проверяют блоком «… пуст», а не сравнением с «ничто».", "null, 0, false and \"\" are four different things. An empty text is checked with the “… is empty” block, not by comparing with “null”."),
       t("Переменная, которой никогда не присваивали значение, и есть null — частый источник «пустых» результатов.", "A variable that was never assigned a value is exactly null — a common source of “empty” results."),
@@ -559,6 +832,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'print(math.sqrt(144))  -- 12\nprint(math.abs(-7))    -- 7\nprint(math.pi)         -- 3.1415926535898\nprint(math.log(9))' },
       { label: "PHP", code: '<?php\necho sqrt(144) . PHP_EOL;  // 12\necho abs(-7) . PHP_EOL;    // 7\necho M_PI . PHP_EOL;       // 3.1415926535898' },
     ]) +
+    keywordsBlock("math_functions") +
     mistakesList([
       t("Функции часто возвращают дробное число там, где ждёшь целое: math.sqrt(144) в Python — это 12.0. Округляйте, если нужен целый ответ.", "These functions often return a float where you expect a whole number: math.sqrt(144) is 12.0 in Python. Round it when you need a whole answer."),
       t("Корень из отрицательного числа и логарифм от 0 или меньше дадут ошибку или NaN — сначала проверьте знак условием.", "A root of a negative number and a logarithm of 0 or less produce an error or NaN — check the sign with a condition first."),
@@ -588,6 +862,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'print(math.floor(4.4 + .5))  -- 4 (в Blockly округление так и пишется)\nprint(math.floor(4.6 + .5))  -- 5\nprint(math.ceil(4.1))        -- 5\nprint(math.floor(4.9))       -- 4' },
       { label: "PHP", code: '<?php\necho round(4.4) . PHP_EOL;  // 4\necho round(4.6) . PHP_EOL;  // 5\necho ceil(4.1) . PHP_EOL;   // 5\necho floor(4.9) . PHP_EOL;  // 4' },
     ]) +
+    keywordsBlock("rounding") +
     mistakesList([
       t("Ровно половина округляется неоднозначно: JavaScript и PHP дают round(4.5) = 5, а Python — 4, потому что округляет к чётному. Проверяйте .5 на своём языке.", "Exact halves round inconsistently: JavaScript and PHP give round(4.5) = 5 while Python gives 4, because it rounds to even. Test .5 on your own language."),
       t("Округление «вверх» для отрицательного числа идёт к нулю: потолок −4.9 это −4, а не −5.", "Rounding “up” moves a negative number toward zero: the ceiling of −4.9 is −4, not −5."),
@@ -616,6 +891,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local parts = {}\nfor w in ("10,20,30"):gmatch("([^,]+)") do\n  parts[#parts + 1] = w\nend\nprint(table.concat(parts, "-"))  -- 10-20-30' },
       { label: "PHP", code: '<?php\n$parts = explode(",", "10,20,30");\necho $parts[0] . PHP_EOL;          // 10\necho number_format($parts[0] + 1) . PHP_EOL;  // 11\necho implode("-", $parts);         // 10-20-30' },
     ]) +
+    keywordsBlock("split_join") +
     mistakesList([
       t("После split элементы — строки: «10» + 1 в JavaScript даст «101». Для арифметики преобразуйте в число.", "After split the items are strings: \"10\" + 1 gives \"101\" in JavaScript. Convert to a number before doing arithmetic."),
       t("В Python join читается наоборот: разделитель стоит слева, \"-\".join(parts). В Blockly это просто другой режим того же блока.", "In Python join reads backwards: the delimiter comes first, \"-\".join(parts). In Blockly it is just another mode of the same block."),
@@ -645,6 +921,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Lua", code: 'local xs = {1, 2, 3}\nlocal rev = {}\nfor i = #xs, 1, -1 do rev[#rev + 1] = xs[i] end\nprint(rev[1])  -- 3\nprint(#xs)     -- 3 — длина' },
       { label: "PHP", code: '<?php\n$xs = [1, 2, 3];\nprint_r(array_reverse($xs));        // 3, 2, 1\nvar_dump(array_search(2, $xs));     // int(1) — с 0\necho count($xs) . PHP_EOL;          // 3' },
     ]) +
+    keywordsBlock("list_operations") +
     mistakesList([
       t("Блок позиции отдаёт 0, когда элемента в списке нет, — а 0 похож на настоящее число. Проверяйте «не найдено» отдельно.", "The position block returns 0 when the item is not in the list — and 0 looks like a real number. Check “not found” explicitly."),
       t("Разворот в JavaScript на месте (xs.reverse()) портит исходный список; через slice() — безопасный копия-вариант.", "Reversing in place in JavaScript (xs.reverse()) ruins the original list; slice().reverse() works on a copy."),
@@ -703,6 +980,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         code: '<?php\n$inv = ["sword", "shield", "potion"];\necho count($inv) . PHP_EOL; // 3\necho $inv[0] . PHP_EOL;     // sword\necho $inv[2] . PHP_EOL;     // potion',
       },
     ]) +
+    keywordsBlock("list_indexing") +
     mistakesList([
       t(
         "Индекс вне диапазона: в списке 3 элемента, а просят четвёртый. Python выдаст IndexError, JavaScript — undefined.",
@@ -779,6 +1057,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         code: '<?php\n$inv = ["sword", "shield"];\n$inv[0] = "steel sword";            // замена\narray_push($inv, "potion");          // добавить в конец\n$p = array_search("shield", $inv);   // найти позицию\nunset($inv[$p]);                      // удалить\necho count($inv) . PHP_EOL;          // 2',
       },
     ]) +
+    keywordsBlock("list_add_remove") +
     mistakesList([
       t(
         "Удалять то, чего нет: Python выдаст ValueError, Blockly просто уберёт несуществующую ячейку. Сначала проверьте поиск.",
@@ -852,6 +1131,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         code: '<?php\n$loot = ["pelt", "sword", "fang", "root"];\n$i = array_rand($loot);\necho $loot[$i] . PHP_EOL; // один случайный предмет',
       },
     ]) +
+    keywordsBlock("list_random_choice") +
     mistakesList([
       t(
         "Случайное число от 0 до длины: позиции с индексом длины не существует, будет выход за диапазон.",
@@ -921,6 +1201,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         code: '<?php\n$echo = "";\nfor ($i = 0; $i < 3; $i++) {\n  $echo .= "ROAR" . "!";\n}\necho $echo . PHP_EOL; // ROAR!ROAR!ROAR!',
       },
     ]) +
+    keywordsBlock("string_accumulate") +
     mistakesList([
       t(
         "Забыли обнулить накопитель: к прошлому значению дописывается новое, и эхо «растёт» между запусками.",
@@ -981,6 +1262,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         code: "<?php\n$step = 0;\nwhile ($step < 5) {\n  echo $step . PHP_EOL;\n  $step++;\n}",
       },
     ]) +
+    keywordsBlock("while_until") +
     mistakesList([
       t(
         "Забыли блок «увеличить на 1»: условие никогда не станет ложным, цикл зациклится навсегда.",
@@ -1044,6 +1326,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         code: '<?php\n$tools = ["hammer", "saw"];\nwhile (count($tools) > 0) {\n  echo array_shift($tools) . PHP_EOL;\n}',
       },
     ]) +
+    keywordsBlock("list_is_empty") +
     mistakesList([
       t(
         "Читают элемент, но не удаляют его: список не меняется, и условие «пуст» не наступает никогда.",
@@ -1104,6 +1387,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         code: '<?php\n$grid = [["A", "B", "C"], ["D", "E", "F"], ["G", "H", "I"]];\necho $grid[1][1] . PHP_EOL; // E',
       },
     ]) +
+    keywordsBlock("nested_lists") +
     mistakesList([
       t(
         "Ищут ячейку одним номером: «grid[4]» даёт целую строку, а не четвёртый символ.",
@@ -1167,6 +1451,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
         code: '<?php\nfunction big($num) {\n  return $num > 3;\n}\necho big(4) ? "YES" : "NO";',
       },
     ]) +
+    keywordsBlock("predicate_functions") +
     mistakesList([
       t(
         "Функция печатает ДА/НЕТ вместо возврата: значение нельзя вложить в «если».",
@@ -1249,6 +1534,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
           'var_dump(array_key_exists("z", $freq)); // false',
       },
     ]) +
+    keywordsBlock("dict") +
     mistakesList([
       t(
         "«Словарь: установить» подключают прямо к «Словарь: создать пустой» — запись уходит в одноразовый словарь, который тут же исчезает. Словарь сначала кладут в переменную.",
