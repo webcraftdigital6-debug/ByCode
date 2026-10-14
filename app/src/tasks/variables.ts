@@ -1,7 +1,14 @@
 // Задачи группы «variables»: тексты заданий и валидаторы.
 import * as Blockly from "blockly";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
-import { getVisibleOutputLines, getVarFieldText, tryGetAssignedNumber, escapeRe } from "./utils";
+import {
+  getVisibleOutputLines,
+  getVarFieldText,
+  tryGetAssignedNumber,
+  escapeRe,
+  typedCodeMode,
+  printsBareNumber,
+} from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 async function validateVarMyAge(
@@ -52,15 +59,21 @@ async function validateVarMyAge(
     }
   }
 
-  const ok = (() => {
-    if (nonShadowBlocks.length === 0) {
-      return lines.some((l) => /\d/.test(l));
-    }
-    if (!assignedValue) return false;
-    const re = new RegExp(`(^|\\b)${escapeRe(assignedValue)}(\\b|$)`);
-    const hasValueInOutput = lines.some((l) => re.test(l));
-    return hasSetVar && hasValueInOutput;
-  })();
+  // Число выбирает сам ученик, поэтому в режиме кода проверяем форму и смысл
+  // вывода: это должно быть число возраста (или год рождения), а не «любая строка с цифрой».
+  const plausibleAgeLine = (line: string): boolean => {
+    const trimmed = line.trim();
+    if (!/^\d{1,4}$/.test(trimmed)) return false;
+    const value = Number(trimmed);
+    return (value >= 1 && value <= 130) || (value >= 1900 && value <= 2100);
+  };
+
+  const codeMode = typedCodeMode(ws);
+  const valueRe = assignedValue === null ? null : new RegExp(`(^|\\b)${escapeRe(assignedValue)}(\\b|$)`);
+  const outputOk = codeMode
+    ? lines.some(plausibleAgeLine)
+    : valueRe !== null && lines.some((l) => valueRe.test(l));
+  const ok = outputOk && (codeMode || hasSetVar);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -134,21 +147,17 @@ async function validateCalcSum(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok = (() => {
-    if (nonShadowBlocks.length === 0) {
-      return lines.some((l) => /\d/.test(l));
-    }
-    if (aVal === null || bVal === null) return false;
-    const expected = aVal + bVal;
-    const re = new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
-    const hasValueInOutput = lines.some((l) => re.test(l));
-    return (
-      setVarsCount >= 2 &&
-      getVarsCount >= 1 &&
-      (hasSetAnySumLike || hasSumExpression) &&
-      hasValueInOutput
-    );
-  })();
+  // В режиме кода слагаемые выбирает ученик: сверяем форму вывода (строка — число),
+  // а не «любую строку с цифрой».
+  const codeMode = typedCodeMode(ws);
+  const expected = aVal !== null && bVal !== null ? aVal + bVal : null;
+  const valueRe = expected === null ? null : new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
+  const outputOk = codeMode
+    ? printsBareNumber(lines)
+    : valueRe !== null && lines.some((l) => valueRe.test(l));
+  const structureOk =
+    setVarsCount >= 2 && getVarsCount >= 1 && (hasSetAnySumLike || hasSumExpression);
+  const ok = outputOk && (codeMode || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -349,15 +358,17 @@ async function validateDiscountCalc(
     return lines.some((l) => re.test(l));
   })();
 
-  const ok =
-    nonShadowBlocks.length === 0
-      ? lines.some((l) => /\d/.test(l))
-      : (hasSetPrice || priceVal !== null) &&
-        (hasSetDiscount || discountVal !== null) &&
-        (hasGetPrice || hasGetDiscount) &&
-        hasPrint &&
-        expected !== null &&
-        hasExpectedInOutput;
+  // Цена и скидка — выбор ученика: в режиме кода проверяем, что выведено число,
+  // а не строка с цифрой внутри постороннего текста.
+  const codeMode = typedCodeMode(ws);
+  const outputOk = codeMode ? printsBareNumber(lines) : hasExpectedInOutput;
+  const structureOk =
+    (hasSetPrice || priceVal !== null) &&
+    (hasSetDiscount || discountVal !== null) &&
+    (hasGetPrice || hasGetDiscount) &&
+    hasPrint &&
+    expected !== null;
+  const ok = outputOk && (codeMode || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

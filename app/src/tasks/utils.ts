@@ -1,4 +1,6 @@
 // Вспомогательные функции для валидаторов задач.
+import { countNonShadowBlocks } from "../workspaceUtils";
+import type { ValidationResult } from "./types";
 
 export function collectPrintedLines(el: HTMLDivElement | null): string[] {
   if (!el) return [];
@@ -68,4 +70,34 @@ export function containsDescendantOfType(block: any, type: string): boolean {
     if (containsDescendantOfType(child, type)) return true;
   }
   return false;
+}
+
+/**
+ * Ученик написал программу в панели кода и не собирал блоков: рабочая область
+ * пуста. Такие решения проверяются по выводу — см. ok-выражения валидаторов.
+ */
+export function typedCodeMode(ws: unknown): boolean {
+  return countNonShadowBlocks(ws) === 0;
+}
+
+/**
+ * Верное решение без блоков получает верхнюю шкалу звёзд. «Оптимальность»
+ * сборки по блокам в режиме кода оценить нечем, а решение, написанное кодом,
+ * не должно быть наказано по сравнению с оптимальной блоковой сборкой.
+ */
+export function applyCodeModeStars(
+  result: ValidationResult,
+  ws: unknown
+): ValidationResult {
+  if (!result.ok || !typedCodeMode(ws)) return result;
+  return { ok: true, stars: 3 };
+}
+
+/**
+ * Форма вывода для режима «код в редакторе», где ответ зависит от чисел,
+ * которые выбрал сам ученик: сверять значение не с чем, но строка обязана быть
+ * числом без постороннего текста («99», «-3.5», «7,5»), а не «любой строкой с цифрой».
+ */
+export function printsBareNumber(lines: string[]): boolean {
+  return lines.some((l) => /^-?\d+(?:[.,]\d+)?$/.test(l.trim()));
 }

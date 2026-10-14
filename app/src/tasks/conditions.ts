@@ -2,7 +2,12 @@
 import * as Blockly from "blockly";
 import { getAppLang } from "../localization";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
-import { getVisibleOutputLines, getVarFieldText, tryGetAssignedNumber } from "./utils";
+import {
+  getVisibleOutputLines,
+  getVarFieldText,
+  tryGetAssignedNumber,
+  typedCodeMode,
+} from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 async function validateFirstCondition(
@@ -332,11 +337,10 @@ async function validateLogicAndOrNot(
   const types = logicBlockTypes(ws);
   const yes = outputLines.filter((l) => l.trim() === "YES").length;
   const no = outputLines.filter((l) => l.trim() === "NO").length;
-  const ok =
-    logicCountOf(types, "logic_operation") >= 2 &&
-    logicCountOf(types, "logic_negate") >= 1 &&
-    yes === 1 &&
-    no === 2;
+  const outputOk = yes === 1 && no === 2;
+  const structureOk =
+    logicCountOf(types, "logic_operation") >= 2 && logicCountOf(types, "logic_negate") >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -366,15 +370,15 @@ async function validateLogicGateCheck(
 ): Promise<ValidationResult> {
   const types = logicBlockTypes(ws);
   const lines = outputLines.map((l) => l.trim()).filter(Boolean);
-  const ok =
+  const outputOk = lines.length === 3 && lines.slice(0, 3).join(",") === "YES,NO,YES";
+  const structureOk =
     logicOperationCount(ws, "AND") >= 1 &&
     logicOperationCount(ws, "OR") >= 1 &&
     logicCountOf(types, "logic_negate") >= 1 &&
     logicCountOf(types, "controls_if") >= 3 &&
     logicCountOf(types, "logic_compare") >= 5 &&
-    logicCountOf(types, "variables_set") >= 2 &&
-    lines.slice(0, 3).join(",") === "YES,NO,YES" &&
-    lines.length === 3;
+    logicCountOf(types, "variables_set") >= 2;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -392,13 +396,15 @@ async function validateLogicTernary(
 ): Promise<ValidationResult> {
   const types = logicBlockTypes(ws);
   const ternary = logicCountOf(types, "logic_ternary");
-  const ok =
-    ternary >= 2 &&
-    logicCountOf(types, "logic_null") >= 1 &&
-    logicCountOf(types, "text_isEmpty") >= 1 &&
+  const outputOk =
     outputLines.includes("MORE") &&
     outputLines.includes("EMPTY") &&
     outputLines.includes("NO VALUE");
+  const structureOk =
+    ternary >= 2 &&
+    logicCountOf(types, "logic_null") >= 1 &&
+    logicCountOf(types, "text_isEmpty") >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

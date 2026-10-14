@@ -2,6 +2,7 @@
 // Длина и разворот, символ по номеру, подстрока, регистр и пробелы.
 import * as Blockly from "blockly";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
+import { typedCodeMode } from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 const WORD = "Blockly";
@@ -31,10 +32,9 @@ async function validateStrLength(
 ): Promise<ValidationResult> {
   const lines = outputLines;
   const types = blockTypes(ws);
-  const ok =
-    countOf(types, "text_length") >= 1 &&
-    lines.includes(String(WORD_LEN)) &&
-    lines.includes(WORD_REV);
+  const outputOk = lines.includes(String(WORD_LEN)) && lines.includes(WORD_REV);
+  // Программу, набранную в редакторе кода, проверяем по выводу: блоков на поле нет.
+  const ok = outputOk && (typedCodeMode(ws) || countOf(types, "text_length") >= 1);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -54,7 +54,8 @@ async function validateStrCharAt(
   const lines = outputLines;
   const types = blockTypes(ws);
   const charAt = countOf(types, "text_charAt");
-  const ok = charAt >= 1 && lines.includes("B") && lines.includes("y") && lines.includes("o");
+  const outputOk = lines.includes("B") && lines.includes("y") && lines.includes("o");
+  const ok = outputOk && (typedCodeMode(ws) || charAt >= 1);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -74,12 +75,12 @@ async function validateStrEcho(
   const lines = outputLines.map((l) => l.trim()).filter(Boolean);
   const types = blockTypes(ws);
   const appends = countOf(types, "text_append");
-  const ok =
+  const outputOk = lines.includes("R") && lines.includes("ROAR!ROAR!ROAR!");
+  const structureOk =
     appends >= 1 &&
     countOf(types, "controls_repeat_ext") >= 1 &&
-    countOf(types, "text_charAt") >= 1 &&
-    lines.includes("R") &&
-    lines.includes("ROAR!ROAR!ROAR!");
+    countOf(types, "text_charAt") >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -99,8 +100,8 @@ async function validateStrSubstring(
   const lines = outputLines;
   const types = blockTypes(ws);
   const slices = countOf(types, "text_getSubstring");
-  const ok =
-    slices >= 1 && lines.includes("Blo") && lines.includes("kly") && lines.includes("lockl");
+  const outputOk = lines.includes("Blo") && lines.includes("kly") && lines.includes("lockl");
+  const ok = outputOk && (typedCodeMode(ws) || slices >= 1);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -118,10 +119,9 @@ async function validateStrClean(
 ): Promise<ValidationResult> {
   const lines = outputLines;
   const types = blockTypes(ws);
-  const ok =
-    countOf(types, "text_trim") >= 1 &&
-    countOf(types, "text_changeCase") >= 1 &&
-    lines.includes("PRIVET!");
+  const outputOk = lines.includes("PRIVET!");
+  const structureOk = countOf(types, "text_trim") >= 1 && countOf(types, "text_changeCase") >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -141,7 +141,8 @@ async function validateStrIndexOf(
   const lines = outputLines;
   const types = blockTypes(ws);
   const found = countOf(types, "text_indexOf");
-  const ok = found >= 1 && lines.includes("2") && lines.includes("6") && lines.includes("0");
+  const outputOk = lines.includes("2") && lines.includes("6") && lines.includes("0");
+  const ok = outputOk && (typedCodeMode(ws) || found >= 1);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -161,7 +162,8 @@ async function validateStrCount(
   const lines = outputLines;
   const types = blockTypes(ws);
   const counted = countOf(types, "text_count");
-  const ok = counted >= 1 && lines.includes("3") && lines.includes("2") && lines.includes("0");
+  const outputOk = lines.includes("3") && lines.includes("2") && lines.includes("0");
+  const ok = outputOk && (typedCodeMode(ws) || counted >= 1);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -180,11 +182,9 @@ async function validateStrReplace(
   const lines = outputLines;
   const types = blockTypes(ws);
   const replaced = countOf(types, "text_replace");
-  const ok =
-    replaced >= 2 &&
-    lines.includes(PHONE_DIGITS) &&
-    lines.includes(PHONE_SH) &&
-    lines.includes(PHONE_WORD);
+  const outputOk =
+    lines.includes(PHONE_DIGITS) && lines.includes(PHONE_SH) && lines.includes(PHONE_WORD);
+  const ok = outputOk && (typedCodeMode(ws) || replaced >= 2);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

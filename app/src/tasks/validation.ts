@@ -19,7 +19,7 @@ import {
   setActiveTaskId,
 } from "./state";
 import type { InitTaskValidationOptions, TaskDef, TaskId } from "./types";
-import { getVisibleOutputLines } from "./utils";
+import { applyCodeModeStars, getVisibleOutputLines } from "./utils";
 
 function renderResult(
   feedbackEl: HTMLDivElement | null,
@@ -206,7 +206,10 @@ export function initTaskValidation(ws: Blockly.WorkspaceSvg, opts: InitTaskValid
       }
 
       const tdef = tasks[getActiveTask()];
-      const { ok, stars } = await tdef.validate(ws, currentLines, getAppLang());
+      const { ok, stars } = applyCodeModeStars(
+        await tdef.validate(ws, currentLines, getAppLang()),
+        ws
+      );
       const hint = tdef.hint(getAppLang());
       renderResult(feedbackEl, starsEl, ok, stars, hint);
 

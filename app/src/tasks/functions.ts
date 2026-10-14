@@ -1,7 +1,7 @@
 // Задачи группы «functions»: тексты заданий и валидаторы.
 import * as Blockly from "blockly";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
-import { containsDescendantOfType, hasAncestorOfType } from "./utils";
+import { containsDescendantOfType, hasAncestorOfType, typedCodeMode } from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 async function validateFirstFunction(
@@ -190,7 +190,10 @@ async function validateFunctionPredicate(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok = outputOk && usedDefReturn && returnsCompare && usedIf && callInCondition && hasPrint;
+  const ok =
+    outputOk &&
+    (typedCodeMode(ws) ||
+      (usedDefReturn && returnsCompare && usedIf && callInCondition && hasPrint));
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

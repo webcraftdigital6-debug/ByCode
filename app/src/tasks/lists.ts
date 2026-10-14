@@ -1,7 +1,7 @@
 // Задачи группы «lists»: тексты заданий и валидаторы.
 import * as Blockly from "blockly";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
-import { getVisibleOutputLines, getVarFieldText } from "./utils";
+import { getVisibleOutputLines, getVarFieldText, typedCodeMode } from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 async function validateListForEach(
@@ -63,7 +63,7 @@ async function validateListForEach(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok = hasSequence && hasSum && hasPrint;
+  const ok = hasSequence && hasSum && (typedCodeMode(ws) || hasPrint);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -120,7 +120,7 @@ async function validateSublistForEach(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok = hasSequence && hasPrint;
+  const ok = hasSequence && (typedCodeMode(ws) || hasPrint);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -212,7 +212,7 @@ async function validateListFilterEven(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok = hasSequence && hasSum && hasPrint;
+  const ok = hasSequence && hasSum && (typedCodeMode(ws) || hasPrint);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -305,7 +305,7 @@ async function validateListFilterEvenMinMax(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok = hasSequence && hasMin && hasMax && hasPrint;
+  const ok = hasSequence && hasMin && hasMax && (typedCodeMode(ws) || hasPrint);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -391,7 +391,7 @@ async function validateListFilterEvenAvg(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok = hasCount && hasSum && hasAvg && hasPrint;
+  const ok = hasCount && hasSum && hasAvg && (typedCodeMode(ws) || hasPrint);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -450,7 +450,7 @@ async function validateListFilterEvenMedian(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok = hasCount && hasMedian && hasPrint;
+  const ok = hasCount && hasMedian && (typedCodeMode(ws) || hasPrint);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -522,7 +522,7 @@ async function validateListSumEvenPositions(
 
   const usedEvenCheck = usedIsEven || (usedModulo && usedCompare);
 
-  const ok = hasSum && hasPrint;
+  const ok = hasSum && (typedCodeMode(ws) || hasPrint);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -567,7 +567,7 @@ async function validateListSortMinMax(
     if (t === "variables_get" && (v === "list" || v === "numbers")) hasGetList = true;
   }
 
-  const ok = hasMin && hasMax && hasPrint;
+  const ok = hasMin && hasMax && (typedCodeMode(ws) || hasPrint);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -645,12 +645,12 @@ async function validateListInventoryIndex(
   const lines = outputLinesTrimmed(outputLines);
   const types = listBlockTypes(ws);
   const reads = countGetIndexWhere(ws, ["GET"], ["FIRST", "LAST", "FROM_START"]);
-  const ok =
+  const outputOk = lines.includes("3") && INV_START.every((item) => lines.includes(item));
+  const structureOk =
     listCountOf(types, "lists_create_with") >= 1 &&
     listCountOf(types, "lists_length") >= 1 &&
-    reads >= 3 &&
-    lines.includes("3") &&
-    INV_START.every((item) => lines.includes(item));
+    reads >= 3;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -670,13 +670,10 @@ async function validateListInventoryReplace(
   const types = listBlockTypes(ws);
   const sets = countSetIndexModes(ws, ["SET"]);
   const reads = countGetIndexWhere(ws, ["GET"], ["FIRST", "LAST", "FROM_START"]);
-  const ok =
-    listCountOf(types, "lists_create_with") >= 1 &&
-    sets >= 1 &&
-    reads >= 2 &&
-    lines.includes("2") &&
-    lines.includes("steel sword") &&
-    lines.includes("wooden shield");
+  const outputOk =
+    lines.includes("2") && lines.includes("steel sword") && lines.includes("wooden shield");
+  const structureOk = listCountOf(types, "lists_create_with") >= 1 && sets >= 1 && reads >= 2;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -694,13 +691,12 @@ async function validateListInventoryAdd(
 ): Promise<ValidationResult> {
   const lines = outputLinesTrimmed(outputLines);
   const types = listBlockTypes(ws);
-  const ok =
+  const outputOk = lines.includes("2") && lines.includes("3") && lines.includes("magic scroll");
+  const structureOk =
     countSetIndexModes(ws, ["INSERT"]) >= 1 &&
     listCountOf(types, "lists_length") >= 2 &&
-    countGetIndexWhere(ws, ["GET"], ["LAST"]) >= 1 &&
-    lines.includes("2") &&
-    lines.includes("3") &&
-    lines.includes("magic scroll");
+    countGetIndexWhere(ws, ["GET"], ["LAST"]) >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -718,18 +714,20 @@ async function validateListInventoryRemove(
 ): Promise<ValidationResult> {
   const lines = outputLinesTrimmed(outputLines);
   const types = listBlockTypes(ws);
-  const ok =
+  const outputOk =
+    lines.includes("broken helmet") &&
+    lines.includes("mana potion") &&
+    lines.includes("lucky amulet") &&
+    lines.includes("2");
+  const structureOk =
     listCountOf(types, "lists_indexOf") >= 1 &&
     countGetIndexWhere(
       ws,
       ["GET_REMOVE", "REMOVE"],
       ["FIRST", "LAST", "FROM_START", "FROM_END", "RANDOM"]
     ) >= 1 &&
-    listCountOf(types, "lists_length") >= 1 &&
-    lines.includes("broken helmet") &&
-    lines.includes("mana potion") &&
-    lines.includes("lucky amulet") &&
-    lines.includes("2");
+    listCountOf(types, "lists_length") >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -749,11 +747,11 @@ async function validateListInventoryRandom(
   const types = listBlockTypes(ws);
   const picks = countGetIndexWhere(ws, ["GET", "GET_REMOVE"], ["RANDOM"]);
   const allFromPool = lines.length >= 5 && lines.every((l) => INV_LOOT.includes(l));
-  const ok =
+  const structureOk =
     listCountOf(types, "controls_repeat_ext") >= 1 &&
     picks >= 1 &&
-    listCountOf(types, "lists_create_with") >= 1 &&
-    allFromPool;
+    listCountOf(types, "lists_create_with") >= 1;
+  const ok = allFromPool && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -787,7 +785,8 @@ async function validateProjInventory(
     listCountOf(types, "lists_length") >= 1 &&
     listCountOf(types, "math_random_int") >= 1;
 
-  const ok = structural && gold && itemLines >= 3 && lines.includes(ELIXIR) && lines.includes("4");
+  const outputOk = gold && itemLines >= 3 && lines.includes(ELIXIR) && lines.includes("4");
+  const ok = outputOk && (typedCodeMode(ws) || structural);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -804,13 +803,14 @@ async function validateListSplitJoin(
   outputLines: string[]
 ): Promise<ValidationResult> {
   const types = listBlockTypes(ws);
-  const ok =
-    listCountOf(types, "lists_split") >= 2 &&
-    listCountOf(types, "controls_forEach") >= 1 &&
+  const outputOk =
     outputLines.includes("10") &&
     outputLines.includes("20") &&
     outputLines.includes("30") &&
     outputLines.includes("10-20-30");
+  const structureOk =
+    listCountOf(types, "lists_split") >= 2 && listCountOf(types, "controls_forEach") >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -828,15 +828,17 @@ async function validateListOperations(
   outputLines: string[]
 ): Promise<ValidationResult> {
   const types = listBlockTypes(ws);
-  const ok =
-    listCountOf(types, "lists_reverse") >= 1 &&
-    listCountOf(types, "lists_repeat") >= 1 &&
-    listCountOf(types, "lists_length") >= 1 &&
-    listCountOf(types, "lists_indexOf") >= 1 &&
+  const outputOk =
     outputLines.includes("3") &&
     outputLines.includes("2") &&
     outputLines.includes("1") &&
     outputLines.includes("5");
+  const structureOk =
+    listCountOf(types, "lists_reverse") >= 1 &&
+    listCountOf(types, "lists_repeat") >= 1 &&
+    listCountOf(types, "lists_length") >= 1 &&
+    listCountOf(types, "lists_indexOf") >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -877,11 +879,11 @@ async function validateListUntilEmpty(
   const outputOk =
     lines.length === INV_TOOLS.length && INV_TOOLS.every((item, i) => lines[i] === item);
 
-  const ok =
-    outputOk &&
+  const structureOk =
     listCountOf(types, "controls_whileUntil") >= 1 &&
     listCountOf(types, "lists_isEmpty") >= 1 &&
     pops + takes >= 1;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -904,7 +906,7 @@ async function validateListGrid(
   const nested = countNestedGetIndex(ws);
   const outputOk = lines.length === 3 && lines[0] === "E" && lines[1] === "C" && lines[2] === "G";
 
-  const ok = outputOk && builds >= 4 && reads >= 6 && nested >= 3;
+  const ok = outputOk && (typedCodeMode(ws) || (builds >= 4 && reads >= 6 && nested >= 3));
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

@@ -321,13 +321,17 @@ export function updateAceEditorFromWorkspace(
     const session = aceEditor.session;
     if (session) session.setMode(mode);
     const current = aceEditor.getValue?.() ?? "";
-    if (current !== code) {
+    // Пустая рабочая область даёт пустой код: набранную в редакторе программу
+    // не затираем — задачи можно сдавать и кодом, без блоков.
+    const keepTypedCode = code.trim() === "" && current.trim() !== "";
+    if (!keepTypedCode && current !== code) {
       // -1 чтобы не прыгал курсор к концу
       aceEditor.setValue(code, -1);
     }
+    const shown = keepTypedCode ? current : code;
     // Python: аннотации pyflakes (опечатки, undefined-имена, синтаксис)
     if (lang === "python") {
-      schedulePythonLint(code);
+      schedulePythonLint(shown);
     } else {
       cancelPythonLint();
       // Для языков без штатного воркера-линтера очищаем устаревшие аннотации.

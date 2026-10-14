@@ -7,6 +7,7 @@ import {
   countNonShadowBlocks,
   getNonShadowBlocks,
 } from "../workspaceUtils";
+import { typedCodeMode } from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 type AnyBlock = { type: string; getFieldValue?: (n: string) => unknown };
@@ -60,7 +61,8 @@ async function validateFbArea(
   ws: Blockly.WorkspaceSvg,
   outputLines: string[],
 ): Promise<ValidationResult> {
-  const ok = outputLines.includes("42") && hasOp(ws, "math_arithmetic", "MULTIPLY");
+  const outputOk = outputLines.includes("42");
+  const ok = outputOk && (typedCodeMode(ws) || hasOp(ws, "math_arithmetic", "MULTIPLY"));
   return { ok, stars: fixStars(ws, 6, ok) };
 }
 
@@ -106,7 +108,8 @@ async function validateFbJoin(
   ws: Blockly.WorkspaceSvg,
   outputLines: string[],
 ): Promise<ValidationResult> {
-  const ok = outputLines.includes("Hello, World!") && hasType(ws, "text_join");
+  const outputOk = outputLines.includes("Hello, World!");
+  const ok = outputOk && (typedCodeMode(ws) || hasType(ws, "text_join"));
   return { ok, stars: fixStars(ws, 4, ok) };
 }
 
@@ -132,10 +135,8 @@ async function validateFbParity(
   ws: Blockly.WorkspaceSvg,
   outputLines: string[],
 ): Promise<ValidationResult> {
-  const ok =
-    outputLines.includes("even") &&
-    !outputLines.includes("odd") &&
-    hasType(ws, "math_modulo");
+  const outputOk = outputLines.includes("even") && !outputLines.includes("odd");
+  const ok = outputOk && (typedCodeMode(ws) || hasType(ws, "math_modulo"));
   return { ok, stars: fixStars(ws, 8, ok) };
 }
 
@@ -196,8 +197,8 @@ async function validateFbLoop(
   ws: Blockly.WorkspaceSvg,
   outputLines: string[],
 ): Promise<ValidationResult> {
-  const ok =
-    sameLines(outputLines, FB_LOOP_EXPECTED) && hasType(ws, "controls_for");
+  const outputOk = sameLines(outputLines, FB_LOOP_EXPECTED);
+  const ok = outputOk && (typedCodeMode(ws) || hasType(ws, "controls_for"));
   return { ok, stars: fixStars(ws, 3, ok) };
 }
 
@@ -232,10 +233,9 @@ async function validateFbList(
   ws: Blockly.WorkspaceSvg,
   outputLines: string[],
 ): Promise<ValidationResult> {
-  const ok =
-    sameLines(outputLines, ["2", "4", "6"]) &&
-    hasType(ws, "controls_forEach") &&
-    hasType(ws, "lists_create_with");
+  const outputOk = sameLines(outputLines, ["2", "4", "6"]);
+  const structureOk = hasType(ws, "controls_forEach") && hasType(ws, "lists_create_with");
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
   return { ok, stars: fixStars(ws, 10, ok) };
 }
 
@@ -303,11 +303,12 @@ async function validateFbDouble(
   ws: Blockly.WorkspaceSvg,
   outputLines: string[],
 ): Promise<ValidationResult> {
-  const ok =
-    outputLines.includes("10") &&
+  const outputOk = outputLines.includes("10");
+  const structureOk =
     hasType(ws, "procedures_defreturn") &&
     hasType(ws, "procedures_callreturn") &&
     hasOp(ws, "math_arithmetic", "MULTIPLY");
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
   return { ok, stars: fixStars(ws, 5, ok) };
 }
 

@@ -7,6 +7,7 @@ import {
   tryGetAssignedNumber,
   escapeRe,
   hasAncestorOfType,
+  typedCodeMode,
 } from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
@@ -139,15 +140,23 @@ async function validateSum1ToN(ws: Blockly.WorkspaceSvg): Promise<{ ok: boolean;
     return (n * (n + 1)) / 2;
   })();
 
-  const ok = (() => {
-    if (blocks.length === 0) {
-      return lines.some((l) => /\d/.test(l));
-    }
-    if (!hasSetN || !hasGetN || !hasPrint) return false;
-    if (expected === null) return false;
-    const re = new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
-    return lines.some((l) => re.test(l));
-  })();
+  // В режиме кода N выбирает ученик, но сумма 1…N бывает только треугольной
+  // (1, 3, 6, 10, 15, 21…), поэтому вывод проверяется по значению, а не «на цифру».
+  const triangularLine = (line: string): boolean => {
+    const trimmed = line.trim();
+    if (!/^\d{1,6}$/.test(trimmed)) return false;
+    const root = (Math.sqrt(8 * Number(trimmed) + 1) - 1) / 2;
+    return Number.isInteger(root) && root >= 1;
+  };
+
+  const codeMode = typedCodeMode(ws);
+  const valueRe = expected === null ? null : new RegExp(`(^|\\b)${escapeRe(String(expected))}(\\b|$)`);
+  const outputOk = codeMode
+    ? lines.some(triangularLine)
+    : valueRe !== null && lines.some((l) => valueRe.test(l));
+  const structureOk = hasSetN && hasGetN && hasPrint;
+
+  const ok = outputOk && (codeMode || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -235,24 +244,26 @@ async function validateGuessGame(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const hasFeedbackText = (() => {
-    const ruHigher = normalized.some((l) => l.includes("загаданное число больше"));
-    const ruLower = normalized.some((l) => l.includes("загаданное число меньше"));
-    const ruCongrats = normalized.some((l) => l.includes("поздравляем"));
-    const enHigher = normalized.some((l) => l.includes("higher"));
-    const enLower = normalized.some((l) => l.includes("lower"));
-    const enCongrats = normalized.some((l) => l.includes("congrat"));
-    return ruHigher || ruLower || ruCongrats || enHigher || enLower || enCongrats;
-  })();
+  const saidHigher = normalized.some(
+    (l) => l.includes("загаданное число больше") || l.includes("higher")
+  );
+  const saidLower = normalized.some(
+    (l) => l.includes("загаданное число меньше") || l.includes("lower")
+  );
+  const saidCongrats = normalized.some(
+    (l) => l.includes("поздравляем") || l.includes("congrat")
+  );
+  const hasFeedbackText = saidHigher || saidLower || saidCongrats;
 
-  const ok =
-    blocks.length === 0
-      ? hasPrint && hasFeedbackText
-      : hasPrint &&
-        usedIf &&
-        usedCompare &&
-        hasPrint &&
-        (hasFeedbackText || (hasGetSecret && hasGetGuess));
+  // В режиме кода блоки недоступны, поэтому требуем полный игровой цикл:
+  // подсказку «больше/меньше» и приветствие победителя.
+  const codeMode = typedCodeMode(ws);
+  const outputOk = codeMode
+    ? (saidHigher || saidLower) && saidCongrats
+    : hasFeedbackText || (hasGetSecret && hasGetGuess);
+  const structureOk = hasPrint && usedIf && usedCompare;
+
+  const ok = outputOk && (codeMode || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -502,7 +513,7 @@ async function validateLoopWhileCount(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok = outputOk && usedWhile && hasPrint;
+  const ok = outputOk && (typedCodeMode(ws) || (usedWhile && hasPrint));
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -548,7 +559,10 @@ async function validateLoopWhileInput(
     if (t === "text_print" || t === "add_text") hasPrint = true;
   }
 
-  const ok = usedWhile && usedInputNumber && reasksInsideLoop && usedCompare && hasPrint && acceptedOk;
+  const ok =
+    acceptedOk &&
+    (typedCodeMode(ws) ||
+      (usedWhile && usedInputNumber && reasksInsideLoop && usedCompare && hasPrint));
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -600,7 +614,7 @@ async function validateTreasureHunt(
   }
 
   const usedCore = usedWhile && usedList && usedRandomItem && usedChange && usedCompare && hasPrint;
-  const ok = outputOk && usedCore;
+  const ok = outputOk && (typedCodeMode(ws) || usedCore);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

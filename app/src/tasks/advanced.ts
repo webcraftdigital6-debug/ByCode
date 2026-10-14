@@ -1,7 +1,7 @@
 // Задачи группы «advanced»: тексты заданий и валидаторы.
 import * as Blockly from "blockly";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
-import { getVisibleOutputLines, getVarFieldText } from "./utils";
+import { getVisibleOutputLines, getVarFieldText, typedCodeMode } from "./utils";
 import type { TaskRegistry } from "./types";
 
 async function validateNumberAnalyzer(
@@ -92,10 +92,39 @@ async function validateNumberAnalyzer(
     return normalized.includes(expected.signLine) || normalized.includes(expected.ruSignLine);
   })();
 
-  const ok =
-    nonShadowBlocks.length === 0
-      ? hasParityLine && hasSignLine
-      : hasSetNumber && hasGetNumber && hasPrint && n !== null && hasParityLine && hasSignLine;
+  // В режиме кода блоков нет, а число ученик выбирает сам: сверяем между собой
+  // сами строки-факты (чётность и знак не должны противоречить друг другу).
+  const PARITY = new Map<string, "even" | "odd">([
+    ["the number is even", "even"],
+    ["the number is odd", "odd"],
+    ["число чётное", "even"],
+    ["число нечётное", "odd"],
+  ]);
+  const SIGN = new Map<string, "positive" | "negative" | "zero">([
+    ["the number is positive", "positive"],
+    ["the number is negative", "negative"],
+    ["the number is zero", "zero"],
+    ["число положительное", "positive"],
+    ["число отрицательное", "negative"],
+    ["число равно нулю", "zero"],
+  ]);
+  const said = <T,>(table: Map<string, T>): T[] =>
+    normalized.flatMap((l) => {
+      const value = table.get(l);
+      return value === undefined ? [] : [value];
+    });
+  const paritySaid = said(PARITY);
+  const signSaid = said(SIGN);
+  const factPairOk =
+    paritySaid.length >= 1 &&
+    signSaid.length >= 1 &&
+    !(paritySaid.includes("odd") && signSaid.includes("zero"));
+
+  const codeMode = typedCodeMode(ws);
+  const outputOk = codeMode ? factPairOk : hasParityLine && hasSignLine;
+  const structureOk = hasSetNumber && hasGetNumber && hasPrint && n !== null;
+
+  const ok = outputOk && (codeMode || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;

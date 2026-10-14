@@ -2,6 +2,7 @@
 // округление и ограничение значения (категория «Математика»).
 import * as Blockly from "blockly";
 import { countNonShadowBlocks, getNonShadowBlocks } from "../workspaceUtils";
+import { typedCodeMode } from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 function mathBlockTypes(ws: Blockly.WorkspaceSvg): string[] {
@@ -23,14 +24,15 @@ async function validateMathFunctions(
   const types = mathBlockTypes(ws);
   const single = mathCountOf(types, "math_single");
   const rounded = mathCountOf(types, "math_round");
-  const ok =
-    single >= 3 &&
-    mathCountOf(types, "math_constant") >= 1 &&
-    rounded >= 2 &&
+  const outputOk =
     outputLines.includes("12") &&
     outputLines.includes("7") &&
     outputLines.includes("3") &&
     outputLines.includes("-5");
+  const structureOk =
+    single >= 3 && mathCountOf(types, "math_constant") >= 1 && rounded >= 2;
+  // Программу, набранную в редакторе кода, оцениваем по выводу: блоков нет.
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
@@ -51,13 +53,13 @@ async function validateMathRoundClamp(
   const types = mathBlockTypes(ws);
   const rounded = mathCountOf(types, "math_round");
   const clamped = mathCountOf(types, "math_constrain");
-  const ok =
-    rounded >= 4 &&
-    clamped >= 2 &&
+  const outputOk =
     outputLines.includes("4") &&
     outputLines.includes("5") &&
     outputLines.includes("100") &&
     outputLines.includes("0");
+  const structureOk = rounded >= 4 && clamped >= 2;
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
 
   const count = countNonShadowBlocks(ws);
   let stars = 0;
