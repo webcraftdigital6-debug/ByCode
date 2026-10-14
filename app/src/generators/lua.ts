@@ -7,6 +7,7 @@
 import { Order as LuaOrder } from "blockly/lua";
 import * as Blockly from "blockly/core";
 import { collectJoinParts } from "./textJoin";
+import { dictGuardIssue } from "./dictGuard";
 
 type BlockGenerator = (
   block: Blockly.Block,
@@ -129,6 +130,8 @@ forBlock["dict_set"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator
 ) {
+  const issue = dictGuardIssue(block);
+  if (issue) return `-- ${issue}\n`;
   const dict = generator.valueToCode(block, "DICT", LuaOrder.NONE) || "{}";
   const key = generator.valueToCode(block, "KEY", LuaOrder.NONE) || "''";
   const value = generator.valueToCode(block, "VALUE", LuaOrder.NONE) || "nil";
@@ -140,6 +143,7 @@ forBlock["dict_get"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator
 ) {
+  if (dictGuardIssue(block)) return ["nil", LuaOrder.ATOMIC];
   const dict = generator.valueToCode(block, "DICT", LuaOrder.NONE) || "{}";
   const key = generator.valueToCode(block, "KEY", LuaOrder.NONE) || "''";
   const code = `${dict}[${key}]`;
@@ -150,6 +154,7 @@ forBlock["dict_has_key"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator
 ) {
+  if (dictGuardIssue(block)) return ["false", LuaOrder.ATOMIC];
   const key = generator.valueToCode(block, "KEY", LuaOrder.NONE) || "''";
   const dict = generator.valueToCode(block, "DICT", LuaOrder.NONE) || "{}";
   const code = `${dict}[${key}] ~= nil`;

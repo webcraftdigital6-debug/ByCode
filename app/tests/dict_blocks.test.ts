@@ -16,6 +16,7 @@ import { forBlock as jsForBlock } from "../src/generators/javascript";
 import { forBlock as pyForBlock } from "../src/generators/python";
 import { forBlock as luaForBlock } from "../src/generators/lua";
 import { forBlock as phpForBlock } from "../src/generators/php";
+import { dictGuardIssue } from "../src/generators/dictGuard";
 import "../src/blocks/algorithms";
 import { localizedToolbox, setAppLang } from "../src/localization";
 import { matchHintTerm, hintTermColour } from "../src/ui/hintTerms";
@@ -210,6 +211,147 @@ describe("кодогенерация словарных блоков", () => {
     expect(code).toContain("$freq['a'] = 3");
     expect(code).toContain("echo $freq['a']");
     expect(code).toContain("array_key_exists('z', $freq)");
+  });
+});
+
+describe("страж: словарь не подключён или подключён литералом", () => {
+  /** dict_set без словаря в слоте DICT (только теневые ключ и значение). */
+  function loadBareSet(): Blockly.Workspace {
+    const ws = new Blockly.Workspace();
+    Blockly.serialization.workspaces.load(
+      {
+        blocks: {
+          languageVersion: 0,
+          blocks: [
+            {
+              type: "dict_set",
+              inputs: {
+                KEY: { shadow: { type: "text", fields: { TEXT: "a" } } },
+                VALUE: { shadow: { type: "math_number", fields: { NUM: 3 } } },
+              },
+            },
+          ],
+        },
+      },
+      ws
+    );
+    return ws;
+  }
+
+  /** dict_set, где в DICT воткнут сам «Словарь: создать пустой». */
+  function loadLiteralSet(): Blockly.Workspace {
+    const ws = new Blockly.Workspace();
+    Blockly.serialization.workspaces.load(
+      {
+        blocks: {
+          languageVersion: 0,
+          blocks: [
+            {
+              type: "dict_set",
+              inputs: {
+                DICT: { block: { type: "dict_create" } },
+                KEY: { shadow: { type: "text", fields: { TEXT: "a" } } },
+                VALUE: { shadow: { type: "math_number", fields: { NUM: 3 } } },
+              },
+            },
+          ],
+        },
+      },
+      ws
+    );
+    return ws;
+  }
+
+  /** dict_get и dict_has_key без словаря. */
+  function loadReadersWithoutDict(): Blockly.Workspace {
+    const ws = new Blockly.Workspace();
+    Blockly.serialization.workspaces.load(
+      {
+        blocks: {
+          languageVersion: 0,
+          blocks: [
+            {
+              type: "add_text",
+              inputs: {
+                TEXT: {
+                  block: {
+                    type: "dict_get",
+                    inputs: { KEY: { shadow: { type: "text", fields: { TEXT: "a" } } } },
+                  },
+                },
+              },
+            },
+            {
+              type: "controls_if",
+              inputs: {
+                IF0: {
+                  block: {
+                    type: "dict_has_key",
+                    inputs: { KEY: { shadow: { type: "text", fields: { TEXT: "a" } } } },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+      ws
+    );
+    return ws;
+  }
+
+  it("ни один язык не выдаёт синтаксически битое присваивание", () => {
+    setAppLang("ru");
+    const js = javascriptGenerator.workspaceToCode(loadBareSet());
+    const py = pythonGenerator.workspaceToCode(loadBareSet());
+    const lua = luaGenerator.workspaceToCode(loadBareSet());
+    const php = phpGenerator.workspaceToCode(loadBareSet());
+    expect(js).not.toContain("{}['a']");
+    expect(py).not.toContain("{}['a']");
+    expect(lua).not.toContain("{}['a']");
+    expect(php).not.toContain("[][");
+    expect(js).toContain("// Нет словаря");
+    expect(py).toContain("# Нет словаря");
+    expect(lua).toContain("-- Нет словаря");
+    expect(php).toContain("// Нет словаря");
+    expect(() => new Function(js)).not.toThrow();
+  });
+
+  it("то же, когда словарь подключён литералом «создать пустой»", () => {
+    setAppLang("ru");
+    const js = javascriptGenerator.workspaceToCode(loadLiteralSet());
+    const php = phpGenerator.workspaceToCode(loadLiteralSet());
+    expect(js).toContain("// Положите словарь в переменную");
+    expect(php).not.toContain("[][");
+    expect(() => new Function(js)).not.toThrow();
+  });
+
+  it("чтение и проверка ключа без словаря дают пустое значение", () => {
+    setAppLang("ru");
+    const ws = loadReadersWithoutDict();
+    expect(javascriptGenerator.workspaceToCode(ws)).toContain("console.log(undefined)");
+    expect(pythonGenerator.workspaceToCode(ws)).toContain("print(None)");
+    expect(luaGenerator.workspaceToCode(ws)).toContain("print(nil)");
+    expect(phpGenerator.workspaceToCode(ws)).toContain("echo null");
+  });
+
+  it("страж возвращает текст проблемы, а при верном словаре — null", () => {
+    setAppLang("ru");
+    const broken = loadBareSet().getBlocksByType("dict_set", false)[0];
+    expect(dictGuardIssue(broken)).toContain("Нет словаря");
+
+    const literal = loadLiteralSet().getBlocksByType("dict_set", false)[0];
+    expect(dictGuardIssue(literal)).toContain("Положите словарь в переменную");
+
+    const good = loadProgram().getBlocksByType("dict_set", false)[0];
+    expect(dictGuardIssue(good)).toBeNull();
+  });
+
+  it("текст проблемы переводится", () => {
+    setAppLang("en");
+    const block = loadBareSet().getBlocksByType("dict_set", false)[0];
+    expect(dictGuardIssue(block)).toContain("No dictionary");
+    setAppLang("ru");
   });
 });
 

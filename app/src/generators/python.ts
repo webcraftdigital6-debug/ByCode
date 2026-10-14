@@ -7,6 +7,7 @@
 import { Order as PythonOrder } from "blockly/python";
 import * as Blockly from "blockly/core";
 import { collectJoinParts } from "./textJoin";
+import { dictGuardIssue } from "./dictGuard";
 
 type BlockGenerator = (
   block: Blockly.Block,
@@ -92,6 +93,8 @@ forBlock["dict_set"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
+  const issue = dictGuardIssue(block);
+  if (issue) return `# ${issue}\n`;
   const dict = generator.valueToCode(block, "DICT", PythonOrder.NONE) || "{}";
   const key = generator.valueToCode(block, "KEY", PythonOrder.NONE) || "''";
   const value =
@@ -104,6 +107,7 @@ forBlock["dict_get"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
+  if (dictGuardIssue(block)) return ["None", PythonOrder.ATOMIC];
   const dict = generator.valueToCode(block, "DICT", PythonOrder.NONE) || "{}";
   const key = generator.valueToCode(block, "KEY", PythonOrder.NONE) || "''";
   const code = `${dict}[${key}]`;
@@ -114,6 +118,7 @@ forBlock["dict_has_key"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
+  if (dictGuardIssue(block)) return ["False", PythonOrder.ATOMIC];
   const key = generator.valueToCode(block, "KEY", PythonOrder.NONE) || "''";
   const dict = generator.valueToCode(block, "DICT", PythonOrder.NONE) || "{}";
   const code = `${key} in ${dict}`;

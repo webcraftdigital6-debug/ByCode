@@ -1872,7 +1872,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       ],
       [
         t("значение", "value"),
-        t("то, что храним под ключом: число, текст, список", "what the key holds: a number, text, a list"),
+        t("то, что храним под ключом: число или текст", "what the key holds: a number or text"),
       ],
       [
         t("установить", "set"),

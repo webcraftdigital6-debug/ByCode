@@ -7,6 +7,7 @@
 import { Order } from "blockly/javascript";
 import * as Blockly from "blockly/core";
 import { collectJoinParts } from "./textJoin";
+import { dictGuardIssue } from "./dictGuard";
 
 type BlockGenerator = (
   block: Blockly.Block,
@@ -63,6 +64,8 @@ forBlock["dict_set"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator
 ) {
+  const issue = dictGuardIssue(block);
+  if (issue) return `// ${issue}\n`;
   const dict = generator.valueToCode(block, "DICT", Order.NONE) || "{}";
   const key = generator.valueToCode(block, "KEY", Order.NONE) || "''";
   const value = generator.valueToCode(block, "VALUE", Order.NONE) || "null";
@@ -74,6 +77,7 @@ forBlock["dict_get"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator
 ) {
+  if (dictGuardIssue(block)) return ["undefined", Order.ATOMIC];
   const dict = generator.valueToCode(block, "DICT", Order.NONE) || "{}";
   const key = generator.valueToCode(block, "KEY", Order.NONE) || "''";
   const code = `${dict}[${key}]`;
@@ -84,6 +88,7 @@ forBlock["dict_has_key"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator
 ) {
+  if (dictGuardIssue(block)) return ["false", Order.ATOMIC];
   const key = generator.valueToCode(block, "KEY", Order.NONE) || "''";
   const dict = generator.valueToCode(block, "DICT", Order.NONE) || "{}";
   const code = `Object.prototype.hasOwnProperty.call(${dict}, ${key})`;

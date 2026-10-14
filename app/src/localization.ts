@@ -62,6 +62,10 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.DICT_HAS_KEY = "Словарь: есть ключ? %1 в %2";
     (BlocklyCore as any).Msg.DICT_HAS_KEY_TOOLTIP =
       "Проверить наличие ключа в словаре";
+    (BlocklyCore as any).Msg.DICT_NEED_VARIABLE =
+      "Нет словаря: подключите переменную, в которой он лежит";
+    (BlocklyCore as any).Msg.DICT_STORE_IN_VARIABLE =
+      "Положите словарь в переменную: запись в «создать пустой» пропадает";
     // Локализация плагина поиска по тулбоксу
     (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = "Поиск блоков";
     (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH =
@@ -92,6 +96,10 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.DICT_HAS_KEY = "Dictionary: has key? %1 in %2";
     (BlocklyCore as any).Msg.DICT_HAS_KEY_TOOLTIP =
       "Check whether the key exists in the dictionary";
+    (BlocklyCore as any).Msg.DICT_NEED_VARIABLE =
+      "No dictionary: connect the variable that holds it";
+    (BlocklyCore as any).Msg.DICT_STORE_IN_VARIABLE =
+      "Put the dictionary in a variable first: writing into “create empty” is lost";
     // Локализация плагина поиска по тулбоксу
     (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = "Search blocks";
     (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH =

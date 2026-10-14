@@ -6,6 +6,7 @@
 
 import { Order as PhpOrder } from "blockly/php";
 import * as Blockly from "blockly/core";
+import { dictGuardIssue } from "./dictGuard";
 
 type BlockGenerator = (
   block: Blockly.Block,
@@ -76,6 +77,8 @@ forBlock["dict_set"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
+  const issue = dictGuardIssue(block);
+  if (issue) return `// ${issue}\n`;
   const dict = generator.valueToCode(block, "DICT", PhpOrder.NONE) || "[]";
   const key = generator.valueToCode(block, "KEY", PhpOrder.NONE) || "''";
   const value = generator.valueToCode(block, "VALUE", PhpOrder.NONE) || "null";
@@ -87,6 +90,7 @@ forBlock["dict_get"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
+  if (dictGuardIssue(block)) return ["null", PhpOrder.ATOMIC];
   const dict = generator.valueToCode(block, "DICT", PhpOrder.NONE) || "[]";
   const key = generator.valueToCode(block, "KEY", PhpOrder.NONE) || "''";
   const code = `${dict}[${key}]`;
@@ -97,6 +101,7 @@ forBlock["dict_has_key"] = function (
   block: Blockly.Block,
   generator: Blockly.CodeGenerator,
 ) {
+  if (dictGuardIssue(block)) return ["false", PhpOrder.ATOMIC];
   const key = generator.valueToCode(block, "KEY", PhpOrder.NONE) || "''";
   const dict = generator.valueToCode(block, "DICT", PhpOrder.NONE) || "[]";
   const code = `array_key_exists(${key}, ${dict})`;
