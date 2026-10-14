@@ -116,6 +116,8 @@ const TOPIC_KEYWORDS: Record<GlossaryTopicId, KeywordNote[]> = {
     { term: "$", ru: "PHP: имя переменной всегда начинается с доллара", en: "PHP: a variable name always starts with a dollar sign" },
     { term: "=", ru: "присваивание: справа значение, слева имя, которое его запоминает", en: "assignment: the value on the right, the name that remembers it on the left" },
     { term: "myAge", ru: "имя переменной: регистр важен, myAge и myage — разные переменные", en: "the variable name: letter case matters, myAge and myage are two different variables" },
+    { term: "var", ru: "JS: так Blockly объявляет переменную отдельной строкой; сами пишете код — берите let", en: "JS: how Blockly declares a variable, on its own line; when you write the code yourself, use let" },
+    { term: "None", ru: "Python: пустая заготовка, которой Blockly объявляет переменную до присваивания", en: "Python: the empty value Blockly uses to declare the variable before assigning it" },
   ],
   inc_dec: [
     { term: "+=", ru: "короткая запись «увеличить эту же переменную на …»", en: "the short form of “raise this very variable by …”" },
@@ -504,6 +506,17 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "Python", code: 'name = "Anna"  # Python has no const: just do not reassign\nscore = 0\nscore = score + 1\nprint(name, score)' },
       { label: "Lua", code: 'local name = "Anna"\nlocal score = 0\nscore = score + 1\nprint(name, score)' },
       { label: "PHP", code: '$name = "Anna";\n$score = 0;\n$score = $score + 1;\necho $name . " " . $score . PHP_EOL;' },
+    ]) +
+    `<h4 style="margin-top:12px;">${t("Пример: что Blockly сам пишет в панели кода", "Example: what Blockly itself writes in the code panel")}</h4>` +
+    `<p>${t(
+      "Это тот же код, что получается из блоков. В JavaScript Blockly объявляет переменную отдельной строкой через var, в Python вместо объявления пишет None, а Lua и PHP объявления не требуют.",
+      "This is the same program built from the blocks. In JavaScript Blockly declares the variable on its own line with var, Python gets a None placeholder instead, and Lua and PHP need no declaration at all."
+    )}</p>` +
+    examplesBlock([
+      { label: "JavaScript", code: "var myAge;\nmyAge = 10;\nconsole.log(myAge);" },
+      { label: "Python", code: "myAge = None\nmyAge = 10\nprint(myAge)" },
+      { label: "Lua", code: "myAge = 10\nprint(myAge)" },
+      { label: "PHP", code: "$myAge = 10;\necho $myAge . PHP_EOL;" },
     ]) +
     keywordsBlock("variable") +
     mistakesList([
