@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Пример 1. Сколько пар можно записать в один словарь.
+
+  «Словарь: создать пустой» один раз кладём в переменную book, а дальше
+  каждый блок «Словарь: установить» добавляет ещё одну пару. Блоков может
+  быть столько, сколько ключей нужно.
+-->
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="book">book</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="book">book</field>
+    <value name="VALUE">
+      <block type="dict_create"></block>
+    </value>
+    <next>
+      <block type="dict_set">
+        <value name="DICT">
+          <block type="variables_get">
+            <field name="VAR" id="book">book</field>
+          </block>
+        </value>
+        <value name="KEY">
+          <shadow type="text"><field name="TEXT">Аня</field></shadow>
+        </value>
+        <value name="VALUE">
+          <shadow type="math_number"><field name="NUM">5</field></shadow>
+        </value>
+        <next>
+          <block type="dict_set">
+            <value name="DICT">
+              <block type="variables_get">
+                <field name="VAR" id="book">book</field>
+              </block>
+            </value>
+            <value name="KEY">
+              <shadow type="text"><field name="TEXT">Витя</field></shadow>
+            </value>
+            <value name="VALUE">
+              <shadow type="math_number"><field name="NUM">3</field></shadow>
+            </value>
+            <next>
+              <block type="dict_set">
+                <value name="DICT">
+                  <block type="variables_get">
+                    <field name="VAR" id="book">book</field>
+                  </block>
+                </value>
+                <value name="KEY">
+                  <shadow type="text"><field name="TEXT">Лена</field></shadow>
+                </value>
+                <value name="VALUE">
+                  <shadow type="math_number"><field name="NUM">7</field></shadow>
+                </value>
+                <next>
+                  <block type="add_text">
+                    <value name="TEXT">
+                      <block type="text_join">
+                        <mutation items="2"></mutation>
+                        <value name="ADD0">
+                          <shadow type="text"><field name="TEXT">Аня: </field></shadow>
+                        </value>
+                        <value name="ADD1">
+                          <block type="dict_get">
+                            <value name="DICT">
+                              <block type="variables_get">
+                                <field name="VAR" id="book">book</field>
+                              </block>
+                            </value>
+                            <value name="KEY">
+                              <shadow type="text"><field name="TEXT">Аня</field></shadow>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="add_text">
+                        <value name="TEXT">
+                          <block type="text_join">
+                            <mutation items="2"></mutation>
+                            <value name="ADD0">
+                              <shadow type="text"><field name="TEXT">Витя: </field></shadow>
+                            </value>
+                            <value name="ADD1">
+                              <block type="dict_get">
+                                <value name="DICT">
+                                  <block type="variables_get">
+                                    <field name="VAR" id="book">book</field>
+                                  </block>
+                                </value>
+                                <value name="KEY">
+                                  <shadow type="text"><field name="TEXT">Витя</field></shadow>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="add_text">
+                            <value name="TEXT">
+                              <block type="text_join">
+                                <mutation items="2"></mutation>
+                                <value name="ADD0">
+                                  <shadow type="text"><field name="TEXT">Лена: </field></shadow>
+                                </value>
+                                <value name="ADD1">
+                                  <block type="dict_get">
+                                    <value name="DICT">
+                                      <block type="variables_get">
+                                        <field name="VAR" id="book">book</field>
+                                      </block>
+                                    </value>
+                                    <value name="KEY">
+                                      <shadow type="text"><field name="TEXT">Лена</field></shadow>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

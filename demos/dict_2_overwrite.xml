@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Пример 2. Повторная запись по тому же ключу не добавляет пару, а заменяет.
+
+  До: book = {"Аня": 5}. После второго «установить»: book = {"Аня": 9}.
+  Пары не прибавилось — изменилось только значение.
+-->
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="book">book</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="book">book</field>
+    <value name="VALUE">
+      <block type="dict_create"></block>
+    </value>
+    <next>
+      <block type="dict_set">
+        <value name="DICT">
+          <block type="variables_get">
+            <field name="VAR" id="book">book</field>
+          </block>
+        </value>
+        <value name="KEY">
+          <shadow type="text"><field name="TEXT">Аня</field></shadow>
+        </value>
+        <value name="VALUE">
+          <shadow type="math_number"><field name="NUM">5</field></shadow>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_join">
+                <mutation items="2"></mutation>
+                <value name="ADD0">
+                  <shadow type="text"><field name="TEXT">было: </field></shadow>
+                </value>
+                <value name="ADD1">
+                  <block type="dict_get">
+                    <value name="DICT">
+                      <block type="variables_get">
+                        <field name="VAR" id="book">book</field>
+                      </block>
+                    </value>
+                    <value name="KEY">
+                      <shadow type="text"><field name="TEXT">Аня</field></shadow>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="dict_set">
+                <value name="DICT">
+                  <block type="variables_get">
+                    <field name="VAR" id="book">book</field>
+                  </block>
+                </value>
+                <value name="KEY">
+                  <shadow type="text"><field name="TEXT">Аня</field></shadow>
+                </value>
+                <value name="VALUE">
+                  <shadow type="math_number"><field name="NUM">9</field></shadow>
+                </value>
+                <next>
+                  <block type="dict_set">
+                    <value name="DICT">
+                      <block type="variables_get">
+                        <field name="VAR" id="book">book</field>
+                      </block>
+                    </value>
+                    <value name="KEY">
+                      <shadow type="text"><field name="TEXT">Витя</field></shadow>
+                    </value>
+                    <value name="VALUE">
+                      <shadow type="math_number"><field name="NUM">4</field></shadow>
+                    </value>
+                    <next>
+                      <block type="add_text">
+                        <value name="TEXT">
+                          <block type="text_join">
+                            <mutation items="2"></mutation>
+                            <value name="ADD0">
+                              <shadow type="text"><field name="TEXT">стало: </field></shadow>
+                            </value>
+                            <value name="ADD1">
+                              <block type="dict_get">
+                                <value name="DICT">
+                                  <block type="variables_get">
+                                    <field name="VAR" id="book">book</field>
+                                  </block>
+                                </value>
+                                <value name="KEY">
+                                  <shadow type="text"><field name="TEXT">Аня</field></shadow>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="add_text">
+                            <value name="TEXT">
+                              <block type="text_join">
+                                <mutation items="2"></mutation>
+                                <value name="ADD0">
+                                  <shadow type="text"><field name="TEXT">Витя: </field></shadow>
+                                </value>
+                                <value name="ADD1">
+                                  <block type="dict_get">
+                                    <value name="DICT">
+                                      <block type="variables_get">
+                                        <field name="VAR" id="book">book</field>
+                                      </block>
+                                    </value>
+                                    <value name="KEY">
+                                      <shadow type="text"><field name="TEXT">Витя</field></shadow>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>
