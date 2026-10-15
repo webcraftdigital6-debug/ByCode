@@ -10,6 +10,7 @@ import {
   getBillingState,
   upgradeWithPromoCode,
   cancelSubscription,
+  startCheckout,
   parsePlanLimitError,
   type BillingState,
   type PlanLimitError,
@@ -94,6 +95,48 @@ let currentView: "classes" | "classDetail" | "students" | "billing" = "classes";
 let selectedClass: ClassItem | null = null;
 let loadedStudents: ClassMember[] = [];
 let billingState: BillingState | null = null;
+
+/** Исход возврата с платёжной страницы: ?billing=success|failed|pending */
+type BillingNotice = "success" | "failed" | "pending" | null;
+let billingNotice: BillingNotice = null;
+
+/**
+ * Читает исход оплаты из URL и убирает параметр, чтобы перезагрузка
+ * страницы не показывала баннер повторно.
+ */
+function readBillingNotice(): void {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get("billing");
+  if (raw !== "success" && raw !== "failed" && raw !== "pending") return;
+  billingNotice = raw;
+  params.delete("billing");
+  const query = params.toString();
+  window.history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
+  );
+}
+
+function billingNoticeHtml(): string {
+  if (!billingNotice) return "";
+  const copy: Record<Exclude<BillingNotice, null>, [string, string]> = {
+    success: [
+      "Оплата прошла. Если Pro не активировался в течение минуты — напишите нам через «Фидбэк», мы включим вручную.",
+      "Payment completed. If Pro is not active within a minute, contact us via Feedback and we will enable it.",
+    ],
+    failed: [
+      "Оплата не завершена — подписка осталась на текущем тарифе.",
+      "Payment was not completed — your plan is unchanged.",
+    ],
+    pending: [
+      "Возврат с платёжной страницы. Дождитесь подтверждения от платёжного сервиса.",
+      "Returned from the payment page. Waiting for the provider's confirmation.",
+    ],
+  };
+  const [ru, en] = copy[billingNotice];
+  return `<div class="billing-notice ${billingNotice}">${esc(t("billingNotice", ru, en))}</div>`;
+}
 
 function setView(view: typeof currentView) {
   currentView = view;
@@ -610,10 +653,58 @@ async function renderBilling(body: HTMLElement) {
   }
 
   const isPro = st.plan.id === "pro";
+  const checkout = st.checkout || null;
+  const currencySymbols: Record<string, string> = {
+    RUB: "₽",
+    USD: "$",
+    EUR: "€",
+    KZT: "₸",
+    UAH: "₴",
+    BYN: "Br",
+  };
+  const priceLabel = checkout
+    ? `${checkout.price} ${currencySymbols[checkout.currency] || checkout.currency}`
+    : "490 ₽";
+  const proDays = checkout ? checkout.days : 30;
+
+  const payHtml = checkout?.available
+    ? `<button id="payCardBtn" class="btn primary">${esc(
+        t(
+          "billingPayBtn",
+          `Оплатить картой ${priceLabel} — Pro на ${proDays} дней`,
+          `Pay by card ${priceLabel} — Pro for ${proDays} days`,
+        ),
+      )}</button>
+      <div class="billing-note">${esc(
+        t(
+          "billingPayNote",
+          "Откроем защищённую страницу платёжного сервиса. Принимаем карты, выпущенные в любой стране, в том числе в странах СНГ.",
+          "You will be taken to the payment service's secure page. We accept cards issued in any country, including CIS countries.",
+        ),
+      )}</div>`
+    : `<div class="billing-note">${esc(
+        t(
+          "billingPayDisabled",
+          "Оплата картой временно недоступна.",
+          "Card payment is temporarily unavailable.",
+        ),
+      )}</div>`;
+
+  const promoHtml = st.promoEnabled
+    ? `<div class="billing-upgrade">
+        <div class="billing-upgrade-label">${esc(t("billingPromoLabel", "Есть промокод? Введите его для активации Pro:", "Have a promo code? Enter it to activate Pro:"))}</div>
+        <div class="add-student-row">
+          <input id="promoCodeInput" type="text" placeholder="PRO-XXXX" />
+          <button id="applyPromoBtn" class="btn primary">${esc(t("billingActivate", "Активировать", "Activate"))}</button>
+        </div>
+      </div>`
+    : "";
 
   body.innerHTML = `
     <button id="billingBackBtn" class="btn small">← ${esc(t("back", "К списку классов", "Back to classes"))}</button>
     <h3 class="class-detail-title">${esc(t("billingTitle", "Подписка", "Subscription"))}</h3>
+
+    ${billingNoticeHtml()}
 
     <div class="billing-current">
       <span class="plan-badge ${isPro ? "pro" : "free"}">${esc(isPro ? "PRO" : "FREE")}</span>
@@ -639,7 +730,7 @@ async function renderBilling(body: HTMLElement) {
       </div>
       <div class="plan-card pro ${isPro ? "current" : ""}">
         <div class="plan-card-name">Pro</div>
-        <div class="plan-card-price">490 ₽<span class="plan-period">/${esc(t("planMonth", "мес", "mo"))}</span></div>
+        <div class="plan-card-price">${esc(priceLabel)}<span class="plan-period">/${esc(t("planMonth", "мес", "mo"))}</span></div>
         <ul class="plan-features">
           <li>${esc(t("planP1", "до 10 классов", "up to 10 classes"))}</li>
           <li>${esc(t("planP2", "до 200 учеников", "up to 200 students"))}</li>
@@ -649,30 +740,31 @@ async function renderBilling(body: HTMLElement) {
       </div>
     </div>
 
-    ${
-      isPro
-        ? `
-      <div class="billing-actions">
-        <button id="cancelSubBtn" class="btn small danger">${esc(t("billingCancel", "Отменить подписку", "Cancel subscription"))}</button>
-      </div>`
-        : `
-      <div class="billing-upgrade">
-        <div class="billing-upgrade-label">${esc(t("billingPromoLabel", "Есть промокод? Введите его для активации Pro:", "Have a promo code? Enter it to activate Pro:"))}</div>
-        <div class="add-student-row">
-          <input id="promoCodeInput" type="text" placeholder="PRO-XXXX" />
-          <button id="applyPromoBtn" class="btn primary">${esc(t("billingActivate", "Активировать", "Activate"))}</button>
-        </div>
-        <div class="billing-note">${esc(
-          t(
-            "billingNote",
-            "Оплата картой подключается к запуску. Пока Pro можно активировать промокодом (для теста: PRO-TEST).",
-            "Card payments will be wired at launch. For now Pro can be activated with a promo code (for testing: PRO-TEST).",
-          ),
-        )}</div>
-      </div>`
-    }`;
+    <div class="billing-upgrade">
+      ${payHtml}
+      ${isPro ? `<button id="cancelSubBtn" class="btn small danger">${esc(t("billingCancel", "Отменить подписку", "Cancel subscription"))}</button>` : ""}
+    </div>
+    ${promoHtml}`;
 
   byId("billingBackBtn")?.addEventListener("click", () => setView("classes"));
+  byId("payCardBtn")?.addEventListener("click", async (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    const label = btn.textContent || "";
+    btn.disabled = true;
+    btn.textContent = t(
+      "billingOpening",
+      "Открываем платёжную страницу…",
+      "Opening the payment page…",
+    );
+    try {
+      const r = await startCheckout();
+      window.location.assign(r.url);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = label;
+      alert((err as Error).message);
+    }
+  });
   byId("applyPromoBtn")?.addEventListener("click", async () => {
     const input = byId<HTMLInputElement>("promoCodeInput");
     const code = input?.value?.trim() || "";
@@ -707,7 +799,7 @@ function openClassesModal() {
   const modal = byId<HTMLDivElement>("classesModal");
   const content = modal?.querySelector<HTMLElement>(".modal-content");
   if (!modal) return;
-  currentView = "classes";
+  currentView = billingNotice ? "billing" : "classes";
   selectedClass = null;
   modal.style.display = "block";
   if (content) {
@@ -721,9 +813,13 @@ function openClassesModal() {
 function closeClassesModal() {
   const modal = byId<HTMLDivElement>("classesModal");
   if (modal) modal.style.display = "none";
+  // Итог оплаты показываем один раз: закрыв окно, пользователь его уже видел.
+  billingNotice = null;
 }
 
 export function initClassesUI(): void {
+  readBillingNotice();
+
   const openBtn = byId<HTMLButtonElement>("classesBtn");
   const closeBtn = byId("closeClassesModal");
   const modal = byId<HTMLDivElement>("classesModal");
@@ -734,13 +830,23 @@ export function initClassesUI(): void {
     if (e.target === modal) closeClassesModal();
   });
 
+  // Возврат с платёжной страницы: сами открываем «Подписку» с итогом оплаты
+  let noticeOpened = false;
+  const autoOpenBilling = (authed: boolean) => {
+    if (!billingNotice || !authed || noticeOpened) return;
+    noticeOpened = true;
+    openClassesModal();
+  };
+
   // Кнопка «Классы» показывается только авторизованным (шапка + мобильное меню)
   const mobileBtn = byId<HTMLButtonElement>("mobileClassesBtn");
   addAuthChangeListener((user) => {
     if (openBtn) openBtn.style.display = user ? "inline-flex" : "none";
     if (mobileBtn) mobileBtn.style.display = user ? "" : "none";
+    autoOpenBilling(Boolean(user));
   });
   const authed = isAuthenticated();
   if (openBtn) openBtn.style.display = authed ? "inline-flex" : "none";
   if (mobileBtn) mobileBtn.style.display = authed ? "" : "none";
+  autoOpenBilling(authed);
 }

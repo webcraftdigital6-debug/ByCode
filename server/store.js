@@ -129,6 +129,23 @@ CREATE TABLE IF NOT EXISTS promo_codes (
   used_at TEXT,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS payments (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  plan TEXT NOT NULL DEFAULT 'pro',
+  amount INTEGER NOT NULL,
+  currency TEXT NOT NULL DEFAULT 'RUB',
+  days INTEGER NOT NULL DEFAULT 30,
+  status TEXT NOT NULL DEFAULT 'pending',
+  provider_ref TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  paid_at TEXT,
+  raw TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_payments_user ON payments (user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_payments_provider_ref ON payments (provider, provider_ref);
 `;
 
 // ---------- Загрузка JSON-драйвера ----------
@@ -162,6 +179,7 @@ const CLASS_TASKS_JSON_FILE = path.join(DATA_DIR, "class_tasks.json");
 const SUBSCRIPTIONS_JSON_FILE = path.join(DATA_DIR, "subscriptions.json");
 const PROMO_CODES_JSON_FILE = path.join(DATA_DIR, "promo_codes.json");
 const NOTIFICATIONS_JSON_FILE = path.join(DATA_DIR, "notifications.json");
+const PAYMENTS_JSON_FILE = path.join(DATA_DIR, "payments.json");
 
 let classesJson = loadJsonFile(CLASSES_JSON_FILE);
 let classMembersJson = loadJsonFile(CLASS_MEMBERS_JSON_FILE);
@@ -169,11 +187,13 @@ let classTasksJson = loadJsonFile(CLASS_TASKS_JSON_FILE);
 let subscriptionsJson = loadJsonFile(SUBSCRIPTIONS_JSON_FILE);
 let promoCodesJson = loadJsonFile(PROMO_CODES_JSON_FILE);
 let notificationsJson = loadJsonFile(NOTIFICATIONS_JSON_FILE);
+let paymentsJson = loadJsonFile(PAYMENTS_JSON_FILE);
 
 // Приводим подписки из JSON-файла к Map (если сохранились как массивы)
 if (!Array.isArray(subscriptionsJson)) subscriptionsJson = [];
 if (!Array.isArray(promoCodesJson)) promoCodesJson = [];
 if (!Array.isArray(notificationsJson)) notificationsJson = [];
+if (!Array.isArray(paymentsJson)) paymentsJson = [];
 
 let jsonSaveTimer = null;
 let classesSaveTimer = null;
@@ -182,6 +202,7 @@ let classTasksSaveTimer = null;
 let subscriptionsSaveTimer = null;
 let promoCodesSaveTimer = null;
 let notificationsSaveTimer = null;
+let paymentsSaveTimer = null;
 
 function persistJson() {
   if (jsonSaveTimer) return;
@@ -623,9 +644,9 @@ const store = {
   usePromoCode(code, userId) {
     const promo = this.getPromoCode(code);
     if (!promo) return { ok: false, error: "Промокод не найден" };
-    if (promo.used_by && promo.used_by !== userId) {
-      return { ok: false, error: "Промокод уже использован" };
-    }
+    // Код строго одноразовый: повторная активация тем же аккаунтом
+    // превращала разовый код в бессрочную подписку.
+    if (promo.used_by) return { ok: false, error: "Промокод уже использован" };
     if (promo.expires_at && promo.expires_at < now()) {
       return { ok: false, error: "Срок действия промокода истёк" };
     }
@@ -679,6 +700,152 @@ const store = {
       this.persistPromoCodes();
     }
     return promo;
+  },
+
+  // --- billing: платежи (карточная оплата подписки) ---
+  // amount хранится в копейках (целое), чтобы не сравнивать дроби из
+  // уведомления провайдера с ценой из конфигурации.
+  createPayment({ id, userId, provider, plan, amount, currency, days }) {
+    const t = now();
+    const payment = {
+      id,
+      user_id: userId,
+      provider,
+      plan: plan || "pro",
+      amount: Math.round(Number(amount) || 0),
+      currency: currency || "RUB",
+      days: Number(days) || 30,
+      status: "pending",
+      provider_ref: null,
+      created_at: t,
+      updated_at: t,
+      paid_at: null,
+      raw: null,
+    };
+    if (driver === "sqlite") {
+      db.prepare(
+        "INSERT INTO payments (id, user_id, provider, plan, amount, currency, days, status, provider_ref, created_at, updated_at, paid_at, raw) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      ).run(
+        payment.id, payment.user_id, payment.provider, payment.plan,
+        payment.amount, payment.currency, payment.days, payment.status,
+        payment.provider_ref, payment.created_at, payment.updated_at,
+        payment.paid_at, payment.raw,
+      );
+    } else {
+      paymentsJson.push(payment);
+      this.persistPayments();
+    }
+    return payment;
+  },
+
+  getPayment(id) {
+    if (!id) return null;
+    if (driver === "sqlite") {
+      return db.prepare("SELECT * FROM payments WHERE id = ?").get(String(id)) || null;
+    }
+    return paymentsJson.find((p) => p.id === String(id)) || null;
+  },
+
+  findByProviderRef(provider, ref) {
+    if (!ref) return null;
+    const wanted = String(ref);
+    if (driver === "sqlite") {
+      return (
+        db
+          .prepare("SELECT * FROM payments WHERE provider = ? AND provider_ref = ?")
+          .get(provider, wanted) ||
+        db
+          .prepare("SELECT * FROM payments WHERE provider = ? AND id = ?")
+          .get(provider, wanted) ||
+        null
+      );
+    }
+    return (
+      paymentsJson.find((p) => p.provider === provider && p.provider_ref === wanted) ||
+      paymentsJson.find((p) => p.provider === provider && p.id === wanted) ||
+      null
+    );
+  },
+
+  listPayments(userId, limit = 50) {
+    let rows;
+    if (driver === "sqlite") {
+      rows = userId
+        ? db
+            .prepare("SELECT * FROM payments WHERE user_id = ? ORDER BY created_at DESC LIMIT ?")
+            .all(userId, limit)
+        : db
+            .prepare("SELECT * FROM payments ORDER BY created_at DESC LIMIT ?")
+            .all(limit);
+    } else {
+      rows = (userId ? paymentsJson.filter((p) => p.user_id === userId) : paymentsJson)
+        .slice()
+        .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+        .slice(0, limit);
+    }
+    return rows;
+  },
+
+  /**
+   * Идемпортентный перевод платежа в paid. Возвращает false, если платёж
+   * уже был оплачен или не найден — вызывающий код не должен продлевать
+   * подписку повторно на повторном уведомлении провайдера.
+   */
+  markPaymentPaid(id, { providerRef, raw } = {}) {
+    const payment = this.getPayment(id);
+    if (!payment) return { ok: false, reason: "not_found" };
+    if (payment.status === "paid") return { ok: false, reason: "already_paid", payment };
+    const t = now();
+    const next = {
+      ...payment,
+      status: "paid",
+      provider_ref: providerRef ? String(providerRef) : payment.provider_ref,
+      updated_at: t,
+      paid_at: t,
+      raw: raw ? JSON.stringify(raw) : payment.raw,
+    };
+    if (driver === "sqlite") {
+      const res = db
+        .prepare(
+          "UPDATE payments SET status = ?, provider_ref = ?, updated_at = ?, paid_at = ?, raw = ? WHERE id = ? AND status <> 'paid'",
+        )
+        .run(
+          next.status, next.provider_ref, next.updated_at, next.paid_at,
+          next.raw, next.id,
+        );
+      // 0 изменённых строк = параллельный запрос уже пометил платёж оплаченным
+      if (!res || res.changes === 0) {
+        return { ok: false, reason: "already_paid", payment: this.getPayment(id) };
+      }
+    } else {
+      const idx = paymentsJson.findIndex((p) => p.id === payment.id);
+      if (idx >= 0) paymentsJson[idx] = next;
+      this.persistPayments();
+    }
+    return { ok: true, payment: next };
+  },
+
+  markPaymentFailed(id, { providerRef, raw } = {}) {
+    const payment = this.getPayment(id);
+    if (!payment || payment.status === "paid") return payment;
+    const t = now();
+    const next = {
+      ...payment,
+      status: "failed",
+      provider_ref: providerRef ? String(providerRef) : payment.provider_ref,
+      updated_at: t,
+      raw: raw ? JSON.stringify(raw) : payment.raw,
+    };
+    if (driver === "sqlite") {
+      db.prepare(
+        "UPDATE payments SET status = ?, provider_ref = ?, updated_at = ?, raw = ? WHERE id = ?",
+      ).run(next.status, next.provider_ref, next.updated_at, next.raw, next.id);
+    } else {
+      const idx = paymentsJson.findIndex((p) => p.id === payment.id);
+      if (idx >= 0) paymentsJson[idx] = next;
+      this.persistPayments();
+    }
+    return next;
   },
 
   // --- classes ---
@@ -1036,6 +1203,20 @@ const store = {
         fs.renameSync(tmp, PROMO_CODES_JSON_FILE);
       } catch (e) {
         console.error("[store] promo_codes persist failed:", e && e.message);
+      }
+    }, 250);
+  },
+
+  persistPayments() {
+    if (paymentsSaveTimer) return;
+    paymentsSaveTimer = setTimeout(() => {
+      paymentsSaveTimer = null;
+      try {
+        const tmp = PAYMENTS_JSON_FILE + ".tmp";
+        fs.writeFileSync(tmp, JSON.stringify(paymentsJson), "utf8");
+        fs.renameSync(tmp, PAYMENTS_JSON_FILE);
+      } catch (e) {
+        console.error("[store] payments persist failed:", e && e.message);
       }
     }, 250);
   },

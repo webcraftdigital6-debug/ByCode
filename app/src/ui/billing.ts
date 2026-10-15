@@ -27,10 +27,30 @@ export interface SubscriptionInfo {
   expiresAt: string | null;
 }
 
+/** Оплата картой: availability зависит от настроек сервера (env провайдера). */
+export interface CheckoutInfo {
+  available: boolean;
+  provider: string;
+  price: string;
+  currency: string;
+  days: number;
+}
+
 export interface BillingState {
   plan: PlanInfo;
   usage: UsageInfo;
   subscription: SubscriptionInfo | null;
+  checkout?: CheckoutInfo | null;
+  promoEnabled?: boolean;
+}
+
+export interface CheckoutResult {
+  url: string;
+  paymentId: string;
+  price: string;
+  currency: string;
+  days: number;
+  provider: string;
 }
 
 export type PlanLimitCode =
@@ -102,4 +122,13 @@ export async function upgradeWithPromoCode(
 
 export async function cancelSubscription(): Promise<{ ok: boolean; plan: string }> {
   return fetchJson("/api/billing/cancel", "POST");
+}
+
+/**
+ * Создаёт платёж и возвращает URL платёжной страницы провайдера.
+ * Пессимистичный сценарий: страница оплаты открывается переходом, а подписку
+ * включает уведомление провайдера на сервере — ответ браузера не учитывается.
+ */
+export async function startCheckout(): Promise<CheckoutResult> {
+  return fetchJson<CheckoutResult>("/api/billing/checkout", "POST", {});
 }

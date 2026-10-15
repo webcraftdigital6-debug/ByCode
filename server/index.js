@@ -11,6 +11,9 @@ const fs = require("fs");
 const store = require("./store");
 const { hashPassword, verifyPassword } = require("./passwords");
 const { submitFeedback, TYPES } = require("./feedback");
+const { getBilling, toMajor } = require("./billing/index");
+const { startCheckout, handleNotification } = require("./billing/checkout");
+const mockProvider = require("./billing/mock");
 
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = parseInt(process.env.PORT || "4000", 10);
@@ -32,11 +35,22 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json({ limit: "4mb" }));
+// Robokassa отправляет уведомление о платеже form-encoded телом
+app.use(express.urlencoded({ extended: false, limit: "1mb" }));
 app.use(cookieParser());
 
 // ---------- Helper functions ----------
 function generateId() {
   return crypto.randomUUID();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // ---------- Session middleware ----------
@@ -464,14 +478,17 @@ app.post("/api/classes/:classId/students", requireAuth, (req, res) => {
       return res.status(409).json({ error: "Ученик уже в классе" });
     }
 
-    // Лимит тарифа: количество учеников (уникальных по всем классам)
+    // Лимит тарифа: количество учеников (уникальные ученики этого учителя)
     const plan = store.getPlan(req.user.id);
     const usage = store.getUsage(req.user.id);
-    // Ученик уже может быть в другом классе — тогда лимит не расходуется
-    const alreadyStudentElsewhere = store
+    // Новый слот расходуется только если ученика ещё нет в классах этого
+    // учителя. Проверка «состоит ли вообще в каком-то классе» позволяла
+    // Free-учителю принимать неограниченно учеников из чужих классов.
+    const myClassIds = new Set(store.getClasses(req.user.id).map((c) => c.id));
+    const alreadyInMyClasses = store
       .getUserClass(student.id)
-      .some((m) => m.role === "student");
-    if (!alreadyStudentElsewhere && usage.students >= plan.maxStudents) {
+      .some((m) => m.role === "student" && myClassIds.has(m.class_id));
+    if (!alreadyInMyClasses && usage.students >= plan.maxStudents) {
       return res.status(402).json({
         error: `Достигнут лимит тарифа ${plan.name}: ${plan.maxStudents} учеников. Обновите подписку до Pro.`,
         code: "PLAN_LIMIT_STUDENTS",
@@ -778,6 +795,7 @@ app.get("/api/billing/plan", requireAuth, (req, res) => {
   const plan = store.getPlan(req.user.id);
   const usage = store.getUsage(req.user.id);
   const sub = store.getSubscription(req.user.id);
+  const { config, provider, providerName } = getBilling(req);
   res.json({
     plan: {
       id: plan.id,
@@ -787,6 +805,14 @@ app.get("/api/billing/plan", requireAuth, (req, res) => {
       monthlyAssignments: Number.isFinite(plan.monthlyAssignments) ? plan.monthlyAssignments : null,
     },
     usage,
+    checkout: {
+      available: Boolean(provider),
+      provider: providerName,
+      price: toMajor(config.minorAmount),
+      currency: config.currency,
+      days: config.days,
+    },
+    promoEnabled: config.promoEnabled,
     subscription: sub
       ? {
           plan: sub.plan,
@@ -840,6 +866,137 @@ app.post("/api/billing/cancel", requireAuth, (req, res) => {
     console.error("billing cancel error", e);
     res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
+});
+
+// ---------- Billing: оплата картой ----------
+/** URL, на которые провайдер возвращает браузер и присылает уведомление. */
+function billingUrls(baseUrl, providerName) {
+  return {
+    resultUrl: `${baseUrl}/api/billing/result/${providerName}`,
+    successUrl: `${baseUrl}/api/billing/return/${providerName}/success`,
+    failUrl: `${baseUrl}/api/billing/return/${providerName}/failed`,
+  };
+}
+
+app.post("/api/billing/checkout", requireAuth, async (req, res) => {
+  try {
+    const { config, provider, providerName, baseUrl } = getBilling(req);
+    if (!provider) {
+      return res.status(503).json({
+        error: "Оплата картой временно недоступна",
+        code: "BILLING_UNAVAILABLE",
+      });
+    }
+    const { payment, checkout } = await startCheckout({
+      user: req.user,
+      provider,
+      config,
+      urls: billingUrls(baseUrl, providerName),
+    });
+    res.json({
+      url: checkout.url,
+      paymentId: payment.id,
+      price: toMajor(payment.amount),
+      currency: payment.currency,
+      days: payment.days,
+      provider: providerName,
+    });
+  } catch (e) {
+    console.error("billing checkout error", e);
+    res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  }
+});
+
+/**
+ * Уведомление провайдера о платеже (ResultURL): form-encoded POST, иногда GET.
+ * Только здесь включается подписка; повторная доставка того же платежа
+ * ничего не меняет и отвечает успешно, чтобы провайдер не зациклился.
+ */
+async function billingResultHandler(req, res) {
+  const name = String(req.params.provider || "").toLowerCase();
+  const { config, provider } = getBilling(req);
+  if (!provider || provider.name !== name) {
+    return res.status(404).send("Unknown provider");
+  }
+  try {
+    const result = await handleNotification({ provider, config, req });
+    if (result.status !== 200) {
+      console.warn(
+        `[billing] уведомление ${name} отклонено (${result.status}): ${result.body}`,
+      );
+      return res.status(result.status).send(String(result.body));
+    }
+    res.send(String(result.body));
+  } catch (e) {
+    console.error("billing result error", e);
+    res.status(500).send("error");
+  }
+}
+
+app
+  .route("/api/billing/result/:provider")
+  .post(billingResultHandler)
+  .get(billingResultHandler);
+
+/** Возврат браузера с платёжной страницы: только редирект, ничего не активирует. */
+app.get("/api/billing/return/:provider/:outcome", (req, res) => {
+  const outcome = ["success", "failed", "pending"].includes(req.params.outcome)
+    ? req.params.outcome
+    : "pending";
+  const { baseUrl } = getBilling(req);
+  const target = `${baseUrl || ""}/?billing=${outcome}`;
+  res.redirect(target);
+});
+
+/** Страница-заглушка mock-провайдера: имитирует успешный и неудачный платёж. */
+app.get("/api/billing/mock/:paymentId", (req, res) => {
+  const { provider } = getBilling(req);
+  if (!provider || provider.name !== "mock") {
+    return res.status(404).send("Mock-провайдер не включён");
+  }
+  const q = req.query || {};
+  const paymentId = String(req.params.paymentId || "");
+  const fields = {
+    IsTest: "1",
+    PaymentID: `mock_${Date.now().toString(36)}`,
+    PaymentMethod: "ACCards",
+    "Alpha-Currency": String(q.Currency || "RUB"),
+    Amount: String(q.Amount || ""),
+    InvoiceID: paymentId,
+    Description: String(q.Description || ""),
+    SignatureValue: String(q.SignatureValue || ""),
+  };
+  const formScript = JSON.stringify(fields);
+  const successUrl = String(q.SuccessURL || "/?billing=success");
+  const failUrl = String(q.FailURL || "/?billing=failed");
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<title>Тестовая оплата — BlocklyCode</title>
+<style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+.card{background:#1e293b;padding:28px 32px;border-radius:14px;max-width:460px;width:92%}
+h1{font-size:19px;margin:0 0 6px}p{font-size:14px;opacity:.8;margin:0 0 18px}
+button{width:100%;padding:12px;margin-bottom:10px;border:0;border-radius:9px;font-size:15px;cursor:pointer}
+.ok{background:#10b981;color:#04140c}.no{background:#334155;color:#e2e8f0}
+code{font-size:12px;opacity:.6}</style></head><body><div class="card">
+<h1>Тестовый платёж (mock)</h1>
+<p>Счёт ${escapeHtml(paymentId)} — ${escapeHtml(fields.Amount)} ${escapeHtml(fields["Alpha-Currency"])}.
+Кнопка отправит подписанное уведомление на ResultURL, затем вернёт в приложение.</p>
+<button class="ok" onclick="send('success')">Оплата прошла успешно</button>
+<button class="no" onclick="send('fail')">Карта отклонена</button>
+<p><code>BILLING_PROVIDER=mock — только для разработки и тестов</code></p>
+</div>
+<script>
+var FIELDS = ${formScript};
+var SUCCESS_URL = ${JSON.stringify(successUrl)};
+var FAIL_URL = ${JSON.stringify(failUrl)};
+function send(outcome) {
+  var body = new URLSearchParams(FIELDS);
+  body.set("MockOutcome", outcome);
+  fetch("/api/billing/result/mock", { method: "post", body: body })
+    .then(function () { location.href = outcome === "success" ? SUCCESS_URL : FAIL_URL; });
+}
+</script>
+</body></html>`);
 });
 
 // ---------- OAuth (позже): заглушки, чтобы фронтенд не падал ----------
@@ -900,14 +1057,21 @@ if (process.env.BC_TEST === "1") {
     console.log(
       `API server running at http://${HOST}:${PORT} (driver: ${store.driver}, data: ${store.DATA_DIR})`,
     );
-    // Сид тестового промокода PRO-TEST (активирует Pro на 30 дней)
+    // Сид тестового промокода PRO-TEST — только в разработке или когда
+    // промокоды явно включены (BILLING_PROMO_ENABLED=1). В бою он дал бы
+    // любому посетителю бесплатный Pro, поскольку код виден в интерфейсе.
     try {
-      const seedCodes = ["PRO-TEST"];
-      for (const code of seedCodes) {
-        if (!store.getPromoCode(code)) {
-          store.createPromoCode({ code, plan: "pro", expiresInDays: 365 });
-          console.log(`[billing] сид промокода создан: ${code}`);
+      const promoAllowed =
+        process.env.BILLING_PROMO_ENABLED === "1" || !IS_PROD;
+      if (promoAllowed) {
+        for (const code of ["PRO-TEST"]) {
+          if (!store.getPromoCode(code)) {
+            store.createPromoCode({ code, plan: "pro", expiresInDays: 365 });
+            console.log(`[billing] сид промокода создан: ${code}`);
+          }
         }
+      } else {
+        console.log("[billing] промокоды отключены (BILLING_PROMO_ENABLED != 1)");
       }
     } catch (e) {
       console.warn("[billing] не удалось создать сид промокодов:", e && e.message);

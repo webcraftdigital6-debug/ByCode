@@ -425,10 +425,35 @@ html[data-theme='dark'] .plan-current-label {
   line-height: 1.4;
 }
 
-.billing-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
+.billing-notice {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 12px;
+  border: 1px solid transparent;
+}
+
+.billing-notice.success {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #067a55;
+}
+
+.billing-notice.failed,
+.billing-notice.pending {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #92600a;
+}
+
+html[data-theme='dark'] .billing-notice.success {
+  color: #34d399;
+}
+
+html[data-theme='dark'] .billing-notice.failed,
+html[data-theme='dark'] .billing-notice.pending {
+  color: #fbbf24;
 }
 
 /* ===== Прогресс ученика и диалог назначения ===== */
