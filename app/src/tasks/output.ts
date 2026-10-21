@@ -120,8 +120,8 @@ export const outputTasks: Pick<TaskRegistry, "hello_world" | "add_2_7" | "greet_
     title: (lang) => (lang === "ru" ? "Задача 1: Hello World" : "Task 1: Hello World"),
     description: (lang) =>
       lang === "ru"
-        ? "Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong><br><br><strong>Как проверить решение:</strong> добавьте нужные блоки на рабочее поле, затем справа в редакторе нажмите кнопку «▶» («Запустить код»), а после этого нажмите «Проверить решение»."
-        : "Assemble blocks so that the output shows: <strong>Hello World!</strong><br><br><strong>How to check:</strong> add the needed blocks to the workspace, then press “▶” (“Run code”) in the editor, and finally press “Check solution”.",
+        ? "Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong><br><br>Для вывода возьмите из категории «Текст» блок «Вывести … цвет …» и впишите в него фразу Hello World!.<br><br><strong>Как проверить решение:</strong> добавьте нужные блоки на рабочее поле, затем справа в редакторе нажмите кнопку «▶» («Запустить код»), а после этого нажмите «Проверить решение»."
+        : "Assemble blocks so that the output shows: <strong>Hello World!</strong><br><br>To print it, take the “Print … color …” block from the Text category and type Hello World! into it.<br><br><strong>How to check:</strong> add the needed blocks to the workspace, then press “▶” (“Run code”) in the editor, and finally press “Check solution”.",
     hint: (lang) =>
       lang === "ru"
         ? "Пошаговое решение:\n1. В категории «Текст» возьмите блок «Вывести … цвет …» и перетащите его на рабочее поле.\n2. Впишите в поле блока фразу Hello World! (цвет можно оставить пустым).\n3. Нажмите кнопку «▶» («Запустить код») в редакторе — в окне вывода появится Hello World!.\n4. Нажмите «Проверить решение» — задача будет засчитана."
