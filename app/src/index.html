@@ -2877,8 +2877,9 @@
             aria-label="Закрыть условия задач">✕</button>
         </div>
         <div class="task-body">
-          <p class="task-desc">Соберите блоки так, чтобы в окне вывода появилась строка: <strong>Hello World!</strong>
-          </p>
+          <!-- Условие задачи рендерит реестр (tasks/*.ts) через setActiveTask;
+               здесь только пустой контейнер под него. -->
+          <p class="task-desc"></p>
           <details id="taskHintDetails" class="task-hint-details">
             <summary id="taskHintSummary">Подсказка</summary>
             <!-- Пошаговая подсказка рендерится в ui/hintSteps.ts (mount .hint-steps-mount) -->
