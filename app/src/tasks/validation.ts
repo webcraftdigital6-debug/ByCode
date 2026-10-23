@@ -5,6 +5,7 @@ import { getAppLang } from "../localization";
 import { syncProgress } from "../progressSync";
 import { countNonShadowBlocks } from "../workspaceUtils";
 import { mountGlossaryForTask } from "../ui/glossary";
+import { highlightTermsIn } from "../ui/hintTerms";
 import { mountHintSteps } from "../ui/hintSteps";
 import { mountSolutionOffer } from "../ui/solutions";
 import { tasks } from "./registry";
@@ -71,7 +72,11 @@ export function setActiveTask(taskId: TaskId) {
 
   const tdef = tasks[getActiveTask()];
   if (titleEl) titleEl.textContent = tdef.title(lang);
-  if (descEl) descEl.innerHTML = tdef.description(lang);
+  if (descEl) {
+    descEl.innerHTML = tdef.description(lang);
+    // Названия блоков и разделов в условии красим в цвет категории, как в подсказках.
+    highlightTermsIn(descEl);
+  }
   // Пошаговая подсказка: шаги открываются по одному (ui/hintSteps.ts)
   if (hintDetails) {
     hintDetails.open = false;

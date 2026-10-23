@@ -1,11 +1,12 @@
 /**
- * Выделение названий блоков и разделов тулбокса в текстах подсказок.
+ * Выделение названий блоков и разделов тулбокса в текстах задач.
  *
  * Фраза в кавычках («…”, “…”), совпавшая с названием блока или раздела,
  * окрашивается в цвет его категории — так ученик видит, что именно искать
- * в тулбоксе. Соответствия задаёт BLOCK_TERMS: «…» внутри шаблона — слот,
- * в который ученик вставил значение («увеличить sum на i» совпадает с
- * «увеличить … на …»).
+ * в тулбоксе. Работает и в plain-тексте подсказок (renderHintText), и внутри
+ * HTML-разметки условий и справочника (highlightTermsIn). Соответствия задаёт
+ * BLOCK_TERMS: «…» внутри шаблона — слот, в который ученик вставил значение
+ * («увеличить sum на i» совпадает с «увеличить … на …»).
  */
 
 import * as BlocklyCore from "blockly/core";
@@ -103,11 +104,13 @@ const BLOCK_TERMS: Record<HintTermStyle, string[]> = {
     "повторять для … от … до …",
     "цикл по … от … до … с шагом …",
     "для каждого элемента … в списке …",
+    "для каждого элемента",
     "для каждого … в …",
     "прервать цикл",
     "продолжить цикл",
     "выполнить …",
     "пока",
+    "пока не",
     "выполнить",
     "repeat … times",
     "repeat while …",
@@ -411,10 +414,41 @@ function compiledTerms(): CompiledTerm[] {
   return out;
 }
 
+/**
+ * Фразы, которые подходят под шаблон блока, но блоками не являются: союз в
+ * обычном предложении, название кнопки, значение строки. Без этого списка
+ * wildcard-шаблоны («не …», «длина …») красили бы обычные слова.
+ */
+export const NON_BLOCK_PHRASES = new Set([
+  "проверить решение",
+  "check solution",
+  "▶",
+  "blockly",
+  "a",
+  "ss",
+  "sh",
+  "banana",
+  "mississippi",
+  "hello,",
+  "the number is even",
+  "the number is odd",
+  "запустить код",
+  "run code",
+  "не найдено",
+  "not found",
+  "не равно",
+  "not equal",
+  "!", // кусок строки, который клеят блоком «создать текст из»
+  "na", // подстрока, которую ищут блоком «подсчитать количество … в …»
+  "да", // пояснение логического значения
+  "10", // пример строки-числа в справочнике
+  "пуст", // состояние списка/текста, а не блок: «длина = 0» означает «пуст»
+]);
+
 /** Возвращает стиль категории для фразы из кавычек или null. */
 export function matchHintTerm(quoted: string): HintTermStyle | null {
   const norm = normalizeTerm(quoted);
-  if (!norm || norm.length > 90) return null;
+  if (!norm || norm.length > 90 || NON_BLOCK_PHRASES.has(norm)) return null;
   for (const term of compiledTerms()) {
     if (term.re.test(norm)) return term.style;
   }
@@ -446,6 +480,47 @@ export function hintTermColour(style: HintTermStyle): string {
 
 const QUOTED_RE = /[«“]([^»”\n]{1,90})[»”]/g;
 
+/** Кэш цвета стиля: тема отдаёт одно и то же, пересчитывать hueToHex незачем. */
+const colourCache = new Map<HintTermStyle, string>();
+
+function termColour(style: HintTermStyle): string {
+  let colour = colourCache.get(style);
+  if (!colour) {
+    colour = hintTermColour(style);
+    colourCache.set(style, colour);
+  }
+  return colour;
+}
+
+function makeTermSpan(quoted: string, style: HintTermStyle): HTMLElement {
+  const span = document.createElement("span");
+  span.className = "hint-term";
+  span.style.setProperty("--hint-term", termColour(style));
+  span.textContent = quoted;
+  return span;
+}
+
+/**
+ * Оборачивает термины из plain-текста во фрагмент DOM. Возвращает null, если
+ * совпадений нет — вызывающий тогда оставляет текст как был.
+ */
+function highlightQuoted(text: string): DocumentFragment | null {
+  let frag: DocumentFragment | null = null;
+  let cursor = 0;
+  for (const m of text.matchAll(QUOTED_RE)) {
+    const start = m.index ?? 0;
+    const style = matchHintTerm(m[1]);
+    if (!style) continue;
+    if (!frag) frag = document.createDocumentFragment();
+    frag.appendChild(document.createTextNode(text.slice(cursor, start)));
+    frag.appendChild(makeTermSpan(m[0], style));
+    cursor = start + m[0].length;
+  }
+  if (!frag) return null;
+  frag.appendChild(document.createTextNode(text.slice(cursor)));
+  return frag;
+}
+
 /**
  * Разбирает текст подсказки во фрагмент DOM: фразы в кавычках, совпавшие с
  * названием блока или раздела, заворачиваются в `<span class="hint-term">`
@@ -453,25 +528,38 @@ const QUOTED_RE = /[«“]([^»”\n]{1,90})[»”]/g;
  */
 export function renderHintText(text: string): DocumentFragment {
   const frag = document.createDocumentFragment();
-  const colourByStyle = new Map<HintTermStyle, string>();
-  let cursor = 0;
-  QUOTED_RE.lastIndex = 0;
-  for (const m of text.matchAll(new RegExp(QUOTED_RE, "g"))) {
-    const start = m.index ?? 0;
-    frag.appendChild(document.createTextNode(text.slice(cursor, start)));
-    cursor = start + m[0].length;
-    const style = matchHintTerm(m[1]);
-    if (!style) {
-      frag.appendChild(document.createTextNode(m[0]));
-      continue;
-    }
-    if (!colourByStyle.has(style)) colourByStyle.set(style, hintTermColour(style));
-    const span = document.createElement("span");
-    span.className = "hint-term";
-    span.style.setProperty("--hint-term", colourByStyle.get(style) as string);
-    span.textContent = m[0];
-    frag.appendChild(span);
-  }
-  frag.appendChild(document.createTextNode(text.slice(cursor)));
+  frag.appendChild(highlightQuoted(text) ?? document.createTextNode(text));
   return frag;
+}
+
+/** Внутри этих тегов подсветку не ставим: код и ввод остаются как есть. */
+const SKIP_TAGS = new Set(["PRE", "CODE", "KBD", "SAMP", "SCRIPT", "STYLE"]);
+
+/**
+ * Раскрашивает термины внутри уже размеченного HTML — условия задач и темы
+ * справочника приходят строками с тегами, поэтому их нельзя разбирать
+ * регуляркой по всей строке. Обходим текстовые узлы: теги, атрибуты и
+ * вложенность остаются нетронутыми.
+ */
+export function highlightTermsIn(root: ParentNode): void {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node.nodeValue || !/[«“]/.test(node.nodeValue)) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      for (let el = node.parentElement; el && el !== root; el = el.parentElement) {
+        if (SKIP_TAGS.has(el.tagName) || el.classList.contains("hint-term")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  // Узлы собираем заранее: замена меняет дерево во время обхода.
+  const targets: Text[] = [];
+  while (walker.nextNode()) targets.push(walker.currentNode as Text);
+  for (const node of targets) {
+    const frag = highlightQuoted(node.nodeValue as string);
+    if (frag) node.replaceWith(frag);
+  }
 }

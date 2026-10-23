@@ -9,6 +9,7 @@
  */
 
 import { getAppLang } from "../localization";
+import { highlightTermsIn } from "./hintTerms";
 import type { TaskId } from "../tasks/types";
 import { tasks } from "../tasks/registry";
 
@@ -1968,6 +1969,8 @@ export function mountGlossaryForTask(container: HTMLElement, taskId: TaskId): vo
     div.className = "console-output-info";
     div.dataset.glossaryTopic = topic;
     div.innerHTML = glossaryTopicHtml(topic);
+    // Названия блоков и разделов в справочнике — тем же приёмом, что в подсказках.
+    highlightTermsIn(div);
     container.appendChild(div);
   }
 }
