@@ -481,12 +481,12 @@ export const variablesTasks: Pick<
     title: (lang) => (lang === "ru" ? "Задача 6: Счётчик инкремент" : "Task 6: Increment counter"),
     description: (lang) =>
       lang === "ru"
-        ? "Создайте переменную <strong>counter</strong> со значением <strong>0</strong>. Затем увеличьте её значение на <strong>1</strong> (используйте блок <strong>counter = counter + 1</strong>). Выведите новое значение."
-        : "Create a variable <strong><code>counter</code></strong> with the value <strong>0</strong>. Then increase it by <strong>1</strong> (use <strong>counter = counter + 1</strong>). Print the new value.",
+        ? "Создайте переменную <strong>counter</strong> со значением <strong>0</strong>. Затем увеличьте её на <strong>1</strong> блоком «увеличить counter на 1» из категории «Переменные»: в коде получится <strong>counter += 1</strong>. Выведите новое значение."
+        : "Create a variable <strong><code>counter</code></strong> with the value <strong>0</strong>. Then increase it by <strong>1</strong> with the “change counter by 1” block from the Variables category: the code becomes <strong>counter += 1</strong>. Print the new value.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте переменную counter и присвойте ей 0: «присвоить counter = 0».\n2. В категории «Математика» возьмите блок «увеличить counter на 1».\n3. Вложите переменную counter в «Вывести … цвет …» и нажмите «▶» — в выводе появится 1.\n4. Нажмите «Проверить решение»."
-        : "Step by step:\n1. Create a variable counter and set it to 0: “set counter = 0”.\n2. In the Math category take the “change counter by 1” block.\n3. Put the variable counter inside “Print … color …” and press “▶” — the output shows 1.\n4. Press “Check solution”.",
+        ? "Пошаговое решение:\n1. Создайте переменную counter и присвойте ей 0: «присвоить counter = 0».\n2. В категории «Переменные» возьмите блок «увеличить counter на 1».\n3. Вложите переменную counter в «Вывести … цвет …» и нажмите «▶» — в выводе появится 1.\n4. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a variable counter and set it to 0: “set counter = 0”.\n2. In the Variables category take the “change counter by 1” block.\n3. Put the variable counter inside “Print … color …” and press “▶” — the output shows 1.\n4. Press “Check solution”.",
     infoTopics: ["inc_dec"],
     validate: validateIncCounter,
   },
