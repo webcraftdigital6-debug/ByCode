@@ -93,7 +93,10 @@ const config = {
         },
         { from: "node_modules/php-wasm/*.so", to: "libs/php-wasm/[name][ext]" },
         // COOP/COEP заголовки для SharedArrayBuffer (input() в песочнице)
-        { from: ".htaccess", to: ".htaccess" },
+        // toType: "file" обязателен — без расширения CopyWebpackPlugin считает цель каталогом
+        { from: ".htaccess", to: ".htaccess", toType: "file" },
+        // Тот же набор заголовков для Cloudflare Pages (читает _headers из вывода сборки)
+        { from: "_headers", to: "_headers", toType: "file" },
       ],
     }),
   ],
