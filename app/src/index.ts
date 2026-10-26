@@ -1651,13 +1651,13 @@ function refreshWorkspaceWithCustomToolbox() {
     const morePanel = document.getElementById("headerMorePanel");
     const feedbackBtn = document.getElementById("feedbackBtn");
     const statsBtn = document.getElementById("statsBtn");
-    const supportBtn = document.getElementById("supportBtn");
+    const onboardingBtn = document.getElementById("onboardingReplayBtn");
     if (moreWrap && morePanel && feedbackBtn && statsBtn) {
       if (user) {
         // Authenticated: show dropdown, move feedback+stats into it
         moreWrap.style.display = "";
-        morePanel.insertBefore(feedbackBtn, supportBtn?.nextSibling ?? null);
-        morePanel.insertBefore(statsBtn, supportBtn?.nextSibling ?? null);
+        morePanel.insertBefore(feedbackBtn, onboardingBtn);
+        morePanel.insertBefore(statsBtn, onboardingBtn);
       } else {
         // Guest: hide dropdown, keep feedback+stats in header
         moreWrap.style.display = "none";
@@ -1676,12 +1676,12 @@ function refreshWorkspaceWithCustomToolbox() {
     const morePanel = document.getElementById("headerMorePanel");
     const feedbackBtn = document.getElementById("feedbackBtn");
     const statsBtn = document.getElementById("statsBtn");
-    const supportBtn = document.getElementById("supportBtn");
+    const onboardingBtn = document.getElementById("onboardingReplayBtn");
     if (moreWrap && morePanel && feedbackBtn && statsBtn) {
       if (user) {
         moreWrap.style.display = "";
-        morePanel.insertBefore(feedbackBtn, supportBtn?.nextSibling ?? null);
-        morePanel.insertBefore(statsBtn, supportBtn?.nextSibling ?? null);
+        morePanel.insertBefore(feedbackBtn, onboardingBtn);
+        morePanel.insertBefore(statsBtn, onboardingBtn);
       } else {
         moreWrap.style.display = "none";
         const iconBtns = moreWrap.parentElement;

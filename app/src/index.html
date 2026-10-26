@@ -32,11 +32,6 @@
       min-height: 60px;
     }
 
-    #supportBtn,
-    .mobile-menu-item[data-action="supportBtn"] {
-      display: none !important;
-    }
-
     .mobile-menu-item[data-action="taskDifficultySelect"] {
       display: none;
     }
@@ -2615,6 +2610,9 @@
         <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи">
           <span id="taskSolutionBtnText">ℹ️ Решение задач</span>
         </button>
+        <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
+          <span id="supportBtnText">💙 Поддержка</span>
+        </button>
         <button id="importBlockBtn" class="import-button">
           <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
             <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
@@ -2651,9 +2649,6 @@
             <button id="studentTasksBtn" class="import-button" title="Мои задания" aria-label="Мои задания"
               style="display:none;">
               <span id="studentTasksBtnText">📋 Задания</span>
-            </button>
-            <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
-              <span id="supportBtnText">💙 Поддержка</span>
             </button>
             <button id="onboardingReplayBtn" class="import-button" title="Как пользоваться"
               aria-label="Как пользоваться">
