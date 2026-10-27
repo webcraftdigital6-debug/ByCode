@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 27 (list_inventory_random): случайный выбор элемента списка.
+    Задача 32 (list_inventory_random): случайный выбор элемента списка.
     Режим RANDOM берёт значение из списка, индексы считать не нужно.
     Ожидаемый вывод: пять строк, каждая — один из четырёх предметов loot
   -->

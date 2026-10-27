@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 23 (in_count_to_n): граница цикла берётся из переменной n, которую
+    ученик вводит сам. Вывод при ответе 4: > 4 / 1 / 2 / 3 / 4
+  -->
+  <variables>
+    <variable id="count-n">n</variable>
+    <variable id="count-i">i</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="count-n">n</field>
+    <value name="VALUE">
+      <block type="py_input_number"></block>
+    </value>
+    <next>
+      <block type="controls_for">
+        <field name="VAR" id="count-i">i</field>
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <block type="variables_get">
+            <field name="VAR" id="count-n">n</field>
+          </block>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <statement name="DO">
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="variables_get">
+                <field name="VAR" id="count-i">i</field>
+              </block>
+            </value>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</xml>

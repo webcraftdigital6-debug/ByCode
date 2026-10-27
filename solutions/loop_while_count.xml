@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 21 (loop_while_count): цикл «повторять, пока» с печатью счётчика.
+    Задача 26 (loop_while_count): цикл «повторять, пока» с печатью счётчика.
     Без «увеличить step на 1» условие step < 5 осталось бы истинным навсегда.
     Ожидаемый вывод: 0, 1, 2, 3, 4
   -->

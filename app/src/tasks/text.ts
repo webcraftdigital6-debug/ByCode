@@ -211,7 +211,7 @@ export const textTasks: Pick<
   str_length: {
     id: "str_length",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 43: Сколько букв?" : "Task 43: How Many Letters?"),
+    title: (lang) => (lang === "ru" ? "Задача 48: Сколько букв?" : "Task 48: How Many Letters?"),
     description: (lang) =>
       lang === "ru"
         ? `Строка — это последовательность символов, и компьютер умеет с ней работать как со списком. Возьмите слово <strong>«${WORD}»</strong> и напечатайте в окне вывода две строки:<br><br>1) <strong>сколько в нём символов</strong> — блок «длина текста» из категории «Текст»;<br>2) <strong>это же слово задом наперёд</strong> — блок «развернуть» из той же категории.<br><br>Символом считается всё: буквы, цифры и пробелы. <br><br>★★★ — оба действия сделаны блоками, лишних блоков нет.`
@@ -227,7 +227,7 @@ export const textTasks: Pick<
     id: "str_charat",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 44: Буквы по номеру" : "Task 44: Letters by Position",
+      lang === "ru" ? "Задача 49: Буквы по номеру" : "Task 49: Letters by Position",
     description: (lang) =>
       lang === "ru"
         ? `Возьмите слово <strong>«${WORD}»</strong> и напечатайте тремя отдельными строками:<br><br>1) <strong>первую</strong> букву;<br>2) <strong>последнюю</strong> букву;<br>3) букву под номером <strong>3</strong> (считаем от начала слова).<br><br>Используйте блок <strong>«в тексте получить …»</strong> из категории «Текст» — в его выпадающем списке есть режимы «первый», «последний», «с начала» и «с конца».<br><br><strong>Осторожно с нумерацией:</strong> режим «с начала» отсчитывает буквы с 1, а языки программирования — с 0. Об этом — раздел «Символ по номеру» под заданием.<br><br>★★★ — все три буквы получены блоком «в тексте получить …».`
@@ -243,7 +243,7 @@ export const textTasks: Pick<
     id: "str_echo",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 45: Эхо в подземелье" : "Task 45: Echo in the Dungeon",
+      lang === "ru" ? "Задача 50: Эхо в подземелье" : "Task 50: Echo in the Dungeon",
     description: (lang) =>
       lang === "ru"
         ? `Эхо в пещере повторяет боевой клич несколько раз — соберите его из кусочков.<br><br>1) Создайте переменную <strong>cry</strong> со значением <code>ROAR</code> и переменную <strong>echo</strong> с <strong>пустым текстом</strong> (блок «текст», в котором ничего не написано).<br>2) Возьмите <strong>«повторить … раз»</strong> (Циклы) с числом <strong>3</strong> и положите внутрь <strong>«к переменной echo добавить текст …»</strong> (Текст). В поле текста вложите «создать текст из» двух частей: переменная cry и <code>!</code>.<br>3) Напечатайте <strong>первую букву</strong> крика (режим «первый» блока «в тексте получить …») → <strong>R</strong>.<br>4) Напечатайте echo → <strong>ROAR!ROAR!ROAR!</strong>.<br><br><strong>Почему старт пустой:</strong> строку нельзя изменить по букве, но можно собрать новую, дописывая кусочек за кусочком. Накопитель всегда начинают с пустого значения, иначе к эху приклеится прошлый остаток.<br><br>★★★ — эхо собрано дописыванием внутри цикла, а не тремя отдельными блоками «Вывести … цвет …».`
@@ -258,7 +258,7 @@ export const textTasks: Pick<
   str_substring: {
     id: "str_substring",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 46: Кусочки строки" : "Task 46: Pieces of a String"),
+    title: (lang) => (lang === "ru" ? "Задача 51: Кусочки строки" : "Task 51: Pieces of a String"),
     description: (lang) =>
       lang === "ru"
         ? `От слова <strong>«${WORD}»</strong> осталось три кусочка — напечатайте их по строке каждый:<br><br>1) <strong>первые 3 буквы</strong> — Blo;<br>2) <strong>последние 3 буквы</strong> — kly;<br>3) <strong>слово без первой и последней буквы</strong> — lockl.<br><br>Для этого есть блок <strong>«в тексте получить подстроку с … по …»</strong> (категория «Текст»): у него задают начало и конец кусочка, каждый — своим способом (первый, с начала, с конца, последний).<br><br>Такой приём называют <strong>срез (slice)</strong>, и в разных языках он считает границы по-разному — смотрите раздел «Подстрока и срез» под заданием.<br><br>★★★ — все три кусочка вырезаны блоком подстроки.`
@@ -274,7 +274,7 @@ export const textTasks: Pick<
     id: "str_clean",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 47: Приводим текст в порядок" : "Task 47: Cleaning Up Text",
+      lang === "ru" ? "Задача 52: Приводим текст в порядок" : "Task 52: Cleaning Up Text",
     description: (lang) =>
       lang === "ru"
         ? `Данные часто приходят «грязными»: лишние пробелы по краям, разный регистр. Соберите фразу и очистите её.<br><br>1. Создайте переменную <strong>phrase</strong> и присвойте ей текст из <strong>двух пробелов</strong> и букв <strong>«pri»</strong> (то есть «&nbsp;&nbsp;pri»).<br>2. Блоком <strong>«добавить к переменной текст»</strong> допишите к ней <strong>«vet!»</strong>.<br>3. Напечатайте значение phrase, предварительно <strong>убрав пробелы по краям</strong> («убрать пробелы») и <strong>подняв регистр</strong> («изменить регистр» → В ВЕРХНИЙ РЕГИСТР).<br><br>В окне вывода должна получиться ровно одна строка: <strong>PRIVET!</strong><br><br>★★★ — использованы и дописывание, и очистка, и смена регистра.`
@@ -289,7 +289,7 @@ export const textTasks: Pick<
   str_indexof: {
     id: "str_indexof",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 48: Где буква?" : "Task 48: Where Is the Letter?"),
+    title: (lang) => (lang === "ru" ? "Задача 53: Где буква?" : "Task 53: Where Is the Letter?"),
     description: (lang) =>
       lang === "ru"
         ? `Слово <strong>«${SEARCH_WORD}»</strong> — найдите в нём букву и напечатайте три строки:<br><br>1) номер <strong>первой</strong> буквы «a» — получится <strong>2</strong>;<br>2) номер <strong>последней</strong> буквы «a» — получится <strong>6</strong>;<br>3) номер буквы <strong>«z»</strong>, которой в слове нет — получится <strong>0</strong>.<br><br>Используйте блок <strong>«в тексте … найти первое вхождение текста»</strong> (категория «Текст»): в его выпадающем списке режимы «первое» и «последнее».<br><br><strong>Два важных факта о позициях:</strong> Blockly считает с единицы (первая буква — это 1), а языки программирования — с нуля; и «не найдено» Blockly показывает нулём. Подробности — в разделе «Поиск в строке» под заданием.<br><br>★★★ — все три позиции найдены блоком поиска.`
@@ -304,7 +304,7 @@ export const textTasks: Pick<
   str_count: {
     id: "str_count",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 49: Сколько раз?" : "Task 49: How Many Times?"),
+    title: (lang) => (lang === "ru" ? "Задача 54: Сколько раз?" : "Task 54: How Many Times?"),
     description: (lang) =>
       lang === "ru"
         ? `Тот же вопрос, но про количество. В слове <strong>«${SEARCH_WORD}»</strong> напечатайте три строки:<br><br>1) сколько раз встречается буква <strong>«a»</strong> — ответ <strong>3</strong>;<br>2) сколько раз встречается пара букв <strong>«na»</strong> — ответ <strong>2</strong>;<br>3) сколько раз встречается буква <strong>«x»</strong> — ответ <strong>0</strong>.<br><br>Для этого есть блок <strong>«подсчитать количество … в …»</strong> (категория «Текст»).<br><br><strong>Почему «na» даёт 2, а не 3?</strong> Совпадения не перекрываются: найдя пару, компьютер сдвигается за неё целиком и с начала тот же кусок не считает. Об этом — раздел «Поиск в строке» под заданием.<br><br>★★★ — все три подсчёта сделаны блоком количества.`
@@ -319,7 +319,7 @@ export const textTasks: Pick<
   str_replace: {
     id: "str_replace",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 50: Замена текста" : "Task 50: Replacing Text"),
+    title: (lang) => (lang === "ru" ? "Задача 55: Замена текста" : "Task 55: Replacing Text"),
     description: (lang) =>
       lang === "ru"
         ? `Замена создаёт новую строку, в которой один кусок заменён другим. Возьмите слово <strong>«${PHONE_WORD}»</strong> и напечатайте три строки:<br><br>1) все буквы <strong>«i»</strong> заменить на цифру <strong>«1»</strong> → <strong>${PHONE_DIGITS}</strong>;<br>2) в исходном слове все <strong>«ss»</strong> заменить на <strong>«sh»</strong> → <strong>${PHONE_SH}</strong>;<br>3) в результате пункта 2 заменить <strong>«sh»</strong> обратно на <strong>«ss»</strong> → снова <strong>${PHONE_WORD}</strong>.<br><br>Используйте блок <strong>«заменить … на … в …»</strong> (категория «Текст»). Это блок-выражение, поэтому третью строку собирают вложением: один блок замены кладут внутрь другого, как матрёшку.<br><br><strong>Обратите внимание:</strong> блок меняет сразу ВСЕ вхождения, а строка при этом не меняется — появляется новая.<br><br>★★★ — все три строки получены блоками замены, а третья замена действительно вложена в вторую.`

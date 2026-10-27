@@ -34,6 +34,11 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "dice_rolls",
     "sum_1_to_n",
     "mult_table",
+    "in_greet",
+    "in_two_numbers",
+    "in_adult_gate",
+    "in_count_to_n",
+    "in_times_table",
     "chatterbox",
     "loop_while_count",
     "loop_while_input",
@@ -71,7 +76,15 @@ const TASKS_ORDER_BY_DIFFICULTY: Record<TaskDifficulty, TaskId[]> = {
     "proj_treasure_hunt",
     "proj_inventory",
   ],
-  fixbugs: ["fb_join", "fb_area", "fb_parity", "fb_loop", "fb_list", "fb_double"],
+  fixbugs: [
+    "fb_join",
+    "fb_area",
+    "fb_parity",
+    "fb_loop",
+    "fb_list",
+    "fb_double",
+    "fb_input",
+  ],
   advanced: ["a1_number_analyzer", "sum_array", "min_max", "char_freq"],
 };
 const PROGRESS_KEY = "task_progress_v1";

@@ -1,6 +1,6 @@
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 39: Моя первая функция (first_function)
+    Задача 44: Моя первая функция (first_function)
     Решение: функция greet печатает Hello, world!, три блока вызова greet.
     Итог: в выводе три строки Hello, world!.
   -->

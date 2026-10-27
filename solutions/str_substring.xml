@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 46 (str_substring): исправленная программа.
+    Задача 51 (str_substring): исправленная программа.
     Три куска слова: первые 3 буквы, последние 3 буквы, слово без первой и последней.
     Ожидаемый вывод: Blo, kly, lockl
   -->

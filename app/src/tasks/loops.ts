@@ -673,7 +673,7 @@ export const loopsTasks: Pick<
     id: "guess_game",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 53: Игра «Угадай число»" : "Task 53: Number Guessing Game",
+      lang === "ru" ? "Задача 58: Игра «Угадай число»" : "Task 58: Number Guessing Game",
     description: (lang) =>
       lang === "ru"
         ? 'Создайте программу, в которой компьютер <strong>загадывает</strong> число от <strong>1</strong> до <strong>10</strong> (сохраните его в переменной <strong>secret</strong>), а пользователь пытается его угадать.<br><br>Используйте переменную <strong>guess</strong> для догадки. В цикле спрашивайте число у пользователя и сообщайте:<br>— если догадка меньше секрета: <strong>"Загаданное число больше!"</strong><br>— если догадка больше секрета: <strong>"Загаданное число меньше!"</strong><br>— если равно: <strong>"Поздравляем! Вы угадали число!"</strong>.'
@@ -682,7 +682,7 @@ export const loopsTasks: Pick<
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную secret и присвойте ей число от 1 до 10.\n2. Создайте переменную guess. Используйте блок «Ввод числа» из «Текст», чтобы спросить число у пользователя, и присвойте результат guess.\n3. Возьмите блок «повторять, пока …» из «Циклы» с условием «guess ≠ secret».\n4. Внутри цикла: блок «если / иначе если / иначе» (шестерёнка → добавить секции) — если guess < secret вывести «Загаданное число больше!», если guess > secret — «Загаданное число меньше!», иначе — «Поздравляем! Вы угадали число!».\n5. В ветках «меньше/больше» запрашивайте новую догадку через «Ввод числа»."
         : "Step by step:\n1. Create variable secret and set it to a number from 1 to 10.\n2. Create variable guess. Use the “numeric input” block from Text to ask the user for a number and assign it to guess.\n3. Take the “repeat while …” block from Loops with condition “guess ≠ secret”.\n4. Inside the loop: an “if / else if / else” block (gear → add sections) — if guess < secret print “The secret number is higher!”, if guess > secret print “The secret number is lower!”, else print “Congratulations! You guessed the number!”.\n5. In the lower/higher branches ask for a new guess via “numeric input”.",
-    infoTopics: ["while_until"],
+    infoTopics: ["while_until", "user_input"],
     validate: validateGuessGame,
   },
   mult_table: {
@@ -705,7 +705,7 @@ export const loopsTasks: Pick<
     id: "first_even_break",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 38: Найди первое чётное" : "Task 38: Find the first even",
+      lang === "ru" ? "Задача 43: Найди первое чётное" : "Task 43: Find the first even",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[7, 3, 8, 5, 2, 9]</code> и сохраните его в переменную <strong>list</strong>. Переберите элементы циклом и, как только встретится <strong>чётное</strong> число, выведите его и <strong>прервите цикл</strong>: в окне вывода должно появиться только <strong>8</strong>.<br><br><strong>Что такое «прервать цикл»:</strong> блок <strong>«прервать цикл»</strong> (категория «Циклы») немедленно останавливает цикл — программа продолжается с первого блока после цикла. Это классический паттерн «поиск с ранним выходом».<br><br>Проверить чётность можно блоком <strong>«чётное»</strong> из «Математика» (выберите «чётное» в выпадающем списке) или сравнением «остаток от n ÷ 2 = 0»."
@@ -736,7 +736,7 @@ export const loopsTasks: Pick<
     id: "loop_while_count",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 21: Счётчик до предела" : "Task 21: Counter to the Limit",
+      lang === "ru" ? "Задача 26: Счётчик до предела" : "Task 26: Counter to the Limit",
     description: (lang) =>
       lang === "ru"
         ? `Цикл <strong>«повторять, пока …»</strong> крутится, пока условие истинно, — сколько именно раз, заранее неизвестно. Создайте переменную <strong>step</strong> со значением <strong>0</strong> и напечатайте пять строк: <strong>0</strong>, <strong>1</strong>, <strong>2</strong>, <strong>3</strong>, <strong>4</strong>.<br><br>1) Возьмите <strong>«повторять, пока …»</strong> (Циклы) и поставьте условие <code>step &lt; 5</code> — блок «сравнить» из «Логика».<br>2) Внутрь цикла положите «Вывести … цвет …» с переменной <strong>step</strong>.<br>3) Сразу после него поставьте <strong>«увеличить step на 1»</strong> (Математика). Без него условие никогда не станет ложным, и цикл замкнётся навсегда.<br><br><strong>Чем это отличается от «цикла по i»:</strong> там число повторов известно заранее, а здесь программа сама решает, когда остановиться. Так устроены игры («пока здоровье &gt; 0») и загрузка файла («пока не скачано 100 %»).<br><br>★★★ — цикл «пока», сравнение и «увеличить на 1», а не готовый цикл со счётчиком.`
@@ -752,7 +752,7 @@ export const loopsTasks: Pick<
     id: "loop_while_input",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 22: Назови число от 1 до 5" : "Task 22: Name a Number from 1 to 5",
+      lang === "ru" ? "Задача 27: Назови число от 1 до 5" : "Task 27: Name a Number from 1 to 5",
     description: (lang) =>
       lang === "ru"
         ? `Программа задаёт вопрос, пока не получит подходящий ответ. Создайте переменную <strong>guess</strong> и присвойте ей блок <strong>«Ввод числа»</strong> — это первый вопрос.<br><br>1) Возьмите <strong>«повторять, пока не …»</strong> (Циклы). Условие выхода: число подходит — «guess ≥ 1» <strong>И</strong> «guess ≤ 5»; сложите два сравнения блоком «И» из «Логика».<br>2) Внутрь цикла обязательно положите <strong>ещё один</strong> блок «присвоить guess …» с «Ввод числа» — иначе программа не спросит повторно и цикл никогда не закончится.<br>3) После цикла напечатайте значение <strong>guess</strong>.<br><br><strong>Как запустить:</strong> нажмите «▶», введите <code>9</code> и подтвердите — программа спросит снова; введите <code>4</code>. В выводе появится одна строка: <strong>4</strong>.<br><br><strong>Зачем вопрос до цикла:</strong> условие проверяется до первой попытки, поэтому переменную нужно заполнить заранее. Программисты называют это «первичный ввод» (priming read).<br><br>★★★ — «повторять, пока не», ввод внутри цикла и условие из двух сравнений, соединённых «И».`
@@ -768,7 +768,7 @@ export const loopsTasks: Pick<
     id: "proj_treasure_hunt",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 54: Охота за кладом" : "Task 54: Treasure Hunt",
+      lang === "ru" ? "Задача 59: Охота за кладом" : "Task 59: Treasure Hunt",
     description: (lang) =>
       lang === "ru"
         ? `Мини-игра собирает всё вместе: список, случайность, цикл «пока» и счётчик. Герой наугад обходит комнаты, пока не найдёт клад.<br><br>1) Создайте переменную <strong>rooms</strong> со списком <code>dark cave</code>, <code>old castle</code>, <code>green forest</code>, <code>sunny beach</code>.<br>2) Создайте <strong>tries</strong> = <strong>0</strong> и <strong>room</strong> = пустой текст.<br>3) Возьмите <strong>«повторять, пока …»</strong> с условием «room НЕ равно <code>sunny beach</code>». Внутрь цикла: «увеличить tries на 1», затем «присвоить room =» и блок <strong>«в списке rooms взять произвольный»</strong>.<br>4) После цикла напечатайте две строки: <strong>room</strong>, затем <strong>tries</strong>.<br><br>Клад будет найден, как только из четырёх комнат выпадет пляж — обычно за 2–4 попытки, но сколько именно, никто не знает. Поэтому здесь и нужен цикл «пока», а не «повторить 4 раза».<br><br><strong>Что проверяет проверка:</strong> последняя строка обязана быть настоящим числом попыток, а пляж напечатан ровно один раз — значит печать стоит после цикла, а не внутри него.<br><br>★★★ — цикл «пока», случайный выбор из списка, счётчик попытки и две печати после цикла.`

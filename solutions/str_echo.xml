@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 45 (str_echo): эхо собирается дописыванием внутри цикла.
+    Задача 50 (str_echo): эхо собирается дописыванием внутри цикла.
    cry = ROAR, echo стартует пустым, три шага приклеивают "ROAR!".
     Ожидаемый вывод: R, ROAR!ROAR!ROAR!
   -->

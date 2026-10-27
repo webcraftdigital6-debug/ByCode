@@ -84,7 +84,7 @@ describe("dice_rolls (задача 17)", () => {
   });
 });
 
-describe("chatterbox (задача 20)", () => {
+describe("chatterbox (задача 25)", () => {
   const solution = [
     setV("name", { block: { type: "py_input" } }),
     setV("age", { block: { type: "py_input_number" } }),

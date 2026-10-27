@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 50 (str_replace): замена букв в слове «Mississippi».
+    Задача 55 (str_replace): замена букв в слове «Mississippi».
     Блок меняет ВСЕ вхождения сразу.
     Ожидаемый вывод: M1ss1ss1pp1, Mishishippi, Mississippi
   -->

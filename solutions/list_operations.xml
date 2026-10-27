@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 52 (list_operations): переворот списка, повтор элемента и позиция.
+    Задача 57 (list_operations): переворот списка, повтор элемента и позиция.
     Blockly считает позиции с 1, поэтому двойка в списке [1, 2, 3] стоит на 2.
     Ожидаемый вывод: 3, 2, 1, 5, 2
   -->

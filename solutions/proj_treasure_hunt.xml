@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 54 (proj_treasure_hunt): цикл «повторять, пока» идёт по случайным
+    Задача 59 (proj_treasure_hunt): цикл «повторять, пока» идёт по случайным
     комнатам, пока не выпадет пляж; tries считает попытки.
     Печать — после цикла, поэтому «sunny beach» в выводе ровно один раз.
     Ожидаемый вывод: sunny beach, <число попыток ≥ 1>

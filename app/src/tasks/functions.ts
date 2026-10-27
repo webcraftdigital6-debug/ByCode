@@ -214,7 +214,7 @@ export const functionsTasks: Pick<
     id: "first_function",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 39: Моя первая функция" : "Task 39: My first function",
+      lang === "ru" ? "Задача 44: Моя первая функция" : "Task 44: My first function",
     description: (lang) =>
       lang === "ru"
         ? "Создайте функцию, которая печатает <strong>Hello, world!</strong>, и вызовите её <strong>три раза</strong>: в окне вывода строка должна появиться трижды.<br><br><strong>Зачем нужны функции:</strong> функция — это «именованный кусок программы». Вы описываете действия <em>один раз</em>, а потом запускаете их сколько угодно раз по имени — не копируя блоки."
@@ -230,15 +230,15 @@ export const functionsTasks: Pick<
     id: "function_with_param",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 40: Функция с параметром" : "Task 40: Function with a parameter",
+      lang === "ru" ? "Задача 45: Функция с параметром" : "Task 45: Function with a parameter",
     description: (lang) =>
       lang === "ru"
         ? "Создайте функцию <strong>greet</strong> с параметром <strong>name</strong>, которая печатает приветствие «Привет, &lt;имя&gt;!», и вызовите её дважды: с именами <strong>Аня</strong> и <strong>Боря</strong>. Вывод:<br><strong>Привет, Аня!</strong><br><strong>Привет, Боря!</strong><br><br><strong>Параметр</strong> — это переменная внутри функции. Чтобы добавить параметр: нажмите шестерёнку на блоке функции и перетащите «имя параметра» в список. Строку приветствия соберите блоком «создать текст из»: текст «Привет, », переменная name, текст «!»."
         : "Create a function <strong>greet</strong> with a parameter <strong>name</strong> that prints a greeting “Hello, &lt;name&gt;!”, and call it twice: with <strong>Anya</strong> and <strong>Borya</strong>. Output:<br><strong>Hello, Anya!</strong><br><strong>Hello, Borya!</strong><br><br>A <strong>parameter</strong> is a variable inside the function. To add one: press the gear on the function block and drag “parameter name” into the list. Assemble the greeting with the “create text with” block: text “Hello, ”, the name variable, text “!”.",
     hint: (lang) =>
       lang === "ru"
-        ? "Пошаговое решение:\n1. Создайте функцию greet (как в задаче 39).\n2. Нажмите шестерёнку на блоке функции и перетащите «имя параметра» в «параметры»; назовите его name.\n3. Внутрь фигуры положите «Вывести … цвет …», а в него — «создать текст из» с тремя элементами: текст Привет\\,  (с пробелом), переменная name, текст !\n4. Перетащите блок вызова greet и в поле параметра укажите Аня; продублируйте вызов и укажите Боря.\n5. Запустите код: две строки приветствия. Нажмите «Проверить решение»."
-        : "Step by step:\n1. Create a function greet (like in task 39).\n2. Press the gear on the function block and drag “parameter name” into “parameters”; call it name.\n3. Inside the figure put “Print … color …”, and into it a “create text with” block with three items: text Hello\\,  (with a space), the name variable, text !\n4. Drag a greet call block and set the parameter to Anya; duplicate the call and set Borya.\n5. Run the code: two greeting lines. Press “Check solution”.",
+        ? "Пошаговое решение:\n1. Создайте функцию greet (как в задаче 44).\n2. Нажмите шестерёнку на блоке функции и перетащите «имя параметра» в «параметры»; назовите его name.\n3. Внутрь фигуры положите «Вывести … цвет …», а в него — «создать текст из» с тремя элементами: текст Привет\\,  (с пробелом), переменная name, текст !\n4. Перетащите блок вызова greet и в поле параметра укажите Аня; продублируйте вызов и укажите Боря.\n5. Запустите код: две строки приветствия. Нажмите «Проверить решение»."
+        : "Step by step:\n1. Create a function greet (like in task 44).\n2. Press the gear on the function block and drag “parameter name” into “parameters”; call it name.\n3. Inside the figure put “Print … color …”, and into it a “create text with” block with three items: text Hello\\,  (with a space), the name variable, text !\n4. Drag a greet call block and set the parameter to Anya; duplicate the call and set Borya.\n5. Run the code: two greeting lines. Press “Check solution”.",
     infoTopics: ["functions", "string_concat"],
     validate: validateFunctionWithParam,
   },
@@ -246,7 +246,7 @@ export const functionsTasks: Pick<
     id: "function_return",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 41: Функция с возвратом" : "Task 41: Function with a return value",
+      lang === "ru" ? "Задача 46: Функция с возвратом" : "Task 46: Function with a return value",
     description: (lang) =>
       lang === "ru"
         ? "Создайте функцию <strong>add</strong> с параметрами <strong>a</strong> и <strong>b</strong>, которая <strong>возвращает</strong> их сумму (a + b). Вызовите её и выведите результат: должно получиться <strong>7</strong> (например, add(3, 4)).<br><br>Функция с возвратом — это «вычислитель»: она не просто что-то делает, а выдаёт значение, которое можно вложить прямо в «Вывести … цвет …». Используйте блок «Функции» с возвратом и блок <strong>«вернуть»</strong> внутри него."
@@ -262,7 +262,7 @@ export const functionsTasks: Pick<
     id: "function_predicate",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 42: Функция-вопрос" : "Task 42: A Function That Asks",
+      lang === "ru" ? "Задача 47: Функция-вопрос" : "Task 47: A Function That Asks",
     description: (lang) =>
       lang === "ru"
         ? `Функция может не печатать, а <strong>отвечать</strong> «да» или «нет». Такие функции называют проверками (предикатами) и ставят прямо в условие.<br><br>Создайте функцию <strong>big</strong> с одним параметром <strong>num</strong>, которая <strong>возвращает</strong> сравнение <code>num &gt; 3</code>: блок «сравнить» из «Логика» вложите сразу в слот «вернуть».<br><br>Затем для чисел <strong>1, 2, 3, 4</strong> напечатайте ответ: если <code>big(число)</code> истинно — <strong>YES</strong>, иначе — <strong>NO</strong>. Возьмите «цикл по i от 1 до 4», вложите в него «если / иначе» (шестерёнка → добавить секцию «иначе»), а в само условие «если» поставьте вызов функции big.<br><br>Вывод — четыре строки: <strong>NO</strong>, <strong>NO</strong>, <strong>NO</strong>, <strong>YES</strong>.<br><br><strong>Что нового:</strong> раньше функция считала и печатала, теперь она возвращает ДА/НЕТ и живёт внутри условия. Так устроены все проверки: «список пуст?», «число чётное?», «игра окончена?».<br><br>★★★ — сравнение в слоте «вернуть» и вызов функции прямо в условии «если».`

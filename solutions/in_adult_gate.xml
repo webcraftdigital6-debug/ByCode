@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 22 (in_adult_gate): возраст читается блоком «Ввод числа», условие
+    собрано «если/иначе» со сравнением age ≥ 18, печатается ровно один вердикт.
+    Вывод при ответе 20: Сколько тебе лет? / > 20 / Доступ разрешён
+  -->
+  <variables>
+    <variable id="gate-age">age</variable>
+  </variables>
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <shadow type="text">
+        <field name="TEXT">Сколько тебе лет?</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="variables_set">
+        <field name="VAR" id="gate-age">age</field>
+        <value name="VALUE">
+          <block type="py_input_number"></block>
+        </value>
+        <next>
+          <block type="controls_if">
+            <mutation else="1"></mutation>
+            <value name="IF0">
+              <block type="logic_compare">
+                <field name="OP">GTE</field>
+                <value name="A">
+                  <block type="variables_get">
+                    <field name="VAR" id="gate-age">age</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <shadow type="math_number">
+                    <field name="NUM">18</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="add_text">
+                <value name="TEXT">
+                  <shadow type="text">
+                    <field name="TEXT">Доступ разрешён</field>
+                  </shadow>
+                </value>
+              </block>
+            </statement>
+            <statement name="ELSE">
+              <block type="add_text">
+                <value name="TEXT">
+                  <shadow type="text">
+                    <field name="TEXT">Доступ запрещён</field>
+                  </shadow>
+                </value>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

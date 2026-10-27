@@ -101,3 +101,70 @@ export function applyCodeModeStars(
 export function printsBareNumber(lines: string[]): boolean {
   return lines.some((l) => /^-?\d+(?:[.,]\d+)?$/.test(l.trim()));
 }
+
+/**
+ * Разделяет вывод на реплики программы и ответы ученика.
+ *
+ * Модальное окно ввода печатает в окно вывода строку «> ответ» сразу после
+ * того, как ученик подтвердил ввод. Из этих строк восстанавливают, что именно
+ * было введено, и сверяют печать программы с настоящими ответами — иначе
+ * задачу с input() нельзя проверить ничем, кроме формы вывода.
+ * Печать, начинающаяся со «>», считается ответом: в задачах серии «Ввод»
+ * таких строк программа не печатает.
+ */
+export function splitEchoInput(lines: readonly string[]): {
+  printed: string[];
+  answers: string[];
+} {
+  const printed: string[] = [];
+  const answers: string[] = [];
+  for (const raw of lines) {
+    const line = String(raw ?? "").trim();
+    if (!line) continue;
+    if (line.startsWith(">")) answers.push(line.slice(1).trim());
+    else printed.push(line);
+  }
+  return { printed, answers };
+}
+
+/**
+ * Числа, которые ученик ввёл в программу, в порядке вопросов.
+ * Возвращает null, если хоть один ответ не является числом — задача,
+ * где ответ влияет на вывод, тогда не поддаётся точной сверке.
+ */
+export function echoedNumbers(lines: readonly string[]): number[] | null {
+  const { answers } = splitEchoInput(lines);
+  if (answers.length === 0) return null;
+  const nums = answers.map((a) => Number(a.replace(",", ".")));
+  return nums.every(Number.isFinite) ? nums : null;
+}
+
+const GREETING_RE = /^(привет|hello)[\s,:]+(.*)$/i;
+const EMPTY_NAME_RE = /^(undefined|nan|null|none|nil|0)$/i;
+
+/**
+ * Ищет в выводе строку приветствия с именем.
+ *
+ * Когда имя известно (его ответ виден в окне вывода), имя обязано встретиться
+ * в строке буквально. Если ответа не видно, засчитывается только непустое слово
+ * после «Привет,»: пустое имя, undefined и NaN — признак того, что имя
+ * не подставилось (например, приветствие печатается до ввода).
+ */
+export function printsGreetingWith(
+  lines: readonly string[],
+  name: string
+): boolean {
+  const needle = name.trim().toLowerCase();
+  for (const raw of lines) {
+    const line = String(raw ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+    const match = GREETING_RE.exec(line);
+    if (!match) continue;
+    if (needle) {
+      if (line.includes(needle)) return true;
+      continue;
+    }
+    const value = match[2].trim().replace(/[!?.]+$/g, "").trim();
+    if (value && !EMPTY_NAME_RE.test(value)) return true;
+  }
+  return false;
+}

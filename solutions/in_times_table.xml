@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 24 (in_times_table): один цикл, число выбирает ученик. Каждая строка
+    собрана «создать текст из», произведение — блоком «+ − × ÷» с операцией «×».
+    Вывод при ответе 7: > 7 / 7 × 1 = 7 / … / 7 × 10 = 70
+  -->
+  <variables>
+    <variable id="table-n">n</variable>
+    <variable id="table-i">i</variable>
+  </variables>
+  <block type="variables_set" x="40" y="40">
+    <field name="VAR" id="table-n">n</field>
+    <value name="VALUE">
+      <block type="py_input_number"></block>
+    </value>
+    <next>
+      <block type="controls_for">
+        <field name="VAR" id="table-i">i</field>
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <statement name="DO">
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_join">
+                <mutation items="5"></mutation>
+                <value name="ADD0">
+                  <block type="variables_get">
+                    <field name="VAR" id="table-n">n</field>
+                  </block>
+                </value>
+                <value name="ADD1">
+                  <shadow type="text">
+                    <field name="TEXT"> × </field>
+                  </shadow>
+                </value>
+                <value name="ADD2">
+                  <block type="variables_get">
+                    <field name="VAR" id="table-i">i</field>
+                  </block>
+                </value>
+                <value name="ADD3">
+                  <shadow type="text">
+                    <field name="TEXT"> = </field>
+                  </shadow>
+                </value>
+                <value name="ADD4">
+                  <block type="math_arithmetic">
+                    <field name="OP">MULTIPLY</field>
+                    <value name="A">
+                      <block type="variables_get">
+                        <field name="VAR" id="table-n">n</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="variables_get">
+                        <field name="VAR" id="table-i">i</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</xml>

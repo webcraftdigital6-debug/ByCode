@@ -43,6 +43,11 @@ export type TaskId =
   | "proj_inventory"
   | "mult_table"
   | "first_even_break"
+  | "in_greet"
+  | "in_two_numbers"
+  | "in_adult_gate"
+  | "in_count_to_n"
+  | "in_times_table"
   | "first_function"
   | "function_with_param"
   | "function_return"
@@ -79,7 +84,8 @@ export type TaskId =
   | "fb_parity"
   | "fb_loop"
   | "fb_list"
-  | "fb_double";
+  | "fb_double"
+  | "fb_input";
 
 export type TaskDifficulty = "basic" | "fixbugs" | "advanced";
 

@@ -1,6 +1,6 @@
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 41: Функция с возвратом (function_return)
+    Задача 46: Функция с возвратом (function_return)
     Решение: функция add с параметрами a и b возвращает a + b;
     вызов add(3, 4) выводится через «Вывести … цвет …».
     Итог: в выводе 7.

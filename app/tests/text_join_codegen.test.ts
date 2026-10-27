@@ -33,7 +33,7 @@ const sumAgePlusOne = () => ({
   },
 });
 
-/** Программа задачи 5 («Hello, » + name + «!») и задачи 20 с «age + 1». */
+/** Программа задачи 5 («Hello, » + name + «!») и задачи 25 с «age + 1». */
 function program(items: unknown[], itemCount: number) {
   const inputs: Record<string, unknown> = {};
   items.forEach((item, index) => (inputs[`ADD${index}`] = item));

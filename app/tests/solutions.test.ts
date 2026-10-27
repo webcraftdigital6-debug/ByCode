@@ -6,9 +6,11 @@
  * решение ОБЯЗАНО проходить валидацию. Ловит: битые XML, рассинхрон
  * решений с валидаторами, невалидные генераторы блоков.
  *
- * Задачи с input() (guess_game) и прочие, требующие интерактива,
- * прогоняются через валидатор с ожидаемым выводом (блоки из XML
- * гарантируют нужные флаги структуры).
+ * Задачи с интерактивным вводом (in_*, fb_input) прогоняются через eval:
+ * полифилл input() из tests/interactive-input.ts отдаёт заранее заданные
+ * ответы и печатает строку-эхо «> ответ», как окно вывода приложения.
+ * Задачи с рандомом и с циклом по вводу проверяются валидатором с ожидаемым
+ * выводом из MANUAL_OUTPUT (блоки из XML гарантируют нужные флаги структуры).
  */
 import { describe, it, expect, beforeAll } from "vitest";
 import * as fs from "fs";
@@ -17,6 +19,7 @@ import * as Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
 import { forBlock as jsForBlock } from "../src/generators/javascript";
 import { tasks } from "../src/tasks";
+import { INPUT_ANSWERS, makeInput } from "./interactive-input";
 import type { TaskId } from "../src/tasks";
 
 // Регистрируем кастомные генераторы JS (как это делает index.ts)
@@ -46,9 +49,12 @@ function loadSolution(taskId: string): { xml: string; ws: Blockly.Workspace } {
   return { xml, ws };
 }
 
-function runCode(ws: Blockly.Workspace): string[] {
+function runCode(id: TaskId, ws: Blockly.Workspace): string[] {
   const code = javascriptGenerator.workspaceToCode(ws);
   const logs: string[] = [];
+  // Имя должно остаться `input`: его читает eval-код, а не этот модуль.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const input = makeInput(INPUT_ANSWERS[id], (line) => logs.push(line));
   const orig = console.log;
   console.log = (...args: unknown[]) => logs.push(args.map(String).join(" "));
   try {
@@ -129,6 +135,14 @@ const RUNNABLE = new Set<string>([
   "list_grid",
   "function_predicate",
   "proj_treasure_hunt",
+  // Задачи с интерактивным вводом: ответы берёт INPUT_ANSWERS, эхо печатает
+  // makeInput — так проверяется и порядок «вопрос → ввод → ответ».
+  "in_greet",
+  "in_two_numbers",
+  "in_adult_gate",
+  "in_count_to_n",
+  "in_times_table",
+  "fb_input",
 ]);
 
 // Ожидаемый вывод для невыполнимых через eval задач (input/рандом):
@@ -163,7 +177,7 @@ describe("Эталонные решения (solutions/*.xml)", () => {
       if (MANUAL_OUTPUT[id]) {
         lines = MANUAL_OUTPUT[id]!;
       } else if (RUNNABLE.has(id)) {
-        lines = runCode(ws);
+        lines = runCode(id, ws);
         expect(lines.length, `${id}: решение ничего не выводит`).toBeGreaterThan(0);
       } else {
         // Остальные задачи прогоняем с ожидаемым выводом из валидатора,

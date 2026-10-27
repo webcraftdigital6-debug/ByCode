@@ -1,4 +1,4 @@
-// Задачи группы «fixbugs» («Найди ошибку», задачи 1–6 (свой раздел)): ученику даётся
+// Задачи группы «fixbugs» («Найди ошибку», задачи 1–7 (свой раздел)): ученику даётся
 // готовая программа с одной смысловой ошибкой — её нужно найти и исправить.
 // Стартовый XML подгружается в пустое рабочее поле при активации задачи
 // (см. loadStarter в validation.ts).
@@ -7,7 +7,7 @@ import {
   countNonShadowBlocks,
   getNonShadowBlocks,
 } from "../workspaceUtils";
-import { typedCodeMode } from "./utils";
+import { printsGreetingWith, splitEchoInput, typedCodeMode } from "./utils";
 import type { TaskRegistry, ValidationResult } from "./types";
 
 type AnyBlock = { type: string; getFieldValue?: (n: string) => unknown };
@@ -347,6 +347,59 @@ const FB_DOUBLE_XML = `<xml xmlns="https://developers.google.com/blockly/xml">
   </block>
 </xml>`;
 
+// ---------- fb_input ----------
+
+async function validateFbInput(
+  ws: Blockly.WorkspaceSvg,
+  outputLines: string[],
+): Promise<ValidationResult> {
+  const { printed, answers } = splitEchoInput(outputLines);
+  const outputOk = printsGreetingWith(printed, answers[0] ?? "");
+  const structureOk =
+    hasType(ws, "py_input") &&
+    hasType(ws, "variables_set") &&
+    hasType(ws, "text_join");
+  const ok = outputOk && (typedCodeMode(ws) || structureOk);
+  return { ok, stars: fixStars(ws, 6, ok) };
+}
+
+const FB_INPUT_XML = `<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="fb-name">name</variable>
+  </variables>
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <shadow type="text"><field name="TEXT">Как тебя зовут?</field></shadow>
+    </value>
+    <next>
+      <block type="add_text">
+        <value name="TEXT">
+          <block type="text_join">
+            <mutation items="3"></mutation>
+            <value name="ADD0">
+              <shadow type="text"><field name="TEXT">Привет, </field></shadow>
+            </value>
+            <value name="ADD1">
+              <block type="variables_get"><field name="VAR" id="fb-name">name</field></block>
+            </value>
+            <value name="ADD2">
+              <shadow type="text"><field name="TEXT">!</field></shadow>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="variables_set">
+            <field name="VAR" id="fb-name">name</field>
+            <value name="VALUE">
+              <block type="py_input"></block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>`;
+
 export const fixbugsTasks: Pick<
   TaskRegistry,
   | "fb_area"
@@ -355,6 +408,7 @@ export const fixbugsTasks: Pick<
   | "fb_loop"
   | "fb_list"
   | "fb_double"
+  | "fb_input"
 > = {
   fb_area: {
     id: "fb_area",
@@ -475,5 +529,25 @@ export const fixbugsTasks: Pick<
         : "Step by step:\n1. Run the code: double(5) returns 6 — that is 5 + 1.\n2. “Double” means multiply by 2.\n3. Inside the “return” block find the “+” block and switch the operation to “×”.\n4. Replace the 1 in the second field with 2.\n5. Run again — the output shows 10. Check your solution.",
     infoTopics: ["console_output"],
     validate: validateFbDouble,
+  },
+  fb_input: {
+    id: "fb_input",
+    difficulty: "fixbugs",
+    kind: "fix",
+    starterXml: FB_INPUT_XML,
+    title: (lang) =>
+      lang === "ru"
+        ? "Задача 7: Найди ошибку — знакомство"
+        : "Task 7: Find the Bug — Introduction",
+    description: (lang) =>
+      lang === "ru"
+        ? `Программа должна спросить имя, дождаться ответа и поздороваться по имени. Она печатает вопрос и приветствие, но <strong>имя в приветствии не появляется</strong> — блоки стоят не в том порядке.<br><br><strong>Что делать:</strong> нажмите «▶», введите своё имя и посмотрите на строку приветствия. Подумайте, что должно произойти раньше: прочитать ответ или уже поздороваться. Перетащите блок на новое место и запустите снова.<br><br>★★★ — исправлен только баг (блоков не стало больше).`
+        : `The program should ask for a name, wait for the answer and greet the user by name. It prints the question and the greeting, but <strong>the name never shows up in the greeting</strong> — the blocks are in the wrong order.<br><br><strong>What to do:</strong> press “▶”, type your name and look at the greeting line. Decide what must happen first: reading the answer or already saying hello. Drag the block to a new place and run it again.<br><br>★★★ — only the bug was fixed (no blocks added).`,
+    hint: (lang) =>
+      lang === "ru"
+        ? `Пошаговое решение:\n1. Запустите код и введите имя: в приветствии вместо имени пусто.\n2. Причина в порядке блоков: «Вывести … цвет …» с приветствием стоит ДО блока «присвоить name = …», который читает «Ввод текста». Переменная ещё пустая, поэтому печатается пустота.\n3. Вытащите блок «присвоить name = …» из конца цепочки и вставьте его сразу после вопроса.\n4. Приветствие должно остаться последним — после прочитанного имени.\n5. Запустите снова, введите имя: теперь оно в строке приветствия. Проверяйте.`
+        : `Step by step:\n1) Run the code and type a name: the greeting has no name in it.\n2) The order is the bug — “Print … color …” with the greeting sits BEFORE the “set name to …” block that reads the “text input” block. The variable is still empty, so nothing gets printed.\n3) Pull the “set name to …” block out of the end of the chain and insert it right after the question.\n4) The greeting must stay last — after the name has been read.\n5) Run again and type a name: now it appears in the greeting. Check your solution.`,
+    infoTopics: ["user_input"],
+    validate: validateFbInput,
   },
 };

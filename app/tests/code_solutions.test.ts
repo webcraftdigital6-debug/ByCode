@@ -23,6 +23,7 @@ import { javascriptGenerator } from "blockly/javascript";
 import { forBlock as jsForBlock } from "../src/generators/javascript";
 import { tasks } from "../src/tasks";
 import { applyCodeModeStars } from "../src/tasks/utils";
+import { INPUT_ANSWERS, makeInput } from "./interactive-input";
 import type { TaskId } from "../src/tasks";
 
 Object.assign(javascriptGenerator.forBlock, jsForBlock);
@@ -64,6 +65,9 @@ function expectedOutput(id: TaskId): string[] {
   Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(xml), ws);
   const code = javascriptGenerator.workspaceToCode(ws);
   const logs: string[] = [];
+  // Имя должно остаться `input`: его читает eval-код, а не этот модуль.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const input = makeInput(INPUT_ANSWERS[id], (line) => logs.push(line));
   const orig = console.log;
   console.log = (...args: unknown[]) => logs.push(args.map(String).join(" "));
   try {

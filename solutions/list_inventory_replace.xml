@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 24 (list_inventory_replace): замена первого элемента по индексу.
+    Задача 29 (list_inventory_replace): замена первого элемента по индексу.
     Блок lists_setIndex в режиме SET переписывает ячейку и не меняет длину.
     Ожидаемый вывод: 2, steel sword, wooden shield
   -->

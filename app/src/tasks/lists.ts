@@ -943,7 +943,7 @@ export const listsTasks: Pick<
     id: "list_foreach",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 29: Список и цикл forEach" : "Task 29: List and forEach",
+      lang === "ru" ? "Задача 34: Список и цикл forEach" : "Task 34: List and forEach",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5]</code> и сохраните его в переменную <strong>list</strong> (можно <strong>numbers</strong>).<br><br>Затем используйте блок из Циклы <strong>«для каждого элемента i в списке»</strong> — это и есть <strong>forEach</strong>. Внутри цикла:<br>1) выведите текущий элемент (каждый с новой строки)<br>2) посчитайте сумму элементов в переменной <strong>sum</strong> и выведите сумму после цикла (должно получиться <strong>15</strong>).<br><br><strong>Важно:</strong> список может хранить не только числа, но и текст (строки), а иногда даже смешанные значения. А цикл <strong>forEach</strong> удобен именно для <strong>перебора элементов списка</strong>: он «идёт по списку» и даёт вам текущий элемент, в отличие от циклов <strong>for</strong> со счётчиком (когда вы управляете индексами/границами вручную) или <strong>while</strong> (когда повторяем, пока условие истинно)."
@@ -959,7 +959,7 @@ export const listsTasks: Pick<
     id: "sublist_foreach",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 30: Подсписок и forEach" : "Task 30: Sublist and forEach",
+      lang === "ru" ? "Задача 35: Подсписок и forEach" : "Task 35: Sublist and forEach",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем возьмите из него <strong>подсписок</strong> с элементами <strong>3, 4, 5, 6, 7</strong> (то есть часть списка) и сохраните в переменную <strong>sub</strong>.<br><br>Используйте блок <strong>«для каждого элемента i в списке»</strong> (Циклы), чтобы вывести элементы подсписка <strong>sub</strong> по одному (каждый с новой строки)."
@@ -974,7 +974,7 @@ export const listsTasks: Pick<
   list_filter_even: {
     id: "list_filter_even",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 31: Фильтрация списка" : "Task 31: List filtering"),
+    title: (lang) => (lang === "ru" ? "Задача 36: Фильтрация списка" : "Task 36: List filtering"),
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем используйте блок из Циклы <strong>«для каждого элемента i в списке»</strong>, чтобы перебрать элементы. Внутри цикла с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа и:<br>1) выведите каждое чётное число (каждое с новой строки)<br>2) посчитайте сумму чётных чисел в переменной <strong>sum</strong><br><br>После цикла выведите сумму. Должны получиться числа: <strong>2 4 6 8 10</strong> и сумма <strong>30</strong>."
@@ -990,7 +990,7 @@ export const listsTasks: Pick<
     id: "list_filter_even_min_max",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 32: Min/Max среди чётных" : "Task 32: Min/Max among evens",
+      lang === "ru" ? "Задача 37: Min/Max среди чётных" : "Task 37: Min/Max among evens",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента i в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong> и выводите каждое чётное число (каждое с новой строки).<br><br>После цикла найдите и выведите:<br>— <strong>min=2</strong> (минимум среди чётных)<br>— <strong>max=10</strong> (максимум среди чётных)<br><br>Подсказка: используйте блок <strong>Математика → «сумма списка»</strong> и в выпадающем списке выберите MIN/MAX для списка evens."
@@ -1006,7 +1006,7 @@ export const listsTasks: Pick<
     id: "list_filter_even_avg",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 34: Количество и среднее" : "Task 34: Count and average",
+      lang === "ru" ? "Задача 39: Количество и среднее" : "Task 39: Count and average",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента i в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Для чётных чисел нужно посчитать:<br>— <strong>sum</strong> (сумма чётных)<br>— <strong>count</strong> (сколько чётных чисел)<br>— <strong>avg</strong> (среднее): <code>avg = sum / count</code><br><br>Выведите результат тремя строками:<br><strong>count=5</strong><br><strong>sum=30</strong><br><strong>avg=6</strong>"
@@ -1022,7 +1022,7 @@ export const listsTasks: Pick<
     id: "list_filter_even_median",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 35: Средний элемент чётных" : "Task 35: Middle even element",
+      lang === "ru" ? "Задача 40: Средний элемент чётных" : "Task 40: Middle even element",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Затем переберите список блоком <strong>«для каждого элемента i в списке»</strong> и с помощью <strong>если/иначе</strong> отберите только <strong>чётные</strong> числа. Чётные числа добавляйте в новый список <strong>evens</strong>.<br><br>После цикла выведите 2 строки:<br><strong>count=5</strong> (сколько чётных чисел в evens)<br><strong>median=6</strong> (средний элемент списка evens — для 5 элементов это 3‑й)."
@@ -1038,7 +1038,7 @@ export const listsTasks: Pick<
     id: "list_sum_even_positions",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 36: Сумма на чётных позициях" : "Task 36: Sum at even positions",
+      lang === "ru" ? "Задача 41: Сумма на чётных позициях" : "Task 41: Sum at even positions",
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[10, 1, 8, 2, 7, 3, 6, 4, 5, 9]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Посчитайте сумму элементов на <strong>чётных позициях</strong> (позиции считаем как 1‑я, 2‑я, 3‑я…). То есть нужно сложить элементы на позициях <strong>2, 4, 6, 8, 10</strong>.<br><br>Выведите результат строкой: <strong>sum=19</strong>"
@@ -1053,7 +1053,7 @@ export const listsTasks: Pick<
   list_sort_min_max: {
     id: "list_sort_min_max",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 33: Сортировка списка" : "Task 33: List sorting"),
+    title: (lang) => (lang === "ru" ? "Задача 38: Сортировка списка" : "Task 38: List sorting"),
     description: (lang) =>
       lang === "ru"
         ? "Создайте список чисел <code>[9, 3, 7, 1, 5]</code> и сохраните его в переменную <strong>list</strong>.<br><br>Отсортируйте список блоком <strong>«сортировать числовая по возрастанию»</strong>. После сортировки выведите две строки:<br><strong>min=1</strong><br><strong>max=9</strong>.<br><br><strong>Что значит слово sort:</strong> <code>sort</code> переводится как «сортировать». В программировании это значит «упорядочить элементы по правилу». Для сортировки по возрастанию список <code>[9, 3, 7, 1, 5]</code> превращается в <code>[1, 3, 5, 7, 9]</code>."
@@ -1068,7 +1068,7 @@ export const listsTasks: Pick<
   list_split_join: {
     id: "list_split_join",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 51: Разделить и склеить" : "Task 51: Split and Join"),
+    title: (lang) => (lang === "ru" ? "Задача 56: Разделить и склеить" : "Task 56: Split and Join"),
     description: (lang) =>
       lang === "ru"
         ? `Одна строка может хранить несколько значений — их разделяют запятыми (так устроены CSV-файлы и таблицы). Научитесь превращать текст в список и обратно.<br><br>1. Создайте переменную <strong>parts</strong> и присвойте её результат блока <strong>«сделать список из текста … с разделителем …»</strong>: текст — <code>10,20,30</code>, разделитель — <code>,</code><br>2. Блоком <strong>«для каждого элемента … в …»</strong> пройдите по списку parts и напечатайте каждый элемент — получится три строки: <strong>10</strong>, <strong>20</strong>, <strong>30</strong>.<br>3. Тем же блоком, но в режиме <strong>«собрать текст из списка …»</strong> со разделителем <code>-</code>, напечатайте четвёртую строку: <strong>10-20-30</strong>.<br><br>Слово <strong>split</strong> значит «разделять», <strong>join</strong> — «соединять». После разделения элементы — это ТЕКСТ, даже если выглядят как числа: «10» + 1 даст «101», а не 11.<br><br>★★★ — список создан один раз и лежит в переменной, его используют и для цикла, и для склейки.`
@@ -1085,8 +1085,8 @@ export const listsTasks: Pick<
     difficulty: "basic",
     title: (lang) =>
       lang === "ru"
-        ? "Задача 52: Переворот, повтор и позиция"
-        : "Task 52: Reverse, Repeat and Position",
+        ? "Задача 57: Переворот, повтор и позиция"
+        : "Task 57: Reverse, Repeat and Position",
     description: (lang) =>
       lang === "ru"
         ? `Список можно развернуть, собрать из одного элемента и обыскать. Напечатайте пять строк:<br><br>1) элементы списка <code>[1, 2, 3]</code> <strong>в обратном порядке</strong>, по одному на строку → <strong>3</strong>, <strong>2</strong>, <strong>1</strong> (блок «изменить порядок на обратный …» + «для каждого элемента …»);<br>2) <strong>длина</strong> списка, который блок «создать список из элемента …, повторяющегося … раз» собрал из текста <code>ха</code> и числа <strong>5</strong> → <strong>5</strong>;<br>3) <strong>позиция</strong> числа 2 в списке <code>[1, 2, 3]</code> — блок «в списке … найти первое вхождение элемента …» → <strong>2</strong>.<br><br>Блоки — в категории «Списки». И переворот, и «повторить» создают <strong>новый</strong> список: исходный остаётся целым.<br><br><strong>Про позиции:</strong> Blockly считает с 1 (первый элемент — это 1), а если элемента нет — возвращает 0. Языки программирования считают с 0. Об этом — раздел «Операции со списками» под заданием.<br><br>★★★ — все три приёма выполнены своими блоками.`
@@ -1101,7 +1101,7 @@ export const listsTasks: Pick<
   list_inventory_index: {
     id: "list_inventory_index",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 23: Ячейки инвентаря" : "Task 23: Inventory Cells"),
+    title: (lang) => (lang === "ru" ? "Задача 28: Ячейки инвентаря" : "Task 28: Inventory Cells"),
     description: (lang) =>
       lang === "ru"
         ? `Одна переменная хранит одно значение, а список — целую горсть предметов. Создайте переменную <strong>inventory</strong> и присвойте ей блок «создать список из» трёх предметов: <code>sword</code>, <code>shield</code>, <code>potion</code>.<br><br>Напечатайте 4 строки:<br>1) <strong>длина</strong> списка → <strong>3</strong>;<br>2) <strong>первый</strong> элемент → <strong>sword</strong>;<br>3) элемент <strong>№ 2</strong> → <strong>shield</strong>;<br>4) <strong>последний</strong> элемент → <strong>potion</strong>.<br><br><strong>Как считать номера:</strong> Blockly нумерует ячейки с 1, поэтому первый предмет — это № 1. Языки программирования считают с 0, и там тот же предмет стоит под индексом 0. Обратиться к ячейке можно и по номеру, и готовым режимом «первый» / «последний».<br><br>★★★ — длина и три разных обращения к ячейкам.`
@@ -1117,7 +1117,7 @@ export const listsTasks: Pick<
     id: "list_inventory_replace",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 24: Модернизация оружия" : "Task 24: Upgrading the Weapon",
+      lang === "ru" ? "Задача 29: Модернизация оружия" : "Task 29: Upgrading the Weapon",
     description: (lang) =>
       lang === "ru"
         ? `Кузнец меняет старый клинок на новый. Создайте переменную <strong>inventory</strong> со списком <code>rusty dagger</code>, <code>wooden shield</code>.<br><br>Замените <strong>первый</strong> элемент на текст <code>steel sword</code> блоком <strong>«в списке … присвоить … = …»</strong>: режим «присвоить», позиция «№ 1».<br><br>Затем напечатайте 3 строки:<br>1) <strong>длина</strong> списка → <strong>2</strong>;<br>2) элемент <strong>№ 1</strong> → <strong>steel sword</strong>;<br>3) элемент <strong>№ 2</strong> → <strong>wooden shield</strong>.<br><br><strong>Замена или вставка?</strong> «присвоить» переписывает значение уже существующей ячейки — длина не меняется. «вставить в» добавляет новый элемент и делает список длиннее. Это два режима одного и того же блока.<br><br>★★★ — замена сделана блоком «присвоить», а не пересозданием списка.`
@@ -1133,7 +1133,7 @@ export const listsTasks: Pick<
     id: "list_inventory_add",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 25: Находка в сундуке" : "Task 25: Find in the Chest",
+      lang === "ru" ? "Задача 30: Находка в сундуке" : "Task 30: Find in the Chest",
     description: (lang) =>
       lang === "ru"
         ? `Герой находит сундук — предметов становится больше. Создайте переменную <strong>inventory</strong> со списком <code>gold coin</code>, <code>map</code>.<br><br>1) Напечатайте <strong>длину</strong> списка до находки → <strong>2</strong>.<br>2) Добавьте в <strong>конец</strong> списка текст <code>magic scroll</code> блоком <strong>«в списке … вставить в … = …»</strong>: режим «вставить в», позиция «последний».<br>3) Напечатайте <strong>длину</strong> после находки → <strong>3</strong>.<br>4) Напечатайте <strong>последний</strong> элемент → <strong>magic scroll</strong>.<br><br>Длина печатается двумя разными блоками «длина …»: первый считает два предмета, второй — уже три.<br><br><strong>Что важно знать:</strong> добавление в конец не трогает существующие ячейки, поэтому gold coin остаётся под № 1. Так работает append в любом языке: список растёт, а старые элементы стоят на месте.<br><br>★★★ — длина до добавления и после выведена отдельными блоками «Вывести … цвет …».`
@@ -1149,7 +1149,7 @@ export const listsTasks: Pick<
     id: "list_inventory_remove",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 26: Торговля с купцом" : "Task 26: Trading with the Merchant",
+      lang === "ru" ? "Задача 31: Торговля с купцом" : "Task 31: Trading with the Merchant",
     description: (lang) =>
       lang === "ru"
         ? `У купца можно и купить, и продать. Создайте переменную <strong>inventory</strong> со списком <code>mana potion</code>, <code>broken helmet</code>, <code>lucky amulet</code> и продайте шлем.<br><br>1) Найдите позицию предмета <code>broken helmet</code> блоком <strong>«в списке … найти первое вхождение элемента …»</strong> и напечатайте её → <strong>2</strong>.<br>2) <strong>Удалите</strong> элемент с этой позиции блоком <strong>«в списке … взять и удалить …»</strong> и напечатайте удалённый предмет → <strong>broken helmet</strong>.<br>3) Напечатайте <strong>длину</strong> оставшегося списка → <strong>2</strong>.<br>4) Напечатайте <strong>первый</strong> и <strong>последний</strong> оставшиеся предметы → <strong>mana potion</strong> и <strong>lucky amulet</strong>.<br><br>В выводе пять строк: <strong>2</strong>, <strong>broken helmet</strong>, <strong>2</strong>, <strong>mana potion</strong>, <strong>lucky amulet</strong>.<br><br><strong>Два режима на выбор:</strong> «взять и удалить» отдаёт предмет наружу — его можно напечатать, а «удалить» просто убирает ячейку. После удаления позиции сдвигаются: то, что было № 3, становится № 2.<br><br>★★★ — позиция найдена блоком «найти вхождение», а не вписана от руки.`
@@ -1164,7 +1164,7 @@ export const listsTasks: Pick<
   list_inventory_random: {
     id: "list_inventory_random",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 27: Дроп из монстра" : "Task 27: Monster Loot"),
+    title: (lang) => (lang === "ru" ? "Задача 32: Дроп из монстра" : "Task 32: Monster Loot"),
     description: (lang) =>
       lang === "ru"
         ? `Случайность делает игру живой: из монстра выпадает разный лут. Создайте переменную <strong>loot</strong> со списком <code>wolf pelt</code>, <code>rusty sword</code>, <code>sharp fang</code>, <code>healing root</code>.<br><br>Возьмите <strong>«повторить … раз»</strong> (Циклы) с числом <strong>5</strong> и положите внутрь «Вывести … цвет …» с блоком <strong>«в списке loot взять произвольный»</strong> — это случайный выбор одного элемента.<br><br>В окне вывода окажется 5 строк, и каждая обязана быть одним из четырёх предметов. Какой именно выпадет — предсказать нельзя.<br><br><strong>Чем это отличается от «выдать случайное от … до …»:</strong> тот блок из «Математика» даёт случайное ЧИСЛО, а «произвольный» элемент сразу берёт значение из списка — индексы считать не нужно.<br><br>★★★ — случайный выбор сделан режимом «произвольный», а не случайным числом.`
@@ -1180,7 +1180,7 @@ export const listsTasks: Pick<
     id: "list_until_empty",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 28: Разбор инвентаря" : "Task 28: Emptying the Knapsack",
+      lang === "ru" ? "Задача 33: Разбор инвентаря" : "Task 33: Emptying the Knapsack",
     description: (lang) =>
       lang === "ru"
         ? `Когда предметов в рюкзаке неизвестно сколько, цикл не считают заранее, а крутятся, пока что-то остаётся. Создайте переменную <strong>tools</strong> со списком <code>hammer</code>, <code>saw</code>, <code>chisel</code>.<br><br>1) Возьмите <strong>«повторять, пока не …»</strong> (Циклы) и поставьте условие <strong>«tools пуст»</strong>: блок <strong>«… пуст»</strong> из «Списки», а в него вложите переменную tools.<br>2) Внутрь цикла положите «Вывести … цвет …» с блоком <strong>«в списке tools взять и удалить первый»</strong> — он одновременно отдаёт предмет наружу и убирает его из списка.<br><br>В окне вывода получится три строки: <strong>hammer</strong>, <strong>saw</strong>, <strong>chisel</strong>.<br><br><strong>Почему цикл заканчивается:</strong> каждый шаг делает список короче, поэтому условие «пуст» рано или поздно становится истинным. Если просто брать элемент, не удаляя его, список не меняется — и цикл повторяется вечно.<br><br>★★★ — «взять и удалить» внутри цикла «повторять, пока не пуст».`
@@ -1195,7 +1195,7 @@ export const listsTasks: Pick<
   list_grid: {
     id: "list_grid",
     difficulty: "basic",
-    title: (lang) => lang === "ru" ? "Задача 37: Поле 3×3" : "Task 37: The 3×3 Grid",
+    title: (lang) => lang === "ru" ? "Задача 42: Поле 3×3" : "Task 42: The 3×3 Grid",
     description: (lang) =>
       lang === "ru"
         ? `Один список — это ряд ячеек, а список внутри списка — целая таблица со строками и столбцами. Создайте переменную <strong>grid</strong> и присвойте ей блок «создать список из» трёх ячеек, а в каждую ячейку вложите <strong>свой</strong> блок «создать список из» с тремя текстами: <code>A B C</code>, <code>D E F</code>, <code>G H I</code>.<br><br>Напечатайте три строки, сначала взяв строку, а затем элемент внутри неё:<br>1) <strong>центр поля</strong> — строка № 2, элемент № 2 → <strong>E</strong>;<br>2) <strong>правый верхний угол</strong> — строка № 1, элемент № 3 → <strong>C</strong>;<br>3) <strong>левый нижний угол</strong> — строка № 3, элемент № 1 → <strong>G</strong>.<br><br>Блок <strong>«в списке … взять № …»</strong> понадобится ДВАЖДЫ на каждую строку: внешний берёт строку из grid, вложенный — элемент из этой строки.<br><br><strong>Где это встречается:</strong> таблицы и электронные листы, морской бой, экран телефона по пикселям, игровое поле. В текстах программ такая запись короче: <code>grid[1][2]</code>.<br><br>★★★ — поле собрано из списков-строк, и каждая ячейка получена двойным обращением.`
@@ -1211,7 +1211,7 @@ export const listsTasks: Pick<
     id: "proj_inventory",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 55: Магический инвентарь" : "Task 55: The Magic Inventory",
+      lang === "ru" ? "Задача 60: Магический инвентарь" : "Task 60: The Magic Inventory",
     description: (lang) =>
       lang === "ru"
         ? `Проект собирает всё, что вы узнали про списки, и обходится без циклов. Соберите стартовое снаряжение героя.<br><br>1) Создайте три пула: <strong>weapons</strong> = <code>bow of wind</code>, <code>fire staff</code>, <code>titan sword</code>; <strong>armors</strong> = <code>leather vest</code>, <code>steel plate</code>, <code>wizard cloak</code>; <strong>artifacts</strong> = <code>dragon ring</code>, <code>amulet of immortality</code>, <code>mana sphere</code>.<br>2) Соберите <strong>inventory</strong> блоком «создать список из» трёх ячеек, а в каждую вложите «взять произвольный» из своего пула — снаряжение выпадает случайно.<br>3) Напечатайте три предмета inventory по номерам 1, 2 и 3.<br>4) Создайте переменную <strong>gold</strong> со случайным числом от <strong>50</strong> до <strong>200</strong> (блок «выдать случайное от … до …») и напечатайте её — это четвёртая строка.<br>5) Герой нашёл сундук: добавьте в <strong>конец</strong> inventory случайный артефакт (режим «вставить в … последний»), не печатайте его.<br>6) Первый предмет устарел: замените ячейку № 1 на текст <code>elixir of strength</code> и напечатайте её — пятая строка.<br>7) Напечатайте <strong>длину</strong> финального списка — шестая строка, <strong>4</strong>.<br><br>★★★ — проект использует случайный выбор, вставку в конец и замену по индексу.`

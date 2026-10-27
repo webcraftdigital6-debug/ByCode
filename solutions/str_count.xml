@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 49 (str_count): сколько раз подстрока встречается в слове «banana».
+    Задача 54 (str_count): сколько раз подстрока встречается в слове «banana».
     Подсчёт без перекрытия: «ana» внутри «banana» считается один раз.
     Ожидаемый вывод: 3, 2, 0
   -->

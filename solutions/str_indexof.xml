@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 48 (str_indexof): поиск буквы в слове «banana».
+    Задача 53 (str_indexof): поиск буквы в слове «banana».
     Blockly считает позиции с 1, а «не найдено» даёт 0.
     Ожидаемый вывод: 2, 6, 0
   -->

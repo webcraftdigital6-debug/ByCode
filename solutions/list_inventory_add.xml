@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 25 (list_inventory_add): добавление предмета в конец списка.
+    Задача 30 (list_inventory_add): добавление предмета в конец списка.
     Режим INSERT + LAST увеличивает длину на 1, старые ячейки остаются на месте.
     Ожидаемый вывод: 2, 3, magic scroll
   -->

@@ -510,7 +510,7 @@ export const variablesTasks: Pick<
     id: "chatterbox",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 20: Программа-болталка" : "Task 20: Chatterbox Program",
+      lang === "ru" ? "Задача 25: Программа-болталка" : "Task 25: Chatterbox Program",
     description: (lang) =>
       lang === "ru"
         ? "Научите программу разговаривать с пользователем! Спросите <strong>имя</strong> (блок <strong>«Ввод текста»</strong>) и <strong>возраст</strong> (блок <strong>«Ввод числа»</strong>), сохраните ответы в переменные <strong>name</strong> и <strong>age</strong>. Затем выведите одной строкой приветствие по шаблону:<br><strong>Привет, &lt;имя&gt;! Через год тебе будет &lt;возраст + 1&gt;.</strong><br><br>Например, при вводе «Аня» и 10 вывод: <strong>Привет, Аня! Через год тебе будет 11.</strong><br><br><strong>Как запускать:</strong> нажмите «▶» — в окне вывода появится поле ввода; впишите ответ и подтвердите — программа спросит второе число."

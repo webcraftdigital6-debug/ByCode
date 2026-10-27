@@ -56,7 +56,8 @@ describe("getEntryTask", () => {
       fb_loop: true,
       fb_list: true,
       fb_double: true,
+      fb_input: true,
     });
-    expect(getEntryTask("fixbugs")).toBe("fb_double");
+    expect(getEntryTask("fixbugs")).toBe("fb_input");
   });
 });

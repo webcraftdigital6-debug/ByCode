@@ -12,6 +12,7 @@ import * as Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
 import { forBlock as jsForBlock } from "../src/generators/javascript";
 import { tasks } from "../src/tasks";
+import { INPUT_ANSWERS, makeInput } from "./interactive-input";
 import type { TaskId } from "../src/tasks";
 
 Object.assign(javascriptGenerator.forBlock, jsForBlock);
@@ -23,6 +24,7 @@ const FIX_TASKS: TaskId[] = [
   "fb_loop",
   "fb_list",
   "fb_double",
+  "fb_input",
 ];
 
 const SOLUTIONS_DIR = path.resolve(__dirname, "../../solutions");
@@ -43,9 +45,12 @@ function loadXml(xml: string): Blockly.Workspace {
   return ws;
 }
 
-function runCode(ws: Blockly.Workspace): string[] {
+function runCode(id: TaskId, ws: Blockly.Workspace): string[] {
   const code = javascriptGenerator.workspaceToCode(ws);
   const logs: string[] = [];
+  // Имя должно остаться `input`: его читает eval-код, а не этот модуль.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const input = makeInput(INPUT_ANSWERS[id], (line) => logs.push(line));
   const orig = console.log;
   console.log = (...args: unknown[]) =>
     logs.push(args.map(String).join(" "));
@@ -65,7 +70,7 @@ describe("«Найди ошибку»: сломанный starter не засч�
       expect(def.starterXml, `${id}: пустой starterXml`).toBeTruthy();
 
       const ws = loadXml(def.starterXml!);
-      const lines = runCode(ws);
+      const lines = runCode(id, ws);
       expect(lines.length, `${id}: starter ничего не выводит`).toBeGreaterThan(
         0,
       );
@@ -88,7 +93,7 @@ describe("«Найди ошибку»: исправленное решение �
         "utf-8",
       );
       const ws = loadXml(xml);
-      const lines = runCode(ws);
+      const lines = runCode(id, ws);
       fillOutput(lines);
       const res = await tasks[id].validate(ws as never, lines, "ru");
       expect(

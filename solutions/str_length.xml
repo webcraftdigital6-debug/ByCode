@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 43 (str_length): исправленная программа.
+    Задача 48 (str_length): исправленная программа.
     Печатаем длину слова и это же слово задом наперёд.
     Ожидаемый вывод: 7, ylkcolB
   -->

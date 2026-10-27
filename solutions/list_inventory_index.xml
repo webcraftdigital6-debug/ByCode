@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 23 (list_inventory_index): длина списка и три способа читать ячейку.
+    Задача 28 (list_inventory_index): длина списка и три способа читать ячейку.
     Blockly нумерует ячейки с 1, поэтому первый предмет — это № 1.
     Ожидаемый вывод: 3, sword, shield, potion
   -->

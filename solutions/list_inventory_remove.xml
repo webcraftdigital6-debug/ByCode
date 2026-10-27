@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 26 (list_inventory_remove): позиция найдена поиском, предмет удалён.
+    Задача 31 (list_inventory_remove): позиция найдена поиском, предмет удалён.
     «взять и удалить» отдаёт предмет наружу, а остальные ячейки сдвигаются влево.
     Ожидаемый вывод: 2, broken helmet, 2, mana potion, lucky amulet
   -->

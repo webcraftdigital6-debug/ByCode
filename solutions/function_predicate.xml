@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml xmlns="https://developers.google.com/blockly/xml">
   <!--
-    Задача 42 (function_predicate): функция-проверка big(num) возвращает сравнение
+    Задача 47 (function_predicate): функция-проверка big(num) возвращает сравнение
     num > 3, поэтому её вызов стоит прямо в условии «если».
     Ожидаемый вывод: NO, NO, NO, YES
   -->

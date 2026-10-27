@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <!--
+    Задача 7 «Найди ошибку» (fb_input): исправленный порядок блоков — вопрос,
+    затем чтение имени, и только потом приветствие. Блоков ровно столько же,
+    сколько в сломанном стартере (6), поэтому минимальное исправление даёт 3★.
+    Вывод при ответе «Маша»: Как тебя зовут? / > Маша / Привет, Маша!
+  -->
+  <variables>
+    <variable id="fb-name">name</variable>
+  </variables>
+  <block type="add_text" x="40" y="40">
+    <value name="TEXT">
+      <shadow type="text">
+        <field name="TEXT">Как тебя зовут?</field>
+      </shadow>
+    </value>
+    <next>
+      <block type="variables_set">
+        <field name="VAR" id="fb-name">name</field>
+        <value name="VALUE">
+          <block type="py_input"></block>
+        </value>
+        <next>
+          <block type="add_text">
+            <value name="TEXT">
+              <block type="text_join">
+                <mutation items="3"></mutation>
+                <value name="ADD0">
+                  <shadow type="text">
+                    <field name="TEXT">Привет, </field>
+                  </shadow>
+                </value>
+                <value name="ADD1">
+                  <block type="variables_get">
+                    <field name="VAR" id="fb-name">name</field>
+                  </block>
+                </value>
+                <value name="ADD2">
+                  <shadow type="text">
+                    <field name="TEXT">!</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>

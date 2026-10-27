@@ -9,6 +9,7 @@ import { listsTasks } from "./lists";
 import { functionsTasks } from "./functions";
 import { textTasks } from "./text";
 import { mathTasks } from "./math";
+import { userInputTasks } from "./userinput";
 import { fixbugsTasks } from "./fixbugs";
 import { advancedTasks } from "./advanced";
 
@@ -21,6 +22,7 @@ export const tasks: TaskRegistry = {
   ...functionsTasks,
   ...textTasks,
   ...mathTasks,
+  ...userInputTasks,
   ...fixbugsTasks,
   ...advancedTasks,
 };
