@@ -225,10 +225,9 @@ const TOPIC_KEYWORDS: Record<GlossaryTopicId, KeywordNote[]> = {
   ],
   user_input: [
     { term: "prompt", ru: "JS в браузере: окно с вопросом и полем ввода", en: "JS in the browser: a dialog with the question and a text field" },
-    { term: "input", ru: "Python: ждёт, пока наберут текст и нажмут Enter", en: "Python: waits until you type text and press Enter" },
+    { term: "input", ru: "Python и PHP: ждёт, пока наберут текст и нажмут Enter", en: "Python and PHP: waits until you type text and press Enter" },
     { term: "io.read", ru: "Lua: читает то, что набрали на клавиатуре", en: "Lua: reads what was typed on the keyboard" },
-    { term: "fgets", ru: "PHP: читает набранную строку", en: "PHP: reads the line you typed" },
-    { term: "trim", ru: "убирает невидимый перенос строки и пробелы по краям", en: "drops the invisible line break and the spaces around the answer" },
+    { term: "PHP_EOL", ru: "PHP: переводит строку после echo, сам echo его не добавляет", en: "PHP: moves to the next line after echo, which does not do it on its own" },
     { term: "const", ru: "сохраняет ответ в переменную, чтобы вернуться к нему позже", en: "stores the answer in a variable so the program can use it later" },
   ],
   string_concat: [
@@ -914,7 +913,7 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
       { label: "JavaScript", code: "const name = prompt(\"Как тебя зовут?\");\nconsole.log(\"Привет, \" + name + \"!\");" },
       { label: "Python", code: "name = input(\"Как тебя зовут? \")\nprint(\"Привет, \" + name + \"!\")" },
       { label: "Lua", code: "io.write(\"Как тебя зовут? \")\nlocal name = io.read()\nprint(\"Привет, \" .. name .. \"!\")" },
-      { label: "PHP", code: "<?php\necho \"Как тебя зовут? \" . PHP_EOL;\n$name = trim(fgets(STDIN));\necho \"Привет, \" . $name . \"!\" . PHP_EOL;" },
+      { label: "PHP", code: "<?php\necho \"Как тебя зовут? \" . PHP_EOL;\n$name = input();\necho \"Привет, \" . $name . \"!\" . PHP_EOL;" },
     ]) +
     keywordsBlock("user_input") +
     mistakesList([

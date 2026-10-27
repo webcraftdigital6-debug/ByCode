@@ -420,6 +420,56 @@ async function runLua(code: string, timeoutMs?: number) {
   }
 }
 
+// ---------- PHP: интерактивный stdin ----------
+// php-wasm читает stdin по одному байту. Когда очередь пуста, блокируемся на
+// том же syncInput(), что используют JS/Python/Lua, и кладём в очередь следующую
+// строку вместе с переводом. Очередь обнуляется перед каждым запуском, чтобы
+// недопитые байты отменённого прогона не попали в следующий.
+let _phpStdinQueue: number[] = [];
+
+function phpStdinByte(): number | null {
+  if (_phpStdinQueue.length === 0) {
+    let text: string;
+    try {
+      text = syncInput("");
+    } catch (e: any) {
+      // Через границу wasm бросать нельзя: сообщаем причину и даём EOF
+      post({ type: "stderr", text: String(e?.message || e) });
+      return null;
+    }
+    _phpStdinQueue = Array.from(new TextEncoder().encode(text + "\n"));
+  }
+  return _phpStdinQueue.shift() ?? null;
+}
+
+// Объявляется один раз (function_exists) — процесс PHP переиспользуется.
+// stream_set_read_buffer(0) + fgetc обязательны: fgets() жадно вычитает весь
+// буфер stdin и попросил бы у пользователя строки, которые программа ещё не
+// досчитала, ломая порядок вывода.
+const PHP_INPUT_PRELUDE = [
+  "<?php",
+  "if (!function_exists('input')) {",
+  "  function input($prompt = '') {",
+  "    if ($prompt !== '') { echo $prompt; }",
+  "    static $h = null;",
+  "    if ($h === null) {",
+  "      $h = fopen('php://stdin', 'r');",
+  "      if ($h !== false) { stream_set_read_buffer($h, 0); }",
+  "    }",
+  "    if ($h === false) { return ''; }",
+  "    $line = '';",
+  "    for (;;) {",
+  "      $c = fgetc($h);",
+  "      if ($c === false || $c === '') { return $line; }",
+  "      if ($c === \"\\n\") { return $line; }",
+  "      if ($c === \"\\r\") { continue; }",
+  "      $line .= $c;",
+  "    }",
+  "  }",
+  "}",
+  "?>",
+].join("\n");
+
 let _phpWasmLoaded: Promise<{
   php: any;
   flushStdout: () => void;
@@ -483,6 +533,7 @@ async function loadPhpWasm(): Promise<{
 
     const php = await factory({
       locateFile,
+      stdin: phpStdinByte,
       print: (s: any) => {
         const text = String(s ?? "");
         const parts = text.split(/\r?\n/);
@@ -540,14 +591,19 @@ async function runPhp(code: string, timeoutMs?: number) {
     const php = loaded.php;
 
     _deadlineEpochMs = Date.now() + Math.max(0, (timeoutMs ?? 1000) - 50);
+    _phpStdinQueue = [];
     post({ type: "status", text: "" });
     const trimmed = String(code ?? "");
     const source = trimmed.trimStart().startsWith("<?")
       ? trimmed
       : `<?php\n${trimmed}\n?>`;
-    await php.ccall("pib_run", "number", ["string"], [`?>${source}`], {
-      async: true,
-    });
+    await php.ccall(
+      "pib_run",
+      "number",
+      ["string"],
+      [`?>${PHP_INPUT_PRELUDE}\n${source}`],
+      { async: true },
+    );
     loaded.flushStdout();
     loaded.flushStderr();
     post({ type: "done" });

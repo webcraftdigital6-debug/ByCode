@@ -216,3 +216,14 @@ forBlock["controls_if"] = function (
   }
   return code + "\n";
 };
+
+// Штатный PHP-генератор Blockly этих блоков не знает и бросает исключение.
+// Функцию input() объявляет рантайм (преамбула перед запуском), как и для
+// JavaScript, Python и Lua; в видимом коде остаётся вызов.
+forBlock["py_input"] = function () {
+  return ["input()", PhpOrder.ATOMIC];
+};
+
+forBlock["py_input_number"] = function () {
+  return ["floatval(input())", PhpOrder.ATOMIC];
+};
