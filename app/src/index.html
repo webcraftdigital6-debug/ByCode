@@ -2618,9 +2618,6 @@
         <button id="taskSolutionBtn" class="import-button" title="Условие задачи" aria-label="Условие задачи">
           <span id="taskSolutionBtnText">ℹ️ Решение задач</span>
         </button>
-        <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
-          <span id="supportBtnText">💙 Поддержка</span>
-        </button>
         <button id="importBlockBtn" class="import-button">
           <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
             <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
@@ -2634,15 +2631,11 @@
           </svg>
           <span id="blockHelpBtnText">Справка</span>
         </button>
-        <!-- Visible before login; moved to dropdown after login -->
-        <button id="feedbackBtn" class="import-button" title="Обратная связь" aria-label="Обратная связь">
-          <span id="feedbackBtnText">✉️ Обратная связь</span>
+        <button id="supportBtn" class="import-button" title="Поддержка проекта" aria-label="Поддержка проекта">
+          <span id="supportBtnText">💙 Поддержка</span>
         </button>
-        <button id="statsBtn" class="import-button" title="Моя статистика" aria-label="Моя статистика">
-          <span id="statsBtnText">📊 Статистика</span>
-        </button>
-        <!-- More menu: always present, initially hidden until login -->
-        <div class="header-more" style="display:none;" id="headerMoreWrap">
+        <!-- More menu: второстепенные кнопки, виден всегда -->
+        <div class="header-more" id="headerMoreWrap">
           <button id="headerMoreBtn" class="header-more-btn" title="Ещё" aria-label="Ещё" aria-expanded="false">⋯</button>
           <span id="headerMoreBadge" class="header-more-badge" hidden aria-hidden="true"></span>
           <div class="header-more-panel" id="headerMorePanel">
@@ -2658,11 +2651,16 @@
               style="display:none;">
               <span id="studentTasksBtnText">📋 Задания</span>
             </button>
+            <button id="feedbackBtn" class="import-button" title="Обратная связь" aria-label="Обратная связь">
+              <span id="feedbackBtnText">✉️ Обратная связь</span>
+            </button>
+            <button id="statsBtn" class="import-button" title="Моя статистика" aria-label="Моя статистика">
+              <span id="statsBtnText">📊 Статистика</span>
+            </button>
             <button id="onboardingReplayBtn" class="import-button" title="Как пользоваться"
               aria-label="Как пользоваться">
               <span id="onboardingReplayBtnText">🧭 Обучение</span>
             </button>
-            <!-- feedbackBtn and statsBtn are appended here after login -->
           </div>
         </div>
       </div>

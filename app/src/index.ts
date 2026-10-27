@@ -22,7 +22,7 @@ import {
 } from "./appBootstrap";
 import { setupAuthBootstrap } from "./authBootstrap";
 import { initAuthUI } from "./authUI";
-import { addAuthChangeListener, getCurrentUser } from "./authClient";
+import { addAuthChangeListener } from "./authClient";
 import "./index.css";
 import {
   initTaskValidation,
@@ -1646,52 +1646,7 @@ function refreshWorkspaceWithCustomToolbox() {
   // Повторная синхронизация после логина (прогресс гостя уезжает на сервер)
   addAuthChangeListener((user) => {
     if (user) void syncTaskProgress();
-    // Move feedback/stats to dropdown after login; keep in header before login
-    const moreWrap = document.getElementById("headerMoreWrap");
-    const morePanel = document.getElementById("headerMorePanel");
-    const feedbackBtn = document.getElementById("feedbackBtn");
-    const statsBtn = document.getElementById("statsBtn");
-    const onboardingBtn = document.getElementById("onboardingReplayBtn");
-    if (moreWrap && morePanel && feedbackBtn && statsBtn) {
-      if (user) {
-        // Authenticated: show dropdown, move feedback+stats into it
-        moreWrap.style.display = "";
-        morePanel.insertBefore(feedbackBtn, onboardingBtn);
-        morePanel.insertBefore(statsBtn, onboardingBtn);
-      } else {
-        // Guest: hide dropdown, keep feedback+stats in header
-        moreWrap.style.display = "none";
-        const iconBtns = moreWrap.parentElement;
-        if (iconBtns) {
-          iconBtns.insertBefore(feedbackBtn, moreWrap);
-          iconBtns.insertBefore(statsBtn, moreWrap);
-        }
-      }
-    }
   });
-  // Apply initial header layout based on current auth state
-  {
-    const user = getCurrentUser();
-    const moreWrap = document.getElementById("headerMoreWrap");
-    const morePanel = document.getElementById("headerMorePanel");
-    const feedbackBtn = document.getElementById("feedbackBtn");
-    const statsBtn = document.getElementById("statsBtn");
-    const onboardingBtn = document.getElementById("onboardingReplayBtn");
-    if (moreWrap && morePanel && feedbackBtn && statsBtn) {
-      if (user) {
-        moreWrap.style.display = "";
-        morePanel.insertBefore(feedbackBtn, onboardingBtn);
-        morePanel.insertBefore(statsBtn, onboardingBtn);
-      } else {
-        moreWrap.style.display = "none";
-        const iconBtns = moreWrap.parentElement;
-        if (iconBtns) {
-          iconBtns.insertBefore(feedbackBtn, moreWrap);
-          iconBtns.insertBefore(statsBtn, moreWrap);
-        }
-      }
-    }
-  }
 
   // Подключаем обновление индикатора активного хранилища и времени последнего сохранения
   const storageIndicatorEl = document.getElementById("storageIndicator");
