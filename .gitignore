@@ -61,3 +61,6 @@ server/data/
 
 # OpenCode local agent workspace (skills, node_modules, plugin data)
 .opencode/
+
+# Local agent skills workspace (third-party skill docs, not part of the app)
+.agents/
