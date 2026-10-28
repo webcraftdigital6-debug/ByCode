@@ -206,6 +206,11 @@ app.patch("/api/profile", requireAuth, (req, res) => {
     if (name !== undefined && (typeof name !== "string" || !name.trim())) {
       return res.status(400).json({ error: "Имя не может быть пустым" });
     }
+    // Тот же лимит, что в регистрации: без него имя произвольной длины
+    // записывалось бы в обход ограничения, заданного при создании аккаунта.
+    if (name !== undefined && name.trim().length > 30) {
+      return res.status(400).json({ error: "Имя не может быть длиннее 30 символов" });
+    }
     const user = store.updateUserProfile(req.user.id, {
       name: name !== undefined ? name.trim() : undefined,
       avatarUrl,

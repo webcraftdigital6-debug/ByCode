@@ -48,6 +48,17 @@ describe("Профиль", () => {
     expect(get.body.user.name).toBe("До");
   });
 
+  it("отклоняет имя длиннее 30 символов — как при регистрации", async () => {
+    const { a } = await ctx.registerUser();
+    const long = await a.patch("/api/profile", { name: "а".repeat(31) });
+    expect(long.status).toBe(400);
+    expect(long.body.error).toMatch(/30 символов/);
+
+    expect((await a.patch("/api/profile", { name: "б".repeat(30) })).status).toBe(200);
+    const get = await a.get("/api/profile");
+    expect(get.body.user.name).toBe("б".repeat(30));
+  });
+
   it("stats считает решённые задачи, звёзды и число блоков", async () => {
     const { a } = await ctx.registerUser();
     const empty = await a.get("/api/profile");

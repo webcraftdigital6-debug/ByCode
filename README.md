@@ -100,7 +100,7 @@ npm run build    # собирает app/dist/
    Панель поднимается на 3000-м порту; для самой панели тоже включи TLS (Settings → SSL).
 2. **Create Project → Create Service → Compose**: источник — репозиторий GitHub (GitHub App или токен), путь до `docker-compose.yml` — корень репозитория.
 3. **Environment** сервиса — переменные по образцу `.env.example`. Dokploy пишет их в `.env` рядом с compose-файлом и сам в контейнеры не подмешивает, поэтому в `docker-compose.yml` есть `env_file: .env`. `NODE_ENV`, `HOST`, `PORT` и `DATA_DIR` задавать не нужно: они зафиксированы в блоке `environment:`, а он перекрывает `.env`.
-4. **Domains** — домен сервиса, порт `4000`, Let's Encrypt. Заголовки `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy`, без которых не работают Python/Lua/PHP-песочницы, ставит сам сервер (`server/index.js`), на Traefik ничего вешать не нужно.
+4. **Domains** — домен сервиса, порт `4000`, Let's Encrypt. Заголовки `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy`, без которых не работают Python/Lua/PHP-песочницы, ставит сам сервер (`server/index.js`), на Traefik ничего вешать не нужно. TLS здесь обязателен и для входа: в продакшене сессионная кука `bc_sid` отдаётся с флагом `Secure`, поэтому по `http://` браузер не вернёт её на следующий запрос и сессия не закрепится. На `http://localhost` и `http://127.0.0.1` браузер делает исключение (адрес считается trustworthy), так что локально эффект не виден.
 5. **Deploy**. Автодеплой по push — вкладка **Deployments** → webhook на push в `main` (или Enable Auto Deploy в настройках сервиса): push → пересборка образа → перезапуск контейнера, данные на томе остаются.
 
 Тип **Application** (сборка по `Dockerfile` без compose) тоже рабочий, но тогда том `/data` придётся добавить вручную в разделе Volumes сервиса — иначе база снова будет жить в слое образа и исчезать при пересборке.
@@ -121,6 +121,19 @@ docker run --rm -v "$VOL:/data" -v "$PWD:/backup" alpine \
 docker compose up -d --build
 curl -s localhost:4000/api/feedback/types   # 200 + список тем фидбэка = сервер жив
 docker compose down                          # без -v: с флагом удалится и том с базой
+```
+
+`scripts/prod-probe.mjs` — 91 black-box проверка собранного образа по HTTP: прод-флаги куки, лимиты планов, сквозная оплата на mock-мерчанте, фидбэк без SMTP в файл тома и живучесть данных после пересоздания контейнера. Он намеренно работает на порту 4100 с отдельным томом: локальный `node server/index.js` на 4000 перекрывает проброс контейнера, и прогон уйдёт в дев-сервер вместо образа.
+
+```bash
+# нужен .env с BILLING_PROVIDER=mock, иначе блок оплаты пропустится сам
+docker run -d --name bc-prodprobe -p 4100:4000 -v bc-prodprobe-data:/data \
+  --env-file .env -e APP_BASE_URL=http://localhost:4100 blocklycode:latest
+node scripts/prod-probe.mjs                    # PROD_PROBE_OK = все проверки прошли
+docker rm -f bc-prodprobe && docker volume rm bc-prodprobe-data
+
+# против боевого домена: проверки тома и пересоздания пропускаются, остаётся HTTP-слой
+BASE_URL=https://<домен> SKIP_RECREATE=1 node scripts/prod-probe.mjs
 ```
 
 **Что проверить после переезда.** Публичный адрес меняется, поэтому в кабинетах партнёров нужно переписать callback-URL: у Robokassa — ResultURL `https://<домен>/api/billing/result/robokassa`, у Google/Yandex/GitHub — redirect URI на `https://<домен>`. В коде и конфигурации адреса нет — всё через `APP_BASE_URL` и переменные окружения.
