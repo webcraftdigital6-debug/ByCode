@@ -219,6 +219,11 @@ export function setMobileMenuOpen(open: boolean): void {
 
 /**
  * Открыть/закрыть мобильный тулбокс (панель блоков)
+ *
+ * Строка поиска блоков прячется только на мобильных устройствах в свёрнутом
+ * тулбоксе. На десктопе она видна всегда: вызов с open=false (например,
+ * при инициализации или пересечении брейкпоинта 768px) сбрасывает inline-стиль
+ * и возвращает скрытую ранее строку.
  */
 export function setMobileToolboxOpen(open: boolean): void {
   if (!isMobile) open = false;
@@ -240,7 +245,7 @@ export function setMobileToolboxOpen(open: boolean): void {
       ".blocklyToolboxCategory",
     ) as HTMLElement | null;
     if (searchCategory) {
-      searchCategory.style.display = open ? "" : "none";
+      searchCategory.style.display = isMobile && !open ? "none" : "";
     }
   } catch {}
 
