@@ -1043,7 +1043,21 @@ if (fs.existsSync(DIST_DIR)) {
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   if (res.headersSent) return;
-  res.status(500).json({ error: "Внутренняя ошибка сервера" });
+  // express.json/urlencoded бросают http-errors (413, 400 битый JSON) —
+  // без этого ответ стал бы 500 и клиент не понял бы, что тело слишком большое.
+  const status =
+    Number.isInteger(err?.status) && err.status >= 400 && err.status < 600
+      ? err.status
+      : 500;
+  if (status === 500) {
+    return res.status(status).json({ error: "Внутренняя ошибка сервера" });
+  }
+  res.status(status).json({
+    error:
+      err?.type === "entity.too.large"
+        ? "Слишком большой запрос"
+        : "Некорректный запрос",
+  });
 });
 
 // В тестовом режиме (BC_TEST=1) приложение экспортируется без listen:
