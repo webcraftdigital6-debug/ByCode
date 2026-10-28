@@ -1,7 +1,7 @@
 {
-  "name": "blocklycode-app",
+  "name": "bycode-app",
   "version": "1.0.0",
-  "description": "BlocklyCode — browser-based visual programming learning app",
+  "description": "ByCode — browser-based visual programming learning app",
   "main": "index.js",
   "private": true,
   "scripts": {

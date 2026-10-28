@@ -1,7 +1,7 @@
 {
-  "name": "blocklycode",
+  "name": "bycode",
   "version": "1.0.0",
-  "description": "BlocklyCode — browser-based visual programming learning app (Google Blockly)",
+  "description": "ByCode — browser-based visual programming learning app (Google Blockly)",
   "scripts": {
     "build": "npm install --prefix app && cd app && npm run build",
     "start": "node server/index.js",

@@ -28,7 +28,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "welcome",
     target: null,
-    title: () => t("Добро пожаловать в BlocklyCode!", "Welcome to BlocklyCode!"),
+    title: () => t("Добро пожаловать в ByCode!", "Welcome to ByCode!"),
     body: () =>
       t(
         "Здесь программы собирают из блоков, как конструктор, и сразу проверяют автоматически. Тур займёт меньше минуты.",
