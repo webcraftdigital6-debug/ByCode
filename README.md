@@ -87,26 +87,43 @@ npm run build    # собирает app/dist/
 - Почта для обратной связи: `FEEDBACK_TO` (по умолчанию задана в `server/feedback.js`), SMTP — `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
 - Данные сервера (SQLite, JSON-фолбэки, журнал фидбэка) — в `server/data/` (в git не попадает).
 
-## Деплой на Render (бесплатный URL без домена)
+## Деплой на Dokploy (свой VPS)
 
-Проект готов к деплою одним сервисом: `npm run build` собирает фронтенд в `app/dist`, `npm run start` поднимает Express, который раздаёт статику, SPA-fallback и API (`render.yaml` уже в репозитории).
+Проект упакован в Docker-образ. `Dockerfile` тремя этапами собирает фронтенд (`npm run build` → `app/dist`), ставит prod-зависимости сервера и оставляет только то, что нужно для запуска: `server/`, `scripts/`, `app/dist` и `node_modules`. `docker-compose.yml` поверх образа добавляет именованный том с данными.
 
-1. Залей репозиторий на GitHub (Render деплоит из Git).
-2. [render.com](https://render.com) → **New → Web Service** → подключи репозиторий.
-3. Render подхватит `render.yaml` (region: frankfurt, plan: free). Если выбираешь вручную:
-   - **Build Command:** `npm install && npm run build`
-   - **Start Command:** `npm run start`
-   - Node 22 (в `engines`).
-4. Environment-переменные (Dashboard → Environment):
-   - `FEEDBACK_TO` — куда приходит обратная связь (по умолчанию уже задана).
-   - `SMTP_HOST/PORT/USER/PASS/FROM` — реальная отправка писем; без них фидбэк пишется в файл.
-   - `APP_BASE_URL` — публичный адрес сервиса, и переменные `BILLING_*` / `ROBOKASSA_*` из раздела «Монетизация и админ-инструменты», если подключаешь оплату картой.
-5. Через пару минут получишь `https://<имя-сервиса>.onrender.com`.
+**Что нужно:** VPS с Ubuntu/Debian и Docker (1 vCPU / 1 GB RAM хватает для запуска; для сборки фронта лучше 2 GB), домен или поддомен с A-записью на IP сервера.
 
-**Ограничения бесплатного тарифа:**
-- **Файловая система ephemeral**: при каждом деплое/перезапуске SQLite в `server/data/` обнуляется (аккаунты и классы пропадают). Для постоянных данных подключи **Persistent Disk** (Render → Disks, точка монтирования например `/data`) и задай `DATA_DIR=/data` — на диске данные выживают.
-- Сервис засыпает через 15 минут без трафика, первый запрос после сна медленный (~30 сек).
-- 750 часов/месяц бесплатно — для одного сервиса хватает с запасом.
+1. Установить Dokploy на VPS (одна команда под root):
+   ```bash
+   curl -sSL https://dokploy.com/install.sh | bash
+   ```
+   Панель поднимается на 3000-м порту; для самой панели тоже включи TLS (Settings → SSL).
+2. **Create Project → Create Service → Compose**: источник — репозиторий GitHub (GitHub App или токен), путь до `docker-compose.yml` — корень репозитория.
+3. **Environment** сервиса — переменные по образцу `.env.example`. Dokploy пишет их в `.env` рядом с compose-файлом и сам в контейнеры не подмешивает, поэтому в `docker-compose.yml` есть `env_file: .env`. `NODE_ENV`, `HOST`, `PORT` и `DATA_DIR` задавать не нужно: они зафиксированы в блоке `environment:`, а он перекрывает `.env`.
+4. **Domains** — домен сервиса, порт `4000`, Let's Encrypt. Заголовки `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy`, без которых не работают Python/Lua/PHP-песочницы, ставит сам сервер (`server/index.js`), на Traefik ничего вешать не нужно.
+5. **Deploy**. Автодеплой по push — вкладка **Deployments** → webhook на push в `main` (или Enable Auto Deploy в настройках сервиса): push → пересборка образа → перезапуск контейнера, данные на томе остаются.
+
+Тип **Application** (сборка по `Dockerfile` без compose) тоже рабочий, но тогда том `/data` придётся добавить вручную в разделе Volumes сервиса — иначе база снова будет жить в слое образа и исчезать при пересборке.
+
+**Данные.** SQLite (`blocklycode.db` с WAL), журнал фидбэка и JSON-фолбэки сервер пишет в `DATA_DIR` (`server/store.js`); в compose это том `blocklycode-data` в `/data`. Именно поэтому пересборка и перезапуск больше не обнуляют аккаунты, классы и прогресс — в этом главный смысл переезда с Render, где файловая система ephemeral. Бэкап тома (имя тома Dokploy собирает из имени проекта, поэтому ищем по суффиксу):
+
+```bash
+VOL=$(docker volume ls -q | grep blocklycode-data)
+docker run --rm -v "$VOL:/data" -v "$PWD:/backup" alpine \
+  tar czf /backup/data-$(date +%F).tar.gz -C /data .
+```
+
+Перед первым деплоем скопируй `.env.example` в `.env` и заполни секреты; в Dokploy те же пары ключ=значение вставляй во вкладку Environment, а не в репозиторий.
+
+**Локальная проверка образа:**
+
+```bash
+docker compose up -d --build
+curl -s localhost:4000/api/feedback/types   # 200 + список тем фидбэка = сервер жив
+docker compose down                          # без -v: с флагом удалится и том с базой
+```
+
+**Что проверить после переезда.** Публичный адрес меняется, поэтому в кабинетах партнёров нужно переписать callback-URL: у Robokassa — ResultURL `https://<домен>/api/billing/result/robokassa`, у Google/Yandex/GitHub — redirect URI на `https://<домен>`. В коде и конфигурации адреса нет — всё через `APP_BASE_URL` и переменные окружения.
 
 ## Структура проекта
 
@@ -136,6 +153,8 @@ npm run build    # собирает app/dist/
 │   └── feedback.js # обратная связь (Nodemailer + файл-фолбэк)
 ├── scripts/promo.js# генерация промокодов (npm run promo)
 ├── solutions/      # эталонные решения задач в XML (импортируются в рабочее поле)
+├── Dockerfile      # образ для Dokploy: сборка фронта, prod-зависимости, рантайм
+├── docker-compose.yml # запуск образа с именованным томом /data
 └── scripts/        # вспомогательные скрипты (генерация PDF)
 ```
 

@@ -1,0 +1,33 @@
+# Минимальный контекст сборки: фронт пересобирается внутри образа, локальные
+# данные, секреты и артефакты редакторов в слои попадать не должны.
+.git/
+.github/
+.agents/
+.opencode/
+.qwen/
+.trae/
+.vscode/
+.zcode/
+testsprite_tests/
+app/testsprite_tests/
+
+node_modules/
+app/node_modules/
+server/node_modules/
+
+app/dist/
+app/build/
+
+server/data/
+coverage/
+tmp/
+temp/
+
+.env
+.env.local
+opencode.json
+*.log
+
+Dockerfile
+docker-compose.yml
+.dockerignore

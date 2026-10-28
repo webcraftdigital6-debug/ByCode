@@ -1,0 +1,43 @@
+# Локальный запуск и запуск под Dokploy (Compose-сервис).
+#
+# Ключевое отличие от прежнего render.yaml: данные лежат в именованном томе,
+# который переживает пересборку и перезапуск контейнера. Сервер пишет в
+# DATA_DIR (server/store.js) — там blocklycode.db (SQLite, WAL), feedback.json
+# и JSON-фолбэки. Блоки environment перекрывают .env, поэтому четыре переменные
+# ниже задавать в Environment не нужно — путь тома зафиксирован здесь.
+#
+#   cp .env.example .env      # затем заполнить секреты
+#   docker compose up -d --build
+#   curl localhost:4000/api/feedback/types
+#
+# Dokploy: Create Service → Compose, репозиторий + этот файл, домен и
+# переменные окружения — во вкладке Environment. Dokploy сохраняет её содержимое
+# в .env рядом с compose-файлом, но в контейнеры переменные из .env сам не
+# подмешивает — отсюда env_file ниже.
+#
+# Том именно именованный: Dokploy чистит относительные bind-пути при деплое, а
+# именованные тома остаются и подхватываются его Volume Backups.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: blocklycode:latest
+    container_name: blocklycode
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4000
+      DATA_DIR: /data
+    volumes:
+      - blocklycode-data:/data
+    ports:
+      - "4000:4000"
+
+volumes:
+  blocklycode-data:
