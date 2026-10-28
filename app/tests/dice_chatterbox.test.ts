@@ -45,7 +45,7 @@ beforeAll(() => {
   document.body.innerHTML = `<div id="output"></div>`;
 });
 
-describe("dice_rolls (задача 17)", () => {
+describe("dice_rolls (задача 20)", () => {
   const good = ["3", "1", "6", "2", "4", "5", "6", "1", "2", "4"];
 
   it("принимает 10 чисел 1…6 от корректной программы", async () => {

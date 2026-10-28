@@ -478,7 +478,7 @@ export const variablesTasks: Pick<
   inc_counter: {
     id: "inc_counter",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 6: Счётчик инкремент" : "Task 6: Increment counter"),
+    title: (lang) => (lang === "ru" ? "Задача 8: Счётчик инкремент" : "Task 8: Increment counter"),
     description: (lang) =>
       lang === "ru"
         ? "Создайте переменную <strong>counter</strong> со значением <strong>0</strong>. Затем увеличьте её на <strong>1</strong> блоком «увеличить counter на 1» из категории «Переменные»: в коде получится <strong>counter += 1</strong>. Выведите новое значение."
@@ -494,7 +494,7 @@ export const variablesTasks: Pick<
     id: "discount_calc",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 7: Умный калькулятор скидок" : "Task 7: Smart Discount Calculator",
+      lang === "ru" ? "Задача 9: Умный калькулятор скидок" : "Task 9: Smart Discount Calculator",
     description: (lang) =>
       lang === "ru"
         ? "Создайте переменную <strong>price</strong> и сохраните в неё цену товара (например, <strong>1000</strong>). Создайте вторую переменную <strong>discount</strong> и сохраните в неё размер скидки в процентах (например, <strong>15</strong>). Вычислите и выведите <strong>финальную цену</strong> по формуле: <strong>price - (price * discount / 100)</strong>."

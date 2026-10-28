@@ -429,7 +429,7 @@ export const conditionsTasks: Pick<
   first_condition: {
     id: "first_condition",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 10: Первое условие" : "Task 10: First condition"),
+    title: (lang) => (lang === "ru" ? "Задача 12: Первое условие" : "Task 12: First condition"),
     description: (lang) =>
       lang === "ru"
         ? 'Создайте переменную <strong>temperature</strong> и сохраните в неё какое-либо число. Задача: проверьте, что температура выше нуля. Если это так — выведите фразу <strong>"The weather is warm"</strong>. Если нет — не выводите ничего.'
@@ -444,7 +444,7 @@ export const conditionsTasks: Pick<
   even_or_odd: {
     id: "even_or_odd",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 11: Чётное или нечётное" : "Task 11: Even or Odd"),
+    title: (lang) => (lang === "ru" ? "Задача 13: Чётное или нечётное" : "Task 13: Even or Odd"),
     description: (lang) =>
       lang === "ru"
         ? 'Создайте переменную <strong>number</strong> и сохраните в неё любое целое число. Напишите программу, которая определяет, является ли число <strong>чётным</strong> или <strong>нечётным</strong>, и выводит сообщение:<br><br>Если число чётное, выведите <strong>"Число чётное"</strong> (или <strong>"The number is even"</strong>).<br>Если число нечётное, выведите <strong>"Число нечётное"</strong> (или <strong>"The number is odd"</strong>).'
@@ -459,7 +459,7 @@ export const conditionsTasks: Pick<
   time_of_day: {
     id: "time_of_day",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 15: Время суток" : "Task 15: Time of Day"),
+    title: (lang) => (lang === "ru" ? "Задача 17: Время суток" : "Task 17: Time of Day"),
     description: (lang) =>
       lang === "ru"
         ? 'Создайте переменную <strong>hour</strong> и сохраните в неё текущий час (число от <strong>0</strong> до <strong>23</strong>). Напишите программу, которая определяет время суток и выводит сообщение:<br><br>Если <strong>hour</strong> от <strong>6</strong> до <strong>11</strong> → <strong>"Good morning!"</strong><br>Если <strong>hour</strong> от <strong>12</strong> до <strong>17</strong> → <strong>"Good afternoon!"</strong><br>Если <strong>hour</strong> от <strong>18</strong> до <strong>22</strong> → <strong>"Good evening!"</strong><br>Иначе → <strong>"Good night!"</strong>'
@@ -474,7 +474,7 @@ export const conditionsTasks: Pick<
   logic_and_or_not: {
     id: "logic_and_or_not",
     difficulty: "basic",
-    title: (lang) => (lang === "ru" ? "Задача 12: И, ИЛИ, НЕ" : "Task 12: AND, OR, NOT"),
+    title: (lang) => (lang === "ru" ? "Задача 14: И, ИЛИ, НЕ" : "Task 14: AND, OR, NOT"),
     description: (lang) =>
       lang === "ru"
         ? `Условия можно объединять. Число <strong>14</strong> уже «знает» компьютер — проверьте три утверждения и напечатайте по строке на каждое: <strong>YES</strong>, если утверждение верно, и <strong>NO</strong>, если неверно.<br><br>1) «14 больше 10 <strong>И</strong> 14 меньше 12» — блок «… и …»;<br>2) «14 больше 20 <strong>ИЛИ</strong> 14 меньше 15» — блок «… или …»;<br>3) <strong>НЕ</strong> «14 больше 13» — блок «не …».<br><br>Правильный вывод — три строки: <strong>NO</strong>, <strong>YES</strong>, <strong>NO</strong>.<br><br>«И» требует, чтобы выполнились <strong>обе</strong> части; «ИЛИ» довольствуется <strong>одной</strong>; «НЕ» переворачивает ответ. Про слова YES и NO: их печатают буквами, чтобы вывод не зависел от языка интерфейса.<br><br>★★★ — три проверки собраны блоками «и», «или» и «не».`
@@ -490,7 +490,7 @@ export const conditionsTasks: Pick<
     id: "logic_gate_check",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 13: Пропуск в Гильдию" : "Task 13: Guild Entry Check",
+      lang === "ru" ? "Задача 15: Пропуск в Гильдию" : "Task 15: Guild Entry Check",
     description: (lang) =>
       lang === "ru"
         ? `Разминка следопыта: в Гильдию пускают, только если выполнены два условия сразу. Создайте переменную <strong>level</strong> со значением <strong>20</strong> и переменную <strong>reputation</strong> со значением <strong>60</strong>.<br><br>Напечатайте три строки — <strong>YES</strong>, если условие выполнено, и <strong>NO</strong>, если нет:<br>1) «уровень &ge; 15 <strong>И</strong> репутация <strong>больше</strong> 50» → <strong>YES</strong>;<br>2) «уровень &ge; 30 <strong>ИЛИ</strong> репутация &ge; 100» → <strong>NO</strong>;<br>3) <strong>НЕ</strong> «уровень меньше 10» → <strong>YES</strong>.<br><br>Каждую строку собирайте блоком «если … иначе», а условие — блоками «… и …», «… или …» и «не …» из «Логика». Сравнения берите из блока «= … &gt; …» и подставляйте в него переменные.<br><br>Правильный вывод — три строки по порядку: <strong>YES</strong>, <strong>NO</strong>, <strong>YES</strong>.<br><br><strong>Зачем переменные:</strong> в прошлой задаче числа стояли прямо в блоках, а здесь значения живут в переменных. Герой качается — и проверка сама подхватывает новые числа, стоит поменять level или reputation.<br><br>★★★ — все три условия собраны «и», «или» и «не» по переменным.`
@@ -506,7 +506,7 @@ export const conditionsTasks: Pick<
     id: "logic_ternary_task",
     difficulty: "basic",
     title: (lang) =>
-      lang === "ru" ? "Задача 14: Выбор без «если»" : "Task 14: Choosing without if",
+      lang === "ru" ? "Задача 16: Выбор без «если»" : "Task 16: Choosing without if",
     description: (lang) =>
       lang === "ru"
         ? `Блок «если» занимает место и просит ветки. Часто вместо него хватает <strong>тернарного выбора</strong> — блока, который сам является значением: «выбрать по условию: если истина — одно, если ложь — другое». Напечатайте три строки:<br><br>1) «7 больше 3» → выбрать <strong>MORE</strong>, иначе LESS;<br>2) блок <strong>«… пуст»</strong> для пустого текста «» → выбрать <strong>EMPTY</strong>, иначе NOT EMPTY;<br>3) создайте переменную <strong>answer</strong> и <strong>не присваивайте</strong> ей ничего; сравните её с блоком <strong>«ничто»</strong> (null) → выбрать <strong>NO VALUE</strong>, иначе HAS VALUE.<br><br>Правильный вывод: <strong>MORE</strong>, <strong>EMPTY</strong>, <strong>NO VALUE</strong> — и ни одного блока «если».<br><br>★★★ — все три строки собраны блоками «выбрать по», без «если».`
