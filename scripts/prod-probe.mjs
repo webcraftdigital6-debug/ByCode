@@ -4,7 +4,7 @@
  *
  * Локально (отдельный контейнер и отдельный том, боевой не трогается):
  *   docker run -d --name bc-prodprobe -p 4100:4000 -v bc-prodprobe-data:/data \
- *     --env-file .env -e APP_BASE_URL=http://localhost:4100 blocklycode:latest
+ *     --env-file .env -e APP_BASE_URL=http://localhost:4100 bycode:latest
  *   node scripts/prod-probe.mjs
  *   docker rm -f bc-prodprobe && docker volume rm bc-prodprobe-data
  *
@@ -411,7 +411,7 @@ if (REMOTE) {
       ".env",
       "-e",
       "APP_BASE_URL=http://localhost:4100",
-      "blocklycode:latest",
+      "bycode:latest",
     ],
     { stdio: "ignore" },
   );

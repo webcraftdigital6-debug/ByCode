@@ -1,4 +1,4 @@
-# Docker-образ BlocklyCode для Dokploy (и любого другого Docker-хоста).
+# Docker-образ ByCode для Render (runtime: docker) и любого другого Docker-хоста.
 #
 # Один контейнер = весь продукт: Express раздаёт собранный фронтенд (app/dist)
 # и API. Этапы:

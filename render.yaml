@@ -1,0 +1,99 @@
+# Деплой на Render (https://render.com), Docker-рантайм.
+#
+# Один Web Service: Render собирает образ из ./Dockerfile (фронт → prod-зависимости
+# → рантайм) и запускает его. Раздача статики и API — в одном контейнере, как и в
+# docker-compose.yml, поэтому `scripts/prod-probe.mjs` проверяет ровно тот образ,
+# который уезжает в прод.
+#
+# Ключевое отличие от прежнего Node-рантайма: файлы не переписываются при редеплое,
+# а `npm run build` больше не должен угадывать, собирался ли фронт.
+#
+# ВАЖНО про данные. Файловая система Render ephemeral: без тома база SQLite,
+# feedback.json и JSON-фолбэки затираются при каждом деплое и перезапуске. Отсюда
+# блок `disk` ниже — это путь DATA_DIR, который задаёт Dockerfile.
+# Persistent Disk недоступен на free-плане: он требует платной инстансы
+# (Starter 0.5c/512MB ≈ $7/мес) и стоит $0.25 за ГБ в месяц. Free-план годится
+# только для проверки «образ собирается и отвечает»: заводить классы и учеников на
+# free нельзя — они исчезнут при первом же редеплое.
+#
+# ВАЖНО после первого деплоя (Dashboard → Settings):
+#   APP_BASE_URL   — выставить на https://<service>.onrender.com (нужен для callback
+#                    платёжного провайдера и redirect URI OAuth-провайдеров).
+#   PUBLIC_URL     — в разделе Service Details; домен можно поменять на свой.
+#   Auto-Deploy     — webhook на push в main (на старом аккаунте его блокировал
+#                     флаг аккаунта; здесь он просто включается).
+# Публичные URL в коде нет — сервер строит callback-ы из APP_BASE_URL.
+
+services:
+  - type: web
+    name: bycode
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/feedback/types
+    disk:
+      name: bycode-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      # NODE_ENV, HOST, PORT и DATA_DIR заданы в Dockerfile; Render подмешивает
+      # собственный PORT при запуске контейнера, и он перекрывает значение образа.
+      - key: FEEDBACK_TO
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: BILLING_PROVIDER
+        value: none
+      - key: BILLING_PRICE_RUB
+        value: "490"
+      - key: BILLING_DAYS
+        value: "30"
+      - key: BILLING_CURRENCY
+        value: RUB
+      - key: BILLING_PRODUCT_LABEL
+        sync: false
+      - key: BILLING_PROMO_ENABLED
+        value: "0"
+      - key: BILLING_REQUIRE_CONFIRM
+        value: "0"
+      - key: ROBOKASSA_MERCHANT_LOGIN
+        sync: false
+      - key: ROBOKASSA_PASSWORD1
+        sync: false
+      - key: ROBOKASSA_PASSWORD2
+        sync: false
+      - key: ROBOKASSA_TEST_MODE
+        value: "1"
+      - key: ROBOKASSA_CHECKOUT_URL
+        sync: false
+      - key: ROBOKASSA_API_URL
+        sync: false
+      - key: ROBOKASSA_CONFIRM_URL
+        sync: false
+      - key: MOCK_MERCHANT_LOGIN
+        sync: false
+      - key: MOCK_NOTIFICATION_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: YANDEX_CLIENT_ID
+        sync: false
+      - key: YANDEX_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false

@@ -87,33 +87,23 @@ npm run build    # собирает app/dist/
 - Почта для обратной связи: `FEEDBACK_TO` (по умолчанию задана в `server/feedback.js`), SMTP — `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
 - Данные сервера (SQLite, JSON-фолбэки, журнал фидбэка) — в `server/data/` (в git не попадает).
 
-## Деплой на Dokploy (свой VPS)
+## Деплой на Render (Docker-рантайм)
 
-Проект упакован в Docker-образ. `Dockerfile` тремя этапами собирает фронтенд (`npm run build` → `app/dist`), ставит prod-зависимости сервера и оставляет только то, что нужно для запуска: `server/`, `scripts/`, `app/dist` и `node_modules`. `docker-compose.yml` поверх образа добавляет именованный том с данными.
+Проект упакован в Docker-образ. `Dockerfile` тремя этапами собирает фронтенд (`npm run build` → `app/dist`), ставит prod-зависимости сервера и оставляет только то, что нужно для запуска: `server/`, `scripts/`, `app/dist` и `node_modules`. `render.yaml` описывает один Web Service на этом образе; `docker-compose.yml` запускает тот же образ локально.
 
-**Что нужно:** VPS с Ubuntu/Debian и Docker (1 vCPU / 1 GB RAM хватает для запуска; для сборки фронта лучше 2 GB), домен или поддомен с A-записью на IP сервера.
+**Что нужно:** аккаунт Render и доступ Blueprint к репозиторию. Отдельный домен не обязателен: URL вида `https://<service>.onrender.com` отдаётся сразу с HTTPS.
 
-1. Установить Dokploy на VPS (одна команда под root):
-   ```bash
-   curl -sSL https://dokploy.com/install.sh | bash
-   ```
-   Панель поднимается на 3000-м порту; для самой панели тоже включи TLS (Settings → SSL).
-2. **Create Project → Create Service → Compose**: источник — репозиторий GitHub (GitHub App или токен), путь до `docker-compose.yml` — корень репозитория.
-3. **Environment** сервиса — переменные по образцу `.env.example`. Dokploy пишет их в `.env` рядом с compose-файлом и сам в контейнеры не подмешивает, поэтому в `docker-compose.yml` есть `env_file: .env`. `NODE_ENV`, `HOST`, `PORT` и `DATA_DIR` задавать не нужно: они зафиксированы в блоке `environment:`, а он перекрывает `.env`.
-4. **Domains** — домен сервиса, порт `4000`, Let's Encrypt. Заголовки `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy`, без которых не работают Python/Lua/PHP-песочницы, ставит сам сервер (`server/index.js`), на Traefik ничего вешать не нужно. TLS здесь обязателен и для входа: в продакшене сессионная кука `bc_sid` отдаётся с флагом `Secure`, поэтому по `http://` браузер не вернёт её на следующий запрос и сессия не закрепится. На `http://localhost` и `http://127.0.0.1` браузер делает исключение (адрес считается trustworthy), так что локально эффект не виден.
-5. **Deploy**. Автодеплой по push — вкладка **Deployments** → webhook на push в `main` (или Enable Auto Deploy в настройках сервиса): push → пересборка образа → перезапуск контейнера, данные на томе остаются.
+1. **Create → Blueprint** → выбери репозиторий. Render читает `render.yaml`, показывает предпросмотр сервиса `bycode` и запрашивает значения переменных, помеченных `sync: false` (SMTP, OAuth, Robokassa).
+2. **План и диск.** Free-план (0.1 CPU, 512 MB) Persistent Disk не принимает, а без диска база живёт в ephemeral-слое контейнера и затирается при каждом деплое — ровно та причина, по которой проект ушёл с Node-рантайма. Для настоящих данных нужен платный инстанс (Starter 0.5 CPU / 512 MB ≈ $7/мес) и диск ($0.25 за ГБ в месяц). На free-плане имеет смысл проверить только то, что образ собирается и отвечает.
+3. **Environment** — переменные по образцу `.env.example`; `render.yaml` уже объявляет весь список. `NODE_ENV`, `HOST`, `PORT` и `DATA_DIR` задавать не нужно: они зафиксированы в `Dockerfile`, а Render подмешивает собственный `PORT` при запуске контейнера, и он перекрывает значение образа. После первого деплоя выставь `APP_BASE_URL` на публичный URL сервиса — из него сервер строит платёжные callback-URL.
+4. **Заголовки и TLS.** `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy`, без которых не работают Python/Lua/PHP-песочницы, ставит сам сервер (`server/index.js`) — на прокси Render ничего вешать не нужно. HTTPS для `.onrender.com` включён из коробки, и он обязателен для входа: в продакшене сессионная кука `bc_sid` отдаётся с флагом `Secure`, поэтому по `http://` браузер не вернёт её на следующий запрос и сессия не закрепится. На `http://localhost` и `http://127.0.0.1` браузер делает исключение (адрес считается trustworthy), так что локально эффект не виден.
+5. **Deploy.** Push в `main` пересобирает образ и перезапускает контейнер, данные на томе остаются (Auto-Deploy включён по умолчанию). На старом аккаунте автодеплой не срабатывал из-за флага на аккаунте; на новом это обычная настройка сервиса в разделе **Settings → Auto-Deploy**.
 
-Тип **Application** (сборка по `Dockerfile` без compose) тоже рабочий, но тогда том `/data` придётся добавить вручную в разделе Volumes сервиса — иначе база снова будет жить в слое образа и исчезать при пересборке.
+Рантайм `docker` берёт `Dockerfile` как есть, поэтому локальная проверка образа (`docker compose up --build` и `scripts/prod-probe.mjs` ниже) проверяет ровно тот артефакт, который собирается на Render. Первое, что стоит проверить после деплоя, — запись в `/data`: том Render монтируется поверх `mkdir -p /data` из образа, и если у пользователя контейнера нет прав на запись, `server/store.js` тихо падает на JSON-фолбэк. Достаточно зарегистрировать аккаунт и перезапустить сервис — прогресс должен сохраниться.
 
-**Данные.** SQLite (`blocklycode.db` с WAL), журнал фидбэка и JSON-фолбэки сервер пишет в `DATA_DIR` (`server/store.js`); в compose это том `blocklycode-data` в `/data`. Именно поэтому пересборка и перезапуск больше не обнуляют аккаунты, классы и прогресс — в этом главный смысл переезда с Render, где файловая система ephemeral. Бэкап тома (имя тома Dokploy собирает из имени проекта, поэтому ищем по суффиксу):
+**Данные.** SQLite (`blocklycode.db` с WAL), журнал фидбэка и JSON-фолбэки сервер пишет в `DATA_DIR` (`server/store.js`); и в `render.yaml`, и в compose это `/data`. Именно поэтому пересборка и перезапуск больше не обнуляют аккаунты, классы и прогресс. Имя файла базы — внутреннее: `blocklycode.db` оставлен, его переименование потребовало бы миграции прод-файла.
 
-```bash
-VOL=$(docker volume ls -q | grep blocklycode-data)
-docker run --rm -v "$VOL:/data" -v "$PWD:/backup" alpine \
-  tar czf /backup/data-$(date +%F).tar.gz -C /data .
-```
-
-Перед первым деплоем скопируй `.env.example` в `.env` и заполни секреты; в Dokploy те же пары ключ=значение вставляй во вкладку Environment, а не в репозиторий.
+Перед первым деплоем заполни переменные: локально — скопировав `.env.example` в `.env`, на Render — во вкладке Environment (секреты с `sync: false` Blueprint запрашивает при создании сервиса, в репозиторий их не клади). Бэкап данных: Render снимает снапшоты Persistent Disk сам, ручная выгрузка тома нужна только для переноса на другую машину.
 
 **Локальная проверка образа:**
 
@@ -128,7 +118,7 @@ docker compose down                          # без -v: с флагом уда
 ```bash
 # нужен .env с BILLING_PROVIDER=mock, иначе блок оплаты пропустится сам
 docker run -d --name bc-prodprobe -p 4100:4000 -v bc-prodprobe-data:/data \
-  --env-file .env -e APP_BASE_URL=http://localhost:4100 blocklycode:latest
+  --env-file .env -e APP_BASE_URL=http://localhost:4100 bycode:latest
 node scripts/prod-probe.mjs                    # PROD_PROBE_OK = все проверки прошли
 docker rm -f bc-prodprobe && docker volume rm bc-prodprobe-data
 
@@ -166,7 +156,7 @@ BASE_URL=https://<домен> SKIP_RECREATE=1 node scripts/prod-probe.mjs
 │   └── feedback.js # обратная связь (Nodemailer + файл-фолбэк)
 ├── scripts/promo.js# генерация промокодов (npm run promo)
 ├── solutions/      # эталонные решения задач в XML (импортируются в рабочее поле)
-├── Dockerfile      # образ для Dokploy: сборка фронта, prod-зависимости, рантайм
+├── Dockerfile      # образ для Render (runtime: docker): сборка фронта, prod-зависимости, рантайм
 ├── docker-compose.yml # запуск образа с именованным томом /data
 └── scripts/        # вспомогательные скрипты (генерация PDF)
 ```
