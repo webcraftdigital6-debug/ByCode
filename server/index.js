@@ -1,4 +1,4 @@
-// BlocklyCode API server: реальная аутентификация (email+пароль), сессии в SQLite,
+// ByCode API server: реальная аутентификация (email+пароль), сессии в SQLite,
 // хранение workspace, пользовательских блоков и прогресса задач.
 "use strict";
 
@@ -976,7 +976,7 @@ app.get("/api/billing/mock/:paymentId", (req, res) => {
   const failUrl = String(q.FailURL || "/?billing=failed");
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.send(`<!doctype html><html lang="ru"><head><meta charset="utf-8">
-<title>Тестовая оплата — BlocklyCode</title>
+<title>Тестовая оплата — ByCode</title>
 <style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
 .card{background:#1e293b;padding:28px 32px;border-radius:14px;max-width:460px;width:92%}
 h1{font-size:19px;margin:0 0 6px}p{font-size:14px;opacity:.8;margin:0 0 18px}
@@ -1039,7 +1039,7 @@ if (fs.existsSync(DIST_DIR)) {
     res
       .status(200)
       .send(
-        "BlocklyCode API server. Frontend not built yet — run `npm run build` in app/.",
+        "ByCode API server. Frontend not built yet — run `npm run build` in app/.",
       );
   });
 }

@@ -47,7 +47,7 @@ function loadConfig() {
     requireConfirm: process.env.BILLING_REQUIRE_CONFIRM === "1",
     productLabel:
       process.env.BILLING_PRODUCT_LABEL ||
-      "BlocklyCode: подписка Pro на 30 дней",
+      "ByCode: подписка Pro на 30 дней",
   };
 }
 

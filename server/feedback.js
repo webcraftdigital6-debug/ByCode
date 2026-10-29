@@ -14,7 +14,7 @@ const SMTP_HOST = process.env.SMTP_HOST || "";
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587", 10);
 const SMTP_USER = process.env.SMTP_USER || "";
 const SMTP_PASS = process.env.SMTP_PASS || "";
-const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER || "BlocklyCode <no-reply@blocklycode.local>";
+const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER || "ByCode <no-reply@bycode.local>";
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const FEEDBACK_FILE = path.join(DATA_DIR, "feedback.json");
@@ -102,7 +102,7 @@ async function submitFeedback({ type, message, email, page }) {
 
   // Пытаемся доставить письмом
   if (transporter) {
-    const subject = `[BlocklyCode] ${entry.typeLabel} от ${entry.email || "анонимно"}`;
+    const subject = `[ByCode] ${entry.typeLabel} от ${entry.email || "анонимно"}`;
     const text =
       `Тип: ${entry.typeLabel}\n` +
       `От: ${entry.email || "(не указан)"}\n` +
