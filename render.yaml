@@ -1,21 +1,21 @@
-# Деплой на Render (https://render.com), Docker-рантайм.
+# Это ДЕМО-конфигурация, не прод.
 #
 # Один Web Service: Render собирает образ из ./Dockerfile (фронт → prod-зависимости
 # → рантайм) и запускает его. Раздача статики и API — в одном контейнере, как и в
 # docker-compose.yml, поэтому `scripts/prod-probe.mjs` проверяет ровно тот образ,
 # который уезжает в прод.
 #
-# Ключевое отличие от прежнего Node-рантайма: файлы не переписываются при редеплое,
-# а `npm run build` больше не должен угадывать, собирался ли фронт.
+# ВАЖНО про данные. Файловая система Render ephemeral: всё, что сервер пишет в
+# DATA_DIR (blocklycode.db с WAL, feedback.json, JSON-фолбэки), живёт в слое
+# контейнера и затирается при каждом деплое и перезапуске. Persistent Disk это
+# чинит, но Render не даёт том на бесплатном плане — валидация Blueprint падает с
+# ошибкой «disks are not supported for free tier services», а том требует платного
+# инстанса (Starter 0.5c/512MB ≈ $7/мес + $0.25 за ГБ).
 #
-# ВАЖНО про данные. Файловая система Render ephemeral: без тома база SQLite,
-# feedback.json и JSON-фолбэки затираются при каждом деплое и перезапуске. Отсюда
-# блок `disk` ниже — это путь DATA_DIR, который задаёт Dockerfile.
-# Поэтому план — Starter, а не free: Render отваливает валидацию Blueprint с
-# ошибкой «disks are not supported for free tier services», если том запрошен на
-# бесплатном плане. Starter (0.5c/512MB) стоит $7/мес, том — $0.25 за ГБ.
-# Free годится только для проверки «образ собирается и отвечает»: заводить классы
-# и учеников на free нельзя — они исчезнут при первом же редеплое.
+# Поэтому здесь план free и блока `disk` нет: конфигурация не требует банковской
+# карты и пригодна только для проверки «образ собирается и отвечает». Заводить на
+# ней классы и учеников нельзя — они исчезнут при первом же редеплое. Free-инстанс
+# к тому же засыпает после ~15 минут без трафика, первый запрос идёт десятки секунд.
 #
 # ВАЖНО после первого деплоя (Dashboard → Settings):
 #   APP_BASE_URL   — выставить на https://<service>.onrender.com (нужен для callback
@@ -29,14 +29,10 @@ services:
   - type: web
     name: bycode
     runtime: docker
-    plan: starter
+    plan: free
     region: frankfurt
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/feedback/types
-    disk:
-      name: bycode-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
       # NODE_ENV, HOST, PORT и DATA_DIR заданы в Dockerfile; Render подмешивает
       # собственный PORT при запуске контейнера, и он перекрывает значение образа.
