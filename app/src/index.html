@@ -1618,19 +1618,29 @@
       background: #2d3748;
     }
 
-    /* Разделитель между обычным запуском и кнопками отладки */
-    .debug-divider {
+    /* Разделитель между обычным запуском и кнопками отладки. Черточка рисуется
+       псевдоэлементом внутри уже существующего зазора сетки: отдельным элементом
+       она заняла бы собственную колонку и раздвинула ▶ и ⏭ сильнее, чем
+       соседние кнопки друг от друга. */
+    #debugStepBtn {
+      position: relative;
+    }
+
+    #debugStepBtn::before {
+      content: "";
+      position: absolute;
+      left: -4px;
+      top: 50%;
+      transform: translateY(-50%);
       width: 1px;
       height: 18px;
       background: #4b5563;
-      margin: 0 2px;
-      display: inline-block;
     }
 
-    /* Когда кнопок не хватает в один ряд, разделитель переезжает между рядами
-       и выглядит мусором — на узкой панели кода его не показываем */
+    /* На узкой панели ⏭ может открывать новый ряд — тогда черточка повиснет у
+       левого края без предыдущей кнопки, поэтому там её не показываем. */
     @container (max-width: 600px) {
-      .debug-divider {
+      #debugStepBtn::before {
         display: none;
       }
     }
@@ -2212,7 +2222,7 @@
         gap: 4px;
       }
 
-      #editorToolbar .debug-divider {
+      #debugStepBtn::before {
         display: none;
       }
 
@@ -2773,7 +2783,6 @@
               <button id="aceBracesBtn" class="icon-btn" title="Подсветка фигурных скобок"
                 aria-label="Подсветка фигурных скобок">{}</button>
               <button id="aceRunBtn" class="icon-btn" title="Запустить код" aria-label="Запустить">▶</button>
-              <span class="debug-divider" aria-hidden="true"></span>
               <button id="debugStepBtn" class="icon-btn" title="Шаг отладки (по одному блоку)"
                 aria-label="Шаг отладки">⏭</button>
               <button id="debugSlowBtn" class="icon-btn" title="Замедленный запуск с подсветкой блоков"

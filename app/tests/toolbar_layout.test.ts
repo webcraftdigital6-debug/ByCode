@@ -30,10 +30,11 @@ function toolbar(clientWidth: number, count = 13): HTMLElement {
     const width = i === 4 ? 40 : 30;
     groups[i < 6 ? 0 : 1].appendChild(button(width, `btn${i}`));
   }
-  const divider = document.createElement("span");
-  divider.className = "debug-divider";
-  divider.style.display = "none";
-  groups[0].appendChild(divider);
+  // Скрытая кнопка: в раскладку она не входит, но место в DOM занимает —
+  // ровно так же ведут себя кнопки, которые приложение прячет по плану тарифа.
+  const hidden = button(30, "btnHidden");
+  hidden.style.display = "none";
+  groups[0].appendChild(hidden);
   return grid;
 }
 
@@ -63,8 +64,8 @@ describe("applyToolbarColumns", () => {
     expect(grid.style.getPropertyValue("--toolbar-cols")).toBe("");
   });
 
-  it("считает колонки по видимым кнопкам, без разделителя", () => {
-    // 13 кнопок + скрытый разделитель: при 592 px хватает ровно одного ряда
+  it("считает колонки по видимым кнопкам, без скрытых", () => {
+    // 13 кнопок + одна скрытая: при 592 px хватает ровно одного ряда
     expect(applyToolbarColumns(toolbar(592))).toBe(13);
   });
 });
