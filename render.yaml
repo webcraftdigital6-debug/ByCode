@@ -11,10 +11,11 @@
 # ВАЖНО про данные. Файловая система Render ephemeral: без тома база SQLite,
 # feedback.json и JSON-фолбэки затираются при каждом деплое и перезапуске. Отсюда
 # блок `disk` ниже — это путь DATA_DIR, который задаёт Dockerfile.
-# Persistent Disk недоступен на free-плане: он требует платной инстансы
-# (Starter 0.5c/512MB ≈ $7/мес) и стоит $0.25 за ГБ в месяц. Free-план годится
-# только для проверки «образ собирается и отвечает»: заводить классы и учеников на
-# free нельзя — они исчезнут при первом же редеплое.
+# Поэтому план — Starter, а не free: Render отваливает валидацию Blueprint с
+# ошибкой «disks are not supported for free tier services», если том запрошен на
+# бесплатном плане. Starter (0.5c/512MB) стоит $7/мес, том — $0.25 за ГБ.
+# Free годится только для проверки «образ собирается и отвечает»: заводить классы
+# и учеников на free нельзя — они исчезнут при первом же редеплое.
 #
 # ВАЖНО после первого деплоя (Dashboard → Settings):
 #   APP_BASE_URL   — выставить на https://<service>.onrender.com (нужен для callback
@@ -28,7 +29,7 @@ services:
   - type: web
     name: bycode
     runtime: docker
-    plan: free
+    plan: starter
     region: frankfurt
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/feedback/types
