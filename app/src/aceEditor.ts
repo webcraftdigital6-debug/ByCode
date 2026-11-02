@@ -139,6 +139,10 @@ let braceHighlightEnabled = false;
 let braceMarkerIds: number[] = [];
 // Отложенное содержимое для Ace до инициализации редактора
 let pendingAceInit: { code: string; mode: any } | null = null;
+// Что генератор выдавал на предыдущем событии. Нужно, чтобы отличить пустую
+// генерацию «ученик удалил последний блок» от пустой генерации «блоков никогда
+// не было, программа набрана руками».
+let lastGeneratedCode = "";
 
 function clearBraceMarkers() {
   if (!aceEditor) return;
@@ -310,6 +314,9 @@ export function updateAceEditorFromWorkspace(
     }
   }
 
+  const previousGeneratedCode = lastGeneratedCode;
+  lastGeneratedCode = code;
+
   // Если редактор ещё не инициализирован — запомним и применим позже
   if (!aceEditor) {
     pendingAceInit = { code, mode };
@@ -321,9 +328,13 @@ export function updateAceEditorFromWorkspace(
     const session = aceEditor.session;
     if (session) session.setMode(mode);
     const current = aceEditor.getValue?.() ?? "";
-    // Пустая рабочая область даёт пустой код: набранную в редакторе программу
-    // не затираем — задачи можно сдавать и кодом, без блоков.
-    const keepTypedCode = code.trim() === "" && current.trim() !== "";
+    // Пустая генерация бывает двух видов: блоки были и их удалили — код обязан
+    // уйти вместе с ними; блоков никогда не было — в редакторе программа,
+    // набранная руками, и её не затираем (задачи можно сдавать кодом).
+    const keepTypedCode =
+      code.trim() === "" &&
+      current.trim() !== "" &&
+      previousGeneratedCode.trim() === "";
     if (!keepTypedCode && current !== code) {
       // -1 чтобы не прыгал курсор к концу
       aceEditor.setValue(code, -1);
