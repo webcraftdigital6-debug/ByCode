@@ -6,6 +6,7 @@
 
 import { Order as PhpOrder } from "blockly/php";
 import * as Blockly from "blockly/core";
+import { collectDictPairs } from "./dictPairs";
 import { dictGuardIssue } from "./dictGuard";
 
 type BlockGenerator = (
@@ -71,6 +72,18 @@ forBlock["hsv_colour_value"] = function (block: Blockly.Block) {
 
 forBlock["dict_create"] = function () {
   return ["[]", PhpOrder.ATOMIC];
+};
+
+// `['ключ' => значение, ...]` — associative-массив, которым в PHP и является
+// словарь.
+forBlock["dict_create_with"] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const pairs = collectDictPairs(block, generator, PhpOrder.NONE);
+  if (pairs.length === 0) return ["[]", PhpOrder.ATOMIC];
+  const body = pairs.map((pair) => `${pair.key} => ${pair.value}`).join(", ");
+  return [`[${body}]`, PhpOrder.ATOMIC];
 };
 
 forBlock["dict_set"] = function (

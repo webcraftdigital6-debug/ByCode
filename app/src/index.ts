@@ -1703,30 +1703,33 @@ function refreshWorkspaceWithCustomToolbox() {
 
         cleanupOrphanAutoShadows();
 
+        // Тень для пустого слота динамического блока: [тип, поле, значение].
+        const autoShadowSpec = (
+          type: string,
+          inputName: unknown,
+        ): [string, string, string] | null => {
+          if (typeof inputName !== "string") return null;
+          if (/^ADD\d+$/.test(inputName)) {
+            if (type === "lists_create_with") return ["math_number", "NUM", "0"];
+            if (type === "text_join") return ["text", "TEXT", ""];
+            return null;
+          }
+          if (type !== "dict_create_with") return null;
+          if (/^KEY\d+$/.test(inputName)) return ["text", "TEXT", "a"];
+          if (/^VALUE\d+$/.test(inputName)) return ["math_number", "NUM", "1"];
+          return null;
+        };
+
         const blocks = ws.getAllBlocks(false);
         for (const b of blocks) {
           const t = (b as any).type;
-          let shadowType: string | null = null;
-          let shadowFieldName: string | null = null;
-          let shadowFieldValue: string | null = null;
-
-          if (t === "lists_create_with") {
-            shadowType = "math_number";
-            shadowFieldName = "NUM";
-            shadowFieldValue = "0";
-          } else if (t === "text_join") {
-            shadowType = "text";
-            shadowFieldName = "TEXT";
-            shadowFieldValue = "";
-          } else {
-            continue;
-          }
 
           const inputList = (b as any).inputList as Blockly.Input[] | undefined;
           if (!Array.isArray(inputList)) continue;
           for (const input of inputList) {
-            const name = (input as any)?.name;
-            if (typeof name !== "string" || !/^ADD\d+$/.test(name)) continue;
+            const spec = autoShadowSpec(t, (input as any)?.name);
+            if (!spec) continue;
+            const [shadowType, shadowFieldName, shadowFieldValue] = spec;
             const conn = (input as any)
               ?.connection as Blockly.Connection | null;
             if (!conn || typeof (conn as any).targetBlock !== "function")

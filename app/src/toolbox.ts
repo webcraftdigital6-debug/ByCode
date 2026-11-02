@@ -455,7 +455,28 @@ export function getLocalizedToolbox(): Blockly.utils.toolbox.ToolboxInfo {
         contents: [
           {
             kind: "block",
-            type: "dict_create",
+            type: "dict_create_with",
+            extraState: {
+              itemCount: 1,
+            },
+            inputs: {
+              KEY0: {
+                shadow: {
+                  type: "text",
+                  fields: {
+                    TEXT: "a",
+                  },
+                },
+              },
+              VALUE0: {
+                shadow: {
+                  type: "math_number",
+                  fields: {
+                    NUM: 1,
+                  },
+                },
+              },
+            },
           },
           {
             kind: "block",

@@ -1921,8 +1921,8 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
     keywordsBlock("dict") +
     mistakesList([
       t(
-        "«Словарь: установить» подключают прямо к «Словарь: создать пустой» — запись уходит в одноразовый словарь, который тут же исчезает. Словарь сначала кладут в переменную.",
-        "Plugging “Dictionary: set” straight into “Dictionary: create empty” — the write goes into a one-shot dictionary that disappears at once. Put the dictionary into a variable first."
+        "«Словарь: установить» подключают прямо к блоку создания словаря — запись уходит в одноразовый словарь, который тут же исчезает. Словарь сначала кладут в переменную.",
+        "Plugging “Dictionary: set” straight into the dictionary-creation block — the write goes into a one-shot dictionary that disappears at once. Put the dictionary into a variable first."
       ),
       t(
         "Читают ключ, которого нет: JavaScript даёт пустоту, Python падает с ошибкой. Сначала проверяйте «Словарь: есть ключ?».",
@@ -1935,8 +1935,8 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
     ]) +
     blocklyNote(
       t(
-        "В Blockly: категория «Словари» — «Словарь: создать пустой» вкладывается в «присвоить», а «Словарь: установить …», «Словарь: получить …» и «Словарь: есть ключ?» берут словарь из переменной.",
-        "In Blockly: the Dicts category — “Dictionary: create empty” goes into “set … to …”, while “Dictionary: set …”, “Dictionary: get …” and “Dictionary: has key?” take the dictionary from a variable."
+        "В Blockly: категория «Словари» — «Словарь: создать с парами» вкладывается в «присвоить», а строки «ключ : значение» добавляет шестерёнка; «Словарь: установить …», «Словарь: получить …» и «Словарь: есть ключ?» берут словарь из переменной.",
+        "In Blockly: the Dicts category — “Dictionary: create with” goes into “set … to …” and its gear adds “key : value” rows, while “Dictionary: set …”, “Dictionary: get …” and “Dictionary: has key?” take the dictionary from a variable."
       )
     ),
 };

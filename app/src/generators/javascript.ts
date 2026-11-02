@@ -7,6 +7,7 @@
 import { Order } from "blockly/javascript";
 import * as Blockly from "blockly/core";
 import { collectJoinParts } from "./textJoin";
+import { collectDictPairs } from "./dictPairs";
 import { dictGuardIssue } from "./dictGuard";
 
 type BlockGenerator = (
@@ -58,6 +59,18 @@ forBlock["dict_create"] = function (
   _generator: Blockly.CodeGenerator
 ) {
   return ["({})", Order.ATOMIC];
+};
+
+// Литерал объекта: {'ключ': значение, ...} — то, что ученик видит в
+// документации, а не «пустой словарь, потом запись по ключу».
+forBlock["dict_create_with"] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator
+) {
+  const pairs = collectDictPairs(block, generator, Order.NONE);
+  if (pairs.length === 0) return ["({})", Order.ATOMIC];
+  const body = pairs.map((pair) => `${pair.key}: ${pair.value}`).join(", ");
+  return [`({${body}})`, Order.ATOMIC];
 };
 
 forBlock["dict_set"] = function (

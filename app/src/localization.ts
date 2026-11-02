@@ -54,18 +54,28 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.DICT_CREATE = "Словарь: создать пустой";
     (BlocklyCore as any).Msg.DICT_CREATE_TOOLTIP =
       "Создаёт пустой словарь (набор пар «ключ → значение»)";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH = "Словарь: создать с парами";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_TOOLTIP =
+      "Создаёт словарь сразу с перечисленными парами «ключ → значение»";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_CONTAINER_TITLE_ADD = "пары";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_CONTAINER_TOOLTIP =
+      "Добавьте или уберите строки, чтобы изменить число пар";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_ITEM_TITLE = "пара";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_ITEM_TOOLTIP =
+      "Одна пара «ключ → значение»";
     (BlocklyCore as any).Msg.DICT_SET = "Словарь: установить %1[%2] = %3";
     (BlocklyCore as any).Msg.DICT_SET_TOOLTIP =
       "Записать значение по ключу в словарь";
     (BlocklyCore as any).Msg.DICT_GET = "Словарь: получить %1[%2]";
-    (BlocklyCore as any).Msg.DICT_GET_TOOLTIP = "Получить значение по ключу";
+    (BlocklyCore as any).Msg.DICT_GET_TOOLTIP =
+      "Получить значение из словаря по ключу";
     (BlocklyCore as any).Msg.DICT_HAS_KEY = "Словарь: есть ключ? %1 в %2";
     (BlocklyCore as any).Msg.DICT_HAS_KEY_TOOLTIP =
       "Проверить наличие ключа в словаре";
     (BlocklyCore as any).Msg.DICT_NEED_VARIABLE =
       "Нет словаря: подключите переменную, в которой он лежит";
     (BlocklyCore as any).Msg.DICT_STORE_IN_VARIABLE =
-      "Положите словарь в переменную: запись в «создать пустой» пропадает";
+      "Положите словарь в переменную: запись в блок создания словаря пропадает";
     // Локализация плагина поиска по тулбоксу
     (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = "Поиск блоков";
     (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH =
@@ -88,18 +98,28 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.DICT_CREATE = "Dictionary: create empty";
     (BlocklyCore as any).Msg.DICT_CREATE_TOOLTIP =
       "Creates an empty dictionary (a set of key → value pairs)";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH = "Dictionary: create with";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_TOOLTIP =
+      "Creates a dictionary with the listed key → value pairs";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_CONTAINER_TITLE_ADD = "pairs";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_CONTAINER_TOOLTIP =
+      "Add or remove rows to change the number of pairs";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_ITEM_TITLE = "pair";
+    (BlocklyCore as any).Msg.DICT_CREATE_WITH_ITEM_TOOLTIP =
+      "One key → value pair";
     (BlocklyCore as any).Msg.DICT_SET = "Dictionary: set %1[%2] = %3";
     (BlocklyCore as any).Msg.DICT_SET_TOOLTIP =
       "Store a value in the dictionary under a key";
     (BlocklyCore as any).Msg.DICT_GET = "Dictionary: get %1[%2]";
-    (BlocklyCore as any).Msg.DICT_GET_TOOLTIP = "Read the value stored under a key";
+    (BlocklyCore as any).Msg.DICT_GET_TOOLTIP =
+      "Read a value from the dictionary by key";
     (BlocklyCore as any).Msg.DICT_HAS_KEY = "Dictionary: has key? %1 in %2";
     (BlocklyCore as any).Msg.DICT_HAS_KEY_TOOLTIP =
       "Check whether the key exists in the dictionary";
     (BlocklyCore as any).Msg.DICT_NEED_VARIABLE =
       "No dictionary: connect the variable that holds it";
     (BlocklyCore as any).Msg.DICT_STORE_IN_VARIABLE =
-      "Put the dictionary in a variable first: writing into “create empty” is lost";
+      "Put the dictionary in a variable first: writing into the creation block is lost";
     // Локализация плагина поиска по тулбоксу
     (BlocklyCore as any).Msg.SEARCH_PLACEHOLDER = "Search blocks";
     (BlocklyCore as any).Msg.SEARCH_TYPE_TO_SEARCH =

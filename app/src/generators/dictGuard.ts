@@ -17,9 +17,12 @@ function message(key: string, fallback: string): string {
   return typeof text === "string" && text ? text : fallback;
 }
 
+/** Литералы словаря: запись в них живёт до конца строки кода и теряется. */
+const DICT_LITERAL_TYPES = new Set(["dict_create", "dict_create_with"]);
+
 /**
  * Проверяет, откуда блок берёт словарь: обновляет предупреждение на блоке и
- * возвращает текст проблемы, если словаря нет или это литерал «создать пустой».
+ * возвращает текст проблемы, если словаря нет или это литерал его создания.
  * При корректном словаре возвращает null.
  */
 export function dictGuardIssue(block: Blockly.Block): string | null {
@@ -31,10 +34,10 @@ export function dictGuardIssue(block: Blockly.Block): string | null {
       "DICT_NEED_VARIABLE",
       "No dictionary: connect the variable that holds it",
     );
-  } else if (source.type === "dict_create") {
+  } else if (DICT_LITERAL_TYPES.has(source.type)) {
     issue = message(
       "DICT_STORE_IN_VARIABLE",
-      "Put the dictionary in a variable first: writing into “create empty” is lost",
+      "Put the dictionary in a variable first: writing into the creation block is lost",
     );
   }
   block.setWarningText(issue, DICT_GUARD_WARNING_ID);

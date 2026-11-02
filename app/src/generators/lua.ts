@@ -7,6 +7,7 @@
 import { Order as LuaOrder } from "blockly/lua";
 import * as Blockly from "blockly/core";
 import { collectJoinParts } from "./textJoin";
+import { collectDictPairs } from "./dictPairs";
 import { dictGuardIssue } from "./dictGuard";
 
 type BlockGenerator = (
@@ -124,6 +125,20 @@ forBlock["dict_create"] = function (
   _generator: Blockly.CodeGenerator
 ) {
   return ["{}", LuaOrder.ATOMIC];
+};
+
+// `{['ключ'] = значение, ...}` — единственная форма Lua-таблицы с произвольными
+// ключами: `{ключ = значение}` принимает только идентификаторы.
+forBlock["dict_create_with"] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator
+) {
+  const pairs = collectDictPairs(block, generator, LuaOrder.NONE);
+  if (pairs.length === 0) return ["{}", LuaOrder.ATOMIC];
+  const body = pairs
+    .map((pair) => `[${pair.key}] = ${pair.value}`)
+    .join(", ");
+  return [`{${body}}`, LuaOrder.ATOMIC];
 };
 
 forBlock["dict_set"] = function (

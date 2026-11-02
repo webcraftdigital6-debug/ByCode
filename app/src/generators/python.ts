@@ -7,6 +7,7 @@
 import { Order as PythonOrder } from "blockly/python";
 import * as Blockly from "blockly/core";
 import { collectJoinParts } from "./textJoin";
+import { collectDictPairs } from "./dictPairs";
 import { dictGuardIssue } from "./dictGuard";
 
 type BlockGenerator = (
@@ -87,6 +88,18 @@ forBlock["dict_create"] = function (
   _generator: Blockly.CodeGenerator,
 ) {
   return ["{}", PythonOrder.ATOMIC];
+};
+
+// `{ключ: значение, ...}` — ровно та форма, с которой начинается глава про
+// словари в учебниках, а не «пустой dict, потом запись по ключу».
+forBlock["dict_create_with"] = function (
+  block: Blockly.Block,
+  generator: Blockly.CodeGenerator,
+) {
+  const pairs = collectDictPairs(block, generator, PythonOrder.NONE);
+  if (pairs.length === 0) return ["{}", PythonOrder.ATOMIC];
+  const body = pairs.map((pair) => `${pair.key}: ${pair.value}`).join(", ");
+  return [`{${body}}`, PythonOrder.ATOMIC];
 };
 
 forBlock["dict_set"] = function (

@@ -288,8 +288,8 @@ export const advancedTasks: Pick<
       lang === "ru" ? "Задача A4: Частоты символов" : "Task A4: Character frequencies",
     description: (lang) =>
       lang === "ru"
-        ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Удобно использовать блок <strong>«подсчитать количество … в …»</strong> из категории «Текст».'
-        : 'Count character frequencies in the string <code>"abcaabbb"</code> and print the result, e.g. <strong>a:3 b:4 c:1</strong> (any clear format). The <strong>“count the number of … in …”</strong> block from Text is handy here.',
+        ? 'Подсчитайте частоты символов в строке <code>"abcaabbb"</code> и выведите результат, например: <strong>a:3 b:4 c:1</strong> (формат вывода свободный). Удобно использовать блок <strong>«подсчитать количество … в …»</strong> из категории «Текст». Второй путь — <strong>«Словарь: создать с парами»</strong> из категории «Словари»: сохраните частоты парами и читайте их блоком <strong>«Словарь: получить …»</strong>.'
+        : 'Count character frequencies in the string <code>"abcaabbb"</code> and print the result, e.g. <strong>a:3 b:4 c:1</strong> (any clear format). The <strong>“count the number of … in …”</strong> block from Text is handy here. Alternatively, use the <strong>“Dictionary: create with …”</strong> block from Dicts to store the counts as pairs and read them with <strong>“Dictionary: get …”</strong>.',
     hint: (lang) =>
       lang === "ru"
         ? "Пошаговое решение:\n1. Создайте переменную text и присвойте ей строку abcaabbb (блок «создать текст из» из «Текст» или просто значение).\n2. Для каждого символа (a, b, c) возьмите блок «подсчитать количество … в …» из «Текст»: в первое поле — букву, во второе — переменную text.\n3. Соберите строку вывода: «создать текст из» — например, «a:», результат подсчёта — и вложите в «Вывести … цвет …».\n4. Вывод может быть в свободном формате, например: a:3 b:4 c:1."

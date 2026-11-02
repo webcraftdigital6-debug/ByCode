@@ -20,13 +20,15 @@ import { dictGuardIssue } from "../src/generators/dictGuard";
 import "../src/blocks/algorithms";
 import { localizedToolbox, setAppLang } from "../src/localization";
 import { matchHintTerm, hintTermColour } from "../src/ui/hintTerms";
+import { glossaryTopicHtml } from "../src/ui/glossary";
+import { tasks } from "../src/tasks";
 
 Object.assign(javascriptGenerator.forBlock, jsForBlock);
 Object.assign(pythonGenerator.forBlock, pyForBlock);
 Object.assign(luaGenerator.forBlock, luaForBlock);
 Object.assign(phpGenerator.forBlock, phpForBlock);
 
-const DICT_TYPES = ["dict_create", "dict_set", "dict_get", "dict_has_key"];
+const DICT_TYPES = ["dict_create_with", "dict_set", "dict_get", "dict_has_key"];
 
 /** freq = {}; freq["a"] = 3; print(freq["a"]); если есть ключ "z" — печать. */
 const dictProgram = {
@@ -116,6 +118,46 @@ function loadProgram(): Blockly.Workspace {
   return ws;
 }
 
+/**
+ * Программа `freq = «Словарь: создать с парами»` с указанными парами: тень
+ * «текст» на ключе и тень «число» на значении, как в тулбоксе.
+ */
+function pairProgram(pairs: Array<[string, number]>): Blockly.Workspace {
+  const inputs: Record<string, unknown> = {};
+  pairs.forEach(([key, value], i) => {
+    inputs[`KEY${i}`] = { shadow: { type: "text", fields: { TEXT: key } } };
+    inputs[`VALUE${i}`] = {
+      shadow: { type: "math_number", fields: { NUM: value } },
+    };
+  });
+  const ws = new Blockly.Workspace();
+  Blockly.serialization.workspaces.load(
+    {
+      variables: [{ name: "freq", type: "Object" }],
+      blocks: {
+        languageVersion: 0,
+        blocks: [
+          {
+            type: "variables_set",
+            fields: { VAR: { name: "freq", type: "Object" } },
+            inputs: {
+              VALUE: {
+                block: {
+                  type: "dict_create_with",
+                  extraState: { itemCount: pairs.length },
+                  inputs,
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+    ws
+  );
+  return ws;
+}
+
 describe("тулбокс: категория «Словари»", () => {
   it("содержит все словарные блоки и цвет категории", () => {
     const tb = localizedToolbox("ru") as Blockly.utils.toolbox.ToolboxInfo;
@@ -153,6 +195,24 @@ describe("тулбокс: категория «Словари»", () => {
     expect(names).toContain("Dicts");
     expect(names).not.toContain("Словари");
   });
+
+  it("«создать с парами» лежит в тулбоксе с одной парой", () => {
+    const tb = localizedToolbox("ru") as Blockly.utils.toolbox.ToolboxInfo;
+    const contents = tb.contents as Blockly.utils.toolbox.CategoryInfo[];
+    const dicts = contents.find(
+      (c) => (c as { name?: string }).name === "Словари"
+    ) as Blockly.utils.toolbox.StaticCategoryInfo;
+    const entry = (
+      dicts.contents as Array<{
+        type?: string;
+        extraState?: { itemCount?: number };
+        inputs?: Record<string, { shadow?: { type?: string } }>;
+      }>
+    ).find((b) => b.type === "dict_create_with");
+    expect(entry?.extraState?.itemCount).toBe(1);
+    expect(entry?.inputs?.KEY0?.shadow?.type).toBe("text");
+    expect(entry?.inputs?.VALUE0?.shadow?.type).toBe("math_number");
+  });
 });
 
 describe("локализация меток словарных блоков", () => {
@@ -166,14 +226,46 @@ describe("локализация меток словарных блоков", ()
     setAppLang("ru");
   });
 
+  it("у каждого словарного блока есть локализованная подсказка", () => {
+    const types = [
+      "dict_create",
+      "dict_set",
+      "dict_get",
+      "dict_has_key",
+      "dict_create_with",
+    ];
+    setAppLang("ru");
+    const ru = new Blockly.Workspace();
+    for (const t of types) {
+      expect(ru.newBlock(t).getTooltip(), t).toContain("словар");
+    }
+    ru.dispose();
+    setAppLang("en");
+    const en = new Blockly.Workspace();
+    for (const t of types) {
+      expect(String(en.newBlock(t).getTooltip()).toLowerCase(), t).toContain(
+        "dictionary",
+      );
+    }
+    en.dispose();
+    setAppLang("ru");
+  });
+
   it("блок на рабочем поле показывает локализованную надпись", () => {
     const ws = new Blockly.Workspace();
     setAppLang("ru");
     expect(ws.newBlock("dict_set").toString()).toContain("Словарь: установить");
     expect(ws.newBlock("dict_has_key").toString()).toContain("Словарь: есть ключ?");
+    expect(ws.newBlock("dict_create_with").toString()).toContain(
+      "Словарь: создать с парами",
+    );
+    expect(ws.newBlock("dict_create_with_item").toString()).toContain("пара");
     setAppLang("en");
     expect(ws.newBlock("dict_set").toString()).toContain("Dictionary: set");
     expect(ws.newBlock("dict_create").toString()).toContain("Dictionary: create empty");
+    expect(ws.newBlock("dict_create_with").toString()).toContain(
+      "Dictionary: create with",
+    );
     setAppLang("ru");
     ws.dispose();
   });
@@ -211,6 +303,176 @@ describe("кодогенерация словарных блоков", () => {
     expect(code).toContain("$freq['a'] = 3");
     expect(code).toContain("echo $freq['a']");
     expect(code).toContain("array_key_exists('z', $freq)");
+  });
+});
+
+describe("кодогенерация: «Словарь: создать с парами»", () => {
+  it("JavaScript: литерал объекта за одну строку", () => {
+    const code = javascriptGenerator.workspaceToCode(
+      pairProgram([
+        ["a", 1],
+        ["b", 2],
+      ])
+    );
+    expect(code).toContain("freq = ({'a': 1, 'b': 2})");
+    expect(() => new Function(code)).not.toThrow();
+  });
+
+  it("Python: литерал dict за одну строку", () => {
+    const code = pythonGenerator.workspaceToCode(
+      pairProgram([
+        ["a", 1],
+        ["b", 2],
+      ])
+    );
+    expect(code).toContain("freq = {'a': 1, 'b': 2}");
+  });
+
+  it("PHP: литерал массива со стрелками", () => {
+    const code = phpGenerator.workspaceToCode(
+      pairProgram([
+        ["a", 1],
+        ["b", 2],
+      ])
+    );
+    expect(code).toContain("$freq = ['a' => 1, 'b' => 2]");
+  });
+
+  it("Lua: таблица с ключами в квадратных скобках", () => {
+    const code = luaGenerator.workspaceToCode(
+      pairProgram([
+        ["a", 1],
+        ["b", 2],
+      ])
+    );
+    expect(code).toContain("freq = {['a'] = 1, ['b'] = 2}");
+  });
+
+  it("Нуль пар — пустой литерал на каждом языке", () => {
+    const empty = pairProgram([]);
+    expect(javascriptGenerator.workspaceToCode(empty)).toContain(
+      "freq = ({})",
+    );
+    expect(pythonGenerator.workspaceToCode(empty)).toContain("freq = {}");
+    expect(luaGenerator.workspaceToCode(empty)).toContain("freq = {}");
+    expect(phpGenerator.workspaceToCode(empty)).toContain("$freq = []");
+  });
+});
+
+describe("round-trip «Словарь: создать с парами»", () => {
+  const twoPairs: Array<[string, number]> = [
+    ["a", 1],
+    ["b", 2],
+  ];
+
+  it("JSON: сохранение и загрузка возвращают то же число пар", () => {
+    const ws = pairProgram(twoPairs);
+    const saved = Blockly.serialization.workspaces.save(ws);
+    const restored = new Blockly.Workspace();
+    Blockly.serialization.workspaces.load(saved, restored);
+
+    const block = restored.getBlocksByType("dict_create_with", false)[0];
+    expect((block as any).itemCount_).toBe(2);
+    expect(javascriptGenerator.workspaceToCode(restored)).toContain(
+      "freq = ({'a': 1, 'b': 2})",
+    );
+    ws.dispose();
+    restored.dispose();
+  });
+
+  it("XML: <mutation items=\"2\"/> переживает запись и чтение", () => {
+    const ws = pairProgram(twoPairs);
+    const xml = Blockly.Xml.workspaceToDom(ws);
+    expect(Blockly.Xml.domToText(xml)).toContain('items="2"');
+
+    const restored = new Blockly.Workspace();
+    Blockly.Xml.domToWorkspace(xml, restored);
+    const block = restored.getBlocksByType("dict_create_with", false)[0];
+    expect((block as any).itemCount_).toBe(2);
+    expect(javascriptGenerator.workspaceToCode(restored)).toContain(
+      "freq = ({'a': 1, 'b': 2})",
+    );
+    ws.dispose();
+    restored.dispose();
+  });
+});
+
+describe("шестерёнка «Словарь: создать с парами»", () => {
+  /**
+   * Рендеренный workspace: мутатор работает только на отрисованном блоке
+   * (инициализация иконки и мини-workspace требует SVG).
+   */
+  function renderedPairWs(pairs: Array<[string, number]>): Blockly.Workspace {
+    const div = document.createElement("div");
+    document.body.appendChild(div);
+    const ws = Blockly.inject(div, {
+      toolbox: { kind: "categoryToolbox", contents: [] },
+    });
+    const inputs: Record<string, unknown> = {};
+    pairs.forEach(([key, value], i) => {
+      inputs[`KEY${i}`] = { block: { type: "text", fields: { TEXT: key } } };
+      inputs[`VALUE${i}`] = {
+        block: { type: "math_number", fields: { NUM: value } },
+      };
+    });
+    Blockly.serialization.workspaces.load(
+      {
+        variables: [{ name: "freq", type: "Object" }],
+        blocks: {
+          languageVersion: 0,
+          blocks: [
+            {
+              type: "variables_set",
+              fields: { VAR: { name: "freq", type: "Object" } },
+              inputs: {
+                VALUE: {
+                  block: {
+                    type: "dict_create_with",
+                    extraState: { itemCount: pairs.length },
+                    inputs,
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+      ws
+    );
+    return ws;
+  }
+
+  function pairBlock(ws: Blockly.Workspace): Blockly.Block {
+    return ws.getBlocksByType("dict_create_with", false)[0];
+  }
+
+  it("у блока есть иконка мутатора", () => {
+    const ws = renderedPairWs([["a", 1]]);
+    const block = pairBlock(ws);
+    expect(block.getIcon(Blockly.icons.IconType.MUTATOR)).toBeTruthy();
+    ws.dispose();
+  });
+
+  it("ряд, добавленный в шестерёнке, сохраняет и ключ, и значение", () => {
+    const ws = renderedPairWs([["a", 1]]);
+    const mini = renderedPairWs([]);
+    const block = pairBlock(ws) as any;
+
+    const container = block.decompose(mini);
+    expect(container.type).toBe("dict_create_with_container");
+    const item = mini.newBlock("dict_create_with_item");
+    item.initSvg();
+    container.getInput("STACK").connection.connect(item.previousConnection);
+
+    block.saveConnections(container);
+    block.compose(container);
+
+    expect(block.itemCount_).toBe(2);
+    const key0 = block.getInput("KEY0").connection.targetBlock();
+    expect(key0.type).toBe("text");
+    expect(javascriptGenerator.workspaceToCode(ws)).toContain("freq = ({'a'");
+    ws.dispose();
+    mini.dispose();
   });
 });
 
@@ -317,6 +579,48 @@ describe("страж: словарь не подключён или подклю
     expect(() => new Function(js)).not.toThrow();
   });
 
+  it("страж: запись в литерал «создать с парами» теряет её", () => {
+    setAppLang("ru");
+    const ws = new Blockly.Workspace();
+    Blockly.serialization.workspaces.load(
+      {
+        variables: [{ name: "freq", type: "Object" }],
+        blocks: {
+          languageVersion: 0,
+          blocks: [
+            {
+              type: "dict_set",
+              inputs: {
+                DICT: {
+                  block: {
+                    type: "dict_create_with",
+                    extraState: { itemCount: 1 },
+                    inputs: {
+                      KEY0: {
+                        shadow: { type: "text", fields: { TEXT: "a" } },
+                      },
+                      VALUE0: {
+                        shadow: { type: "math_number", fields: { NUM: 1 } },
+                      },
+                    },
+                  },
+                },
+                KEY: { shadow: { type: "text", fields: { TEXT: "b" } } },
+                VALUE: { shadow: { type: "math_number", fields: { NUM: 2 } } },
+              },
+            },
+          ],
+        },
+      },
+      ws
+    );
+    const block = ws.getBlocksByType("dict_set", false)[0];
+    expect(dictGuardIssue(block)).toContain("Положите словарь в переменную");
+    expect(javascriptGenerator.workspaceToCode(ws)).toContain(
+      "Положите словарь в переменную",
+    );
+  });
+
   it("то же, когда словарь подключён литералом «создать пустой»", () => {
     setAppLang("ru");
     const js = javascriptGenerator.workspaceToCode(loadLiteralSet());
@@ -358,6 +662,10 @@ describe("страж: словарь не подключён или подклю
 describe("термины словарей в подсказках", () => {
   it("названия блоков и раздела узнаются", () => {
     expect(matchHintTerm("Словарь: создать пустой")).toBe("dict_category");
+    expect(matchHintTerm("Словарь: создать с парами")).toBe("dict_category");
+    expect(matchHintTerm("Dictionary: create with 'a' : 1")).toBe(
+      "dict_category",
+    );
     expect(matchHintTerm("Словарь: установить freq['a'] = 3")).toBe("dict_category");
     expect(matchHintTerm("Словарь: получить freq['a']")).toBe("dict_category");
     expect(matchHintTerm("Словарь: есть ключ?")).toBe("dict_category");
@@ -369,5 +677,27 @@ describe("термины словарей в подсказках", () => {
 
   it("цвет совпадает с оттенком категории (hue 290)", () => {
     expect(hintTermColour("dict_category")).toBe("#995ba5");
+  });
+});
+
+describe("новый блок доступен из обучения", () => {
+  it("справочник словарей называет «Словарь: создать с парами»", () => {
+    setAppLang("ru");
+    expect(glossaryTopicHtml("dict")).toContain("Словарь: создать с парами");
+    setAppLang("en");
+    expect(glossaryTopicHtml("dict")).toContain("Dictionary: create with");
+    setAppLang("ru");
+  });
+
+  it("задача A4 предлагает словарь наравне с «подсчитать количество»", () => {
+    setAppLang("ru");
+    expect(tasks["char_freq"].description("ru")).toContain(
+      "Словарь: создать с парами",
+    );
+    setAppLang("en");
+    expect(tasks["char_freq"].description("en")).toContain(
+      "Dictionary: create with",
+    );
+    setAppLang("ru");
   });
 });
