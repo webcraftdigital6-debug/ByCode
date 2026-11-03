@@ -209,7 +209,6 @@ const BLOCK_TERMS: Record<HintTermStyle, string[]> = {
     "Print",
     "create text with",
     "text input",
-    "numeric input",
     "append text",
     "append text to variable …",
     "add text to variable",

@@ -18,6 +18,7 @@ import * as Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
 import { forBlock as jsForBlock } from "../src/generators/javascript";
 import { tasks } from "../src/tasks";
+import { GLOSSARY_TOPICS, glossaryTopicHtml } from "../src/ui/glossary";
 import { INPUT_ANSWERS, makeInput } from "./interactive-input";
 import type { TaskId } from "../src/tasks";
 
@@ -201,10 +202,27 @@ describe("задачи на ввод: тексты объясняют блок",
   for (const id of ALL_INPUT_TASKS) {
     it(`${id}: описание называет блок ввода`, () => {
       expect(tasks[id].description("ru")).toMatch(/Ввод (текста|числа)/);
-      // В англоязычных текстах блок подписывают и «number», и «numeric input».
-      expect(tasks[id].description("en")).toMatch(/(text|number|numeric) input/i);
+      expect(tasks[id].description("en")).toMatch(/(text|number) input/i);
     });
   }
+
+  it("ни один текст не называет блок «numeric input»", () => {
+    const texts: [string, string][] = [];
+    for (const id of Object.keys(tasks) as TaskId[]) {
+      for (const lang of ["ru", "en"] as const) {
+        texts.push([`${id}.${lang}.description`, tasks[id].description(lang)]);
+        texts.push([`${id}.${lang}.hint`, tasks[id].hint(lang)]);
+      }
+    }
+    for (const topic of GLOSSARY_TOPICS) {
+      texts.push([`glossary.${topic}`, glossaryTopicHtml(topic)]);
+    }
+    for (const [where, text] of texts) {
+      expect(text, `${where}: блок в тулбоксе подписан «Number input»`).not.toMatch(
+        /numeric input/i
+      );
+    }
+  });
 
   it("задачи, где ввод появился впервые, объясняют поведение при запуске", () => {
     for (const id of ["guess_game", "fb_input"] as TaskId[]) {

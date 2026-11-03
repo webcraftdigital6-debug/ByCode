@@ -917,12 +917,12 @@ const TOPIC_CONTENT: Record<GlossaryTopicId, () => string> = {
     ]) +
     keywordsBlock("user_input") +
     mistakesList([
-      t("Числовой ввод используют без перевода в число: «возраст + 1» к строке даёт склеивание, а не сумму — берите блок числа вместо текста.", "Using numeric input without conversion: “age + 1” on a string concatenates instead of adding — use the number input block."),
+      t("Числовой ввод используют без перевода в число: «возраст + 1» к строке даёт склеивание, а не сумму — берите блок числа вместо текста.", "Using number input without conversion: “age + 1” on a string concatenates instead of adding — use the number input block."),
       t("Забывают, что ввод происходит во время запуска: нужно нажать «▶», дождаться поле ввода и ответить.", "Forgetting that input happens at run time: press “▶”, wait for the input box and answer."),
     ]) +
     blocklyNote(t(
       "В Blockly: категория «Текст» — блоки «Ввод текста» и «Ввод числа»; они возвращают значение, которое присваивают переменной.",
-      "In Blockly: the Text category — the “text input” and “numeric input” blocks; they return a value you assign to a variable."
+      "In Blockly: the Text category — the “text input” and “number input” blocks; they return a value you assign to a variable."
     )),
 
   string_concat: () =>
