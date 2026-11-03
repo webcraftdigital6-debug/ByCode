@@ -50,8 +50,8 @@ describe("абзац про тулбокс цитирует только наз�
   for (const id of Object.keys(tasks) as TaskId[]) {
     it(`${id}: RU и EN`, () => {
       for (const [lang, heading] of [
-        ["ru", /Откуда брать блоки/i],
-        ["en", /Where to get the blocks/i],
+        ["ru", /Откуда брать блоки|Какие блоки в деле/i],
+        ["en", /Where to get the blocks|Which blocks are involved/i],
       ] as const) {
         const paragraph = blocksParagraph(tasks[id].description(lang), heading);
         if (!paragraph) continue;

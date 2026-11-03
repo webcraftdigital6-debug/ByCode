@@ -289,6 +289,8 @@ const BLOCK_TERMS: Record<HintTermStyle, string[]> = {
     "Create variable…",
   ],
   procedure_category: [
+    "чтобы …",
+    "to …",
     "создать функцию … вернуться",
     "создать функцию с возвратом …",
     "создать функцию …",
