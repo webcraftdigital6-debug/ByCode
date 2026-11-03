@@ -205,14 +205,8 @@ const pyInput = {
   // Убираем args0, поле подсказки больше не требуется
   output: ["String", "Number"],
   colour: 160,
-  tooltip: "Python input()",
+  tooltip: "%{BKY_PY_INPUT_TOOLTIP}",
   helpUrl: "",
-  init: function (this: Blockly.Block) {
-    this.setColour(160);
-    // Блок может возвращать строку или число
-    this.setOutput(true, ["String", "Number"]);
-    this.setTooltip("Python input()");
-  },
 };
 
 // Блок для ввода числа: конвертирует input() в число
@@ -221,13 +215,8 @@ const pyInputNumber = {
   message0: "%{BKY_PY_INPUT_NUMBER}",
   output: "Number",
   colour: 160,
-  tooltip: "Numeric input()",
+  tooltip: "%{BKY_PY_INPUT_NUMBER_TOOLTIP}",
   helpUrl: "",
-  init: function (this: Blockly.Block) {
-    this.setColour(160);
-    this.setOutput(true, "Number");
-    this.setTooltip("Numeric input()");
-  },
 };
 
 // Создаём определения блоков из JSON-конфигураций.

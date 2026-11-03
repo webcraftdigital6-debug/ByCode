@@ -18,6 +18,8 @@ import * as Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
 import { forBlock as jsForBlock } from "../src/generators/javascript";
 import { tasks } from "../src/tasks";
+import "../src/blocks/text";
+import { setAppLang } from "../src/localization";
 import { GLOSSARY_TOPICS, glossaryTopicHtml } from "../src/ui/glossary";
 import { INPUT_ANSWERS, makeInput } from "./interactive-input";
 import type { TaskId } from "../src/tasks";
@@ -229,5 +231,39 @@ describe("задачи на ввод: тексты объясняют блок",
       expect(tasks[id].description("ru")).toMatch(/останавливает|ждёт/);
       expect(tasks[id].description("en")).toMatch(/pauses|waits/);
     }
+  });
+});
+
+const INPUT_BLOCK_TYPES = ["py_input", "py_input_number"];
+
+describe("блоки ввода: подсказка при наведении", () => {
+  it("подсказка не показывает внутренности Blockly", () => {
+    setAppLang("ru");
+    const ws = new Blockly.Workspace();
+    for (const type of INPUT_BLOCK_TYPES) {
+      expect(
+        String(ws.newBlock(type).getTooltip()),
+        type
+      ).not.toMatch(/input\(\)|python/i);
+    }
+    ws.dispose();
+  });
+
+  it("RU и EN подсказки приходят из Blockly.Msg", () => {
+    setAppLang("ru");
+    const ru = new Blockly.Workspace();
+    for (const type of INPUT_BLOCK_TYPES) {
+      expect(String(ru.newBlock(type).getTooltip()), type).toContain("ученик");
+    }
+    ru.dispose();
+    setAppLang("en");
+    const en = new Blockly.Workspace();
+    for (const type of INPUT_BLOCK_TYPES) {
+      expect(String(en.newBlock(type).getTooltip()).toLowerCase(), type).toContain(
+        "student"
+      );
+    }
+    en.dispose();
+    setAppLang("ru");
   });
 });

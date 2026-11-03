@@ -50,7 +50,11 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.HSV_VALUE = "HSV цвет: %1";
     (BlocklyCore as any).Msg.HSV_VALUE_TOOLTIP = "Поле выбора цвета HSV";
     (BlocklyCore as any).Msg.PY_INPUT = "Ввод текста";
+    (BlocklyCore as any).Msg.PY_INPUT_TOOLTIP =
+      "Остановить программу и ждать, пока ученик введёт текст";
     (BlocklyCore as any).Msg.PY_INPUT_NUMBER = "Ввод числа";
+    (BlocklyCore as any).Msg.PY_INPUT_NUMBER_TOOLTIP =
+      "Остановить программу и ждать, пока ученик введёт число";
     (BlocklyCore as any).Msg.DICT_CREATE = "Словарь: создать пустой";
     (BlocklyCore as any).Msg.DICT_CREATE_TOOLTIP =
       "Создаёт пустой словарь (набор пар «ключ → значение»)";
@@ -94,7 +98,11 @@ export function setAppLang(lang: AppLang): void {
     (BlocklyCore as any).Msg.HSV_VALUE = "HSV color: %1";
     (BlocklyCore as any).Msg.HSV_VALUE_TOOLTIP = "HSV color picker field";
     (BlocklyCore as any).Msg.PY_INPUT = "Text input";
+    (BlocklyCore as any).Msg.PY_INPUT_TOOLTIP =
+      "Pause the program and wait for the student to type text";
     (BlocklyCore as any).Msg.PY_INPUT_NUMBER = "Number input";
+    (BlocklyCore as any).Msg.PY_INPUT_NUMBER_TOOLTIP =
+      "Pause the program and wait for the student to type a number";
     (BlocklyCore as any).Msg.DICT_CREATE = "Dictionary: create empty";
     (BlocklyCore as any).Msg.DICT_CREATE_TOOLTIP =
       "Creates an empty dictionary (a set of key → value pairs)";
