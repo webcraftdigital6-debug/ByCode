@@ -4,7 +4,9 @@
  *    ученика, обязан проходить валидацию на 3★;
  * 2) решение засчитывается именно по введённым значениям: другой вердикт,
  *    чужая сумма, неполный счёт или чужая таблица — не проходят;
- * 3) пустой вывод не проходит ни одну задачу серии.
+ * 3) пустой вывод не проходит ни одну задачу серии;
+ * 4) тексты задач называют блок ввода своими словами и объясняют, что он
+ *    делает во время запуска, — без внутренних id Blockly.
  *
  * Ответы и строку-эхо «> ответ» даёт tests/interactive-input.ts — так тест
  * повторяет поведение окна вывода (src/codeExecution.ts).
@@ -164,4 +166,50 @@ describe("задачи на ввод: пустой вывод не засчит�
       expect(res.stars).toBe(0);
     });
   }
+});
+
+/**
+ * Все задачи, решение которых читает ответ ученика: серия in_* плюс задачи,
+ * где ввод появился раньше (переменные, циклы, «найди ошибку», игра).
+ */
+const ALL_INPUT_TASKS: TaskId[] = [
+  ...INPUT_TASKS,
+  "chatterbox",
+  "loop_while_input",
+  "guess_game",
+  "fb_input",
+];
+
+/** id блоков из src/blocks — ученик обязан видеть названия из тулбокса. */
+const RAW_BLOCK_IDS = ["py_input", "dict_create_with"];
+
+describe("задачи на ввод: тексты объясняют блок", () => {
+  it("ни один текст задачи не показывает внутренний id блока", () => {
+    for (const id of Object.keys(tasks) as TaskId[]) {
+      for (const lang of ["ru", "en"] as const) {
+        const text = `${tasks[id].description(lang)} ${tasks[id].hint(lang)}`;
+        for (const rawId of RAW_BLOCK_IDS) {
+          expect(
+            text,
+            `${id} (${lang}): в тексте задачи не должно быть id блока «${rawId}»`
+          ).not.toContain(rawId);
+        }
+      }
+    }
+  });
+
+  for (const id of ALL_INPUT_TASKS) {
+    it(`${id}: описание называет блок ввода`, () => {
+      expect(tasks[id].description("ru")).toMatch(/Ввод (текста|числа)/);
+      // В англоязычных текстах блок подписывают и «number», и «numeric input».
+      expect(tasks[id].description("en")).toMatch(/(text|number|numeric) input/i);
+    });
+  }
+
+  it("задачи, где ввод появился впервые, объясняют поведение при запуске", () => {
+    for (const id of ["guess_game", "fb_input"] as TaskId[]) {
+      expect(tasks[id].description("ru")).toMatch(/останавливает|ждёт/);
+      expect(tasks[id].description("en")).toMatch(/pauses|waits/);
+    }
+  });
 });
