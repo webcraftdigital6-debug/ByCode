@@ -26,7 +26,7 @@ function quotedPhrases(html: string): string[] {
 
 /** Абзац «Откуда брать блоки» / "Where to get the blocks" целиком. */
 function blocksParagraph(html: string, heading: RegExp): string | null {
-  for (const seg of html.split(/<br\s*\/><br\s*\/>/)) {
+  for (const seg of html.split(/<br\s*\/?>\s*<br\s*\/?>/i)) {
     if (heading.test(seg)) return seg;
   }
   return null;
